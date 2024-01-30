@@ -12,3 +12,6 @@ Delete Relationship: Remove connections between classes.
 Add Attribute: Attach attributes to classes.
 Delete Attribute: Remove attribute from classes.
 Save/Load: Store and retrieve diagrams.
+
+Authors: 
+   Simeon Belayneh , Natnael Thehaye, Ram Gurung, David Marquez
