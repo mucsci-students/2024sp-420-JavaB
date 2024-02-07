@@ -5,6 +5,24 @@ import java.util.ArrayList;
  */
 public interface UMLStructure {
     /**
+     * Retrieves all classes in the UML structure.
+     * @return An ArrayList containing all ClassObject instances.
+     */
+    ArrayList<classDiagram> getClasses();
+
+    /**
+     * Retrieves all relationships in the UML structure.
+     * @return An ArrayList containing all Relationship instances.
+     */
+    ArrayList<Relationship> getRelationships();
+
+    /**
+     * Checks if a class exists.
+     * @param className The name of the class to check.
+     */
+    void hasClass(String className);
+    /**
+     *
      * Creates a new class.
      * @param className The name of the class to be created.
      */
@@ -70,29 +88,11 @@ public interface UMLStructure {
      * Stores the diagram to a file.
      * @param fileName The name of the file to which the diagram will be saved.
      */
-    void saveDiagramToFile(String fileName);
+    void saveToJSON(String fileName);
 
     /**
      * Retrieves the diagram from a file.
      * @param fileName The name of the file from which the diagram will be loaded.
      */
-    void loadDiagramFromFile(String fileName);
-
-    /**
-     * Retrieves all classes in the UML structure.
-     * @return An ArrayList containing all ClassObject instances.
-     */
-    ArrayList<classDiagram> getClasses();
-
-    /**
-     * Retrieves all relationships in the UML structure.
-     * @return An ArrayList containing all Relationship instances.
-     */
-    ArrayList<Relationship> getRelationships();
-
-    /**
-     * Checks if a class exists.
-     * @param className The name of the class to check.
-     */
-    void hasClass(String className);
+    void loadFromJSON(String fileName);
 }
