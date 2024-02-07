@@ -21,6 +21,11 @@ public class AttributeAndMethodLayOut {
      * @param visibility visibility of the object.
      */
     public AttributeAndMethodLayOut(String name, String  type, Boolean visibility){
+        if (name == null || name.isBlank()) {
+            throw new Exception("Invalid name please inter valid name: ");
+        } else if(type == null || type.isBlank()){
+            throw new Exception("Invalid data type please inter valid data type: ");
+        }
         this.name = name;
         this.type = type;
         this.visibility = visibility;
