@@ -1,26 +1,26 @@
 import java.util.Objects;
 /**
- *  Class that help to structure the lay out of attribute name and method name
+ *  Class that helps to structure the layout of attribute name and method name
  *  with their type and visibility.
  */
 public class AttributeAndMethodLayOut {
     /**
-     * Attributes and methods has visibility , name and type.
+     * Attributes and methods have visibility, name, and type.
      *  e.g
      *    +Id: int
      *    +managerID()
      */
     private String name;
     private  String type;
-    private String visibility;
+    private Boolean visibility;
 
     /**
-     * Constructor to initializes attribute and methods with their parameter.
+     * Constructor to initialize attributes and methods with their parameter.
      * @param name The name of the object.
      * @param type Type of the object.
      * @param visibility visibility of the object.
      */
-    public AttributeAndMethodLayOut(String name, String  type, String visibility){
+    public AttributeAndMethodLayOut(String name, String  type, Boolean visibility){
         this.name = name;
         this.type = type;
         this.visibility = visibility;
@@ -46,13 +46,13 @@ public class AttributeAndMethodLayOut {
      * Get the visibility of the object.
      * @return the visibility of the object.
      */
-    public String getVisibility(){
+    public Boolean getVisibility(){
         return visibility;
     }
 
     /**
-     * Set the object name with new name.
-     * @param newName New name for object.
+     * Set the object name with a new name.
+     * @param newName New name for an object.
      */
     public void setName(String newName) {
         this.name = newName;
@@ -70,15 +70,15 @@ public class AttributeAndMethodLayOut {
      * Set a new visibility for the object.
      * @param newVisibility new visibility for the object.
      */
-    public void setVisibility(String newVisibility) {
+    public void setVisibility(Boolean newVisibility) {
         this.visibility = newVisibility;
     }
 
     /**
-     * This methode will check whether the instance of another object can not have same name
+     * This method will check whether the instance of another object can not have the same name
      * this one.
      * @param obj Object name.
-     * @return true if their same name otherwise false.
+     * @return true if their same name is otherwise false.
      */
     public boolean equals(Object obj) {
         if(obj instanceof AttributeAndMethodLayOut){
