@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://url.com/class.schema.json",
+  "title": "Object schema",
+  "description": "An object in a program",
+  "type": "object",
+  "properties": {
+    "objectId": {
+        "description": "A unique identifier for the object",
+        "type": "integer"
+    },
+    "objectName": {
+        "description": "Name for the object",
+        "type": "string"
+    },
+    "numAttributes": {
+        "descriptions": "Number of attributes belonging to a class",
+        "type": "integer",
+        "minimum": 0
+    },
+    "tags": {
+        "description" :"Array of relationships, using objectId",
+        "type": "array",
+        "items": {
+            "type": "integer"
+        },
+        "minItems": 1,
+        "uniqueItems": true
+    }
+  },
+  "required": ["objectId", "objectName", "numAttributes"]
+}
