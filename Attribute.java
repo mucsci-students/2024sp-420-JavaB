@@ -3,7 +3,7 @@ import java.util.Objects;
  *  Class that help to structure the lay out of attribute name and method name
  *  with their type.
  */
-public class Attribute {
+public class Attribute extends AttributeAndMethodLayOut {
     /**
      * Attributes and methods hasname and type.
      *  e.g
