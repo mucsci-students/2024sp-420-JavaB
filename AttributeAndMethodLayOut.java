@@ -1,7 +1,7 @@
 import java.util.Objects;
 /**
  *  Class that helps to structure the layout of attribute name and method name
- *  with their type and visibility.
+ *  with their type.
  */
 public class AttributeAndMethodLayOut {
     /**
