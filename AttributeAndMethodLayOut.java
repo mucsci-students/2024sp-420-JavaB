@@ -5,14 +5,13 @@ import java.util.Objects;
  */
 public class AttributeAndMethodLayOut {
     /**
-     * Attributes and methods have visibility, name, and type.
+     * Attributes and methods have name and type.
      *  e.g
      *    +Id: int
      *    +managerID()
      */
     private String name;
     private  String type;
-    private Boolean visibility;
 
     /**
      * Constructor to initialize attributes and methods with their parameter.
@@ -21,11 +20,7 @@ public class AttributeAndMethodLayOut {
      * @param visibility visibility of the object.
      */
     public AttributeAndMethodLayOut(String name, String  type, Boolean visibility){
-        if (name == null || name.isBlank()) {
-            throw new Exception("Invalid name please inter valid name: ");
-        } else if(type == null || type.isBlank()){
-            throw new Exception("Invalid data type please inter valid data type: ");
-        }
+        
         this.name = name;
         this.type = type;
         this.visibility = visibility;
@@ -48,35 +43,11 @@ public class AttributeAndMethodLayOut {
     }
 
     /**
-     * Get the visibility of the object.
-     * @return the visibility of the object.
-     */
-    public Boolean getVisibility(){
-        return visibility;
-    }
-
-    /**
-     * Set the object name with a new name.
-     * @param newName New name for an object.
-     */
-    public void setName(String newName) {
-        this.name = newName;
-    }
-
-    /**
      * Set a new type for the object.
      * @param newType New type name for the object be set.
      */
     public void setType(String newType) {
         this.type = newType;
-    }
-
-    /**
-     * Set a new visibility for the object.
-     * @param newVisibility new visibility for the object.
-     */
-    public void setVisibility(Boolean newVisibility) {
-        this.visibility = newVisibility;
     }
 
     /**
