@@ -1,7 +1,7 @@
 import java.util.Objects;
 /**
  *  Class that help to structure the lay out of attribute name and method name
- *  with their type and visibility.
+ *  with their type.
  */
 public class Attribute {
     /**
@@ -18,7 +18,6 @@ public class Attribute {
      * Constructor to initializes attribute and methods with their parameter.
      * @param name The name of the object.
      * @param type Type of the object.
-     * @param visibility visibility of the object.
      */
     public Attribute(String name, String  type){
         this.name = name;
