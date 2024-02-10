@@ -5,14 +5,14 @@ import java.util.Objects;
  */
 public class Attribute {
     /**
-     * Attributes and methods has visibility,name and type.
+     * Attributes and methods hasname and type.
      *  e.g
      *    +Id: int
      *    +managerID()
      */
     private String name;
     private  String type;
-    public String visibility;
+   
 
     /**
      * Constructor to initializes attribute and methods with their parameter.
@@ -20,10 +20,9 @@ public class Attribute {
      * @param type Type of the object.
      * @param visibility visibility of the object.
      */
-    public Attribute(String name, String  type, String visibility){
+    public Attribute(String name, String  type){
         this.name = name;
         this.type = type;
-        this.visibility = visibility;
     }
 
     /**
@@ -43,14 +42,6 @@ public class Attribute {
     }
 
     /**
-     * Get the visibility of the object.
-     * @return the visibility of the object.
-     */
-    public String getVisibility(){
-        return visibility;
-    }
-
-    /**
      * Set the object name with new name.
      * @param newName New name for object.
      */
@@ -65,15 +56,6 @@ public class Attribute {
     public void setType(String newType) {
         this.type = newType;
     }
-
-    /**
-     * Set a new visibility for the object.
-     * @param newVisibility new visibility for the object.
-     */
-    public void setVisibility(String newVisibility) {
-        this.visibility = newVisibility;
-    }
-
     /**
      * This methode will check whether the instance of another object can not have same name
      * this one.
