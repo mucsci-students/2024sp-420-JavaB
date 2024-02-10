@@ -26,7 +26,6 @@ public class Relationship {
         this.source = source;
         this.destination = destination;
         ID = id;
-       
     }
 
     /**
@@ -107,6 +106,5 @@ public class Relationship {
         return "Relationship ID: " + ID + "\n" +
                 "Relationship source: " + source + "\n" +
                 "Relationship destination: " + destination + "\n";
-           
     }
 }
