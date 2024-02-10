@@ -1,32 +1,83 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://url.com/class.schema.json",
-  "title": "Object schema",
-  "description": "An object in a program",
-  "type": "object",
-  "properties": {
-    "objectId": {
-        "description": "A unique identifier for the object",
-        "type": "integer"
-    },
-    "objectName": {
-        "description": "Name for the object",
-        "type": "string"
-    },
-    "numAttributes": {
-        "descriptions": "Number of attributes belonging to a class",
-        "type": "integer",
-        "minimum": 0
-    },
-    "tags": {
-        "description" :"Array of relationships, using objectId",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://url.com/class.schema.json",
+    "title": "UML Diagram Schema",
+    "description": "Schema for representing a UML diagram",
+    "type": "object",
+    "properties": {
+      "classes": {
+        "description": "List of classes in the UML diagram",
         "type": "array",
         "items": {
-            "type": "integer"
-        },
-        "minItems": 1,
-        "uniqueItems": true
-    }
-  },
-  "required": ["objectId", "objectName", "numAttributes"]
-}
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "Name of the class",
+              "type": "string"
+            },
+            "attributes": {
+              "description": "List of attributes belonging to the class",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "description": "Name of the attribute",
+                    "type": "string"
+                  },
+                  "type": {
+                    "description": "Data type of the attribute",
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "type"]
+              }
+            },
+            "methods": {
+              "description": "List of methods belonging to the class",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "description": "Name of the method",
+                    "type": "string"
+                  },
+                  "returnType": {
+                    "description": "Return type of the method",
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "returnType"]
+              }
+            }
+          },
+          "required": ["name", "attributes", "methods"]
+        }
+      },
+      "relationships": {
+        "description": "List of relationships between classes",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "description": "Name of the source class",
+              "type": "string"
+            },
+            "destination": {
+              "description": "Name of the destination class",
+              "type": "string"
+            },
+            "type": {
+              "description": "Type of relationship",
+              "type": "string"
+            }
+          },
+          "required": ["source", "destination", "type"]
+        }
+      }
+    },
+    "required": ["classes", "relationships"]
+  }
+  
