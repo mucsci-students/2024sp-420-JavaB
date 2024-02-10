@@ -17,13 +17,11 @@ public class AttributeAndMethodLayOut {
      * Constructor to initialize attributes and methods with their parameter.
      * @param name The name of the object.
      * @param type Type of the object.
-     * @param visibility visibility of the object.
      */
-    public AttributeAndMethodLayOut(String name, String  type, Boolean visibility){
+    public AttributeAndMethodLayOut(String name, String  type){
         
         this.name = name;
         this.type = type;
-        this.visibility = visibility;
     }
 
     /**
