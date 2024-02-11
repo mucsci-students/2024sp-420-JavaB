@@ -1,70 +1,37 @@
 import java.util.Objects;
+
 /**
- *  Class that help to structure the lay out of attribute name and method name
- *  with their type.
+ * A class that represents an attribute of a UML class.
  */
 public class Attribute extends AttributeAndMethodLayOut {
-    /**
-     * Attributes and methods hasname and type.
-     *  e.g
-     *    +Id: int
-     *    +managerID()
-     */
-    private String name;
-    private  String type;
-   
 
     /**
-     * Constructor to initializes attribute and methods with their parameter.
-     * @param name The name of the object.
-     * @param type Type of the object.
+     * Initializes an attribute object with a name, type, and className.
+     * @param name The name of the attribute.
+     * @param type The type of the attribute.
+     * @param className 
      */
-    public Attribute(String name, String  type){
-        this.name = name;
-        this.type = type;
+    public Attribute(String name, String type, String className) {
+        super(name, type);
     }
 
     /**
-     * Get the name of the object.
-     * @return Then of the object.
+     * Returns a string representation of the attribute containing its name and type.
      */
-    public String getName(){
-        return name;
+    public String toString() {
+        return  getName() + ": " + getType();
     }
 
     /**
-     * Get the data type of the object.
-     * @return the type of the object.
-     */
-    public String getType(){
-        return type;
-    }
-
-    /**
-     * Set the object name with new name.
-     * @param newName New name for object.
-     */
-    public void setName(String newName) {
-        this.name = newName;
-    }
-
-    /**
-     * Set a new type for the object.
-     * @param newType New type name for the object be set.
-     */
-    public void setType(String newType) {
-        this.type = newType;
-    }
-    /**
-     * This methode will check whether the instance of another object can not have same name
-     * this one.
-     * @param obj Object name.
-     * @return true if their same name otherwise false.
+     * Checks whether this attribute is equal to another object.
+     * Attributes are considered equal if they have the same name.
+     * @param obj The object to compare.
+     * @return true if the objects are equal, false otherwise.
      */
     public boolean equals(Object obj) {
-        if(obj instanceof Attribute){
-            Attribute check = (Attribute) obj;
-            return Objects.equals(this.name, check.name);
+        if (obj instanceof AttributeAndMethodLayOut) {
+            AttributeAndMethodLayOut check = (AttributeAndMethodLayOut) obj;
+            return Objects.equals(this.getName(), check.getName());
         }
         return false;
     }
