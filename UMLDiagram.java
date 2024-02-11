@@ -47,6 +47,10 @@ public class UMLDiagram implements UMLStructure {
 	 *         exists.
 	 */
 	public boolean addClass(String className) {
+		
+		    if (className == null || className.isEmpty()) {
+		        return false; // Reject null or empty class names
+		    }
 		if (!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className));
 			return true;
@@ -62,17 +66,14 @@ public class UMLDiagram implements UMLStructure {
 	 *         not exist.
 	 */
 	public boolean deleteClass(String className) {
-		if (classNameMapToName.containsKey(className)) {
-			classNameMapToName.remove(className);
-			// Remove any relationships involving this class
-			classMapToRelation.values().forEach(relationship -> {
-				if (relationship.getSource().equals(className) || relationship.getDestination().equals(className)) {
-					classMapToRelation.remove(relationship.getId());
-				}
-			});
-			return true;
-		}
-		return false;
+	    if (classNameMapToName.containsKey(className)) {
+	        classNameMapToName.remove(className);
+	        // Remove any relationships involving this class
+	        classMapToRelation.values().removeIf(relationship ->
+	                relationship.getSource().equals(className) || relationship.getDestination().equals(className));
+	        return true;
+	    }
+	    return false;
 	}
 
 	/**
@@ -84,6 +85,10 @@ public class UMLDiagram implements UMLStructure {
 	 *         not exist or newName is already in use.
 	 */
 	public boolean renameClass(String oldName, String newName) {
+		
+		    if (newName == null || newName.isEmpty()) {
+		        return false; // New name cannot be null or empty
+		    }
 		if (classNameMapToName.containsKey(oldName) && !classNameMapToName.containsKey(newName)) {
 			UMLClass umlClass = classNameMapToName.remove(oldName);
 			umlClass.setName(newName);
@@ -103,24 +108,55 @@ public class UMLDiagram implements UMLStructure {
 	}
 
 	// Method to add a relationship to the diagram
-	public boolean addRelationship(String class1, String class2, String ID) {
-		if (!classMapToRelation.containsKey(ID) && classNameMapToName.containsKey(class1)
-				&& classNameMapToName.containsKey(class2)) {
-			classMapToRelation.put(ID, new Relationship(class1, class2, ID));
-			return true;
-		}
-		return false;
+	public boolean addRelationship(String class1, String class2) {
+	    if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty()) {
+	        return false; // Reject null or empty class names
+	    }
+
+	    // Check if both classes exist in the diagram
+	    if (classNameMapToName.containsKey(class1) && classNameMapToName.containsKey(class2)) {
+	        // Check if the relationship already exists
+	        if (!relationshipExists(class1, class2)) {
+	            // Add the relationship
+	            classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2));
+	            return true; // Relationship successfully added
+	        }
+	    }
+	    return false;
 	}
 
-	// Method to delete a relationship from the diagram
-	public boolean deleteRelationship(String sourceClass, String destinationClass, String ID) {
-		String relationshipKey = sourceClass + "-" + destinationClass + "-" + ID;
-		if (classMapToRelation.containsKey(relationshipKey)) {
-			classMapToRelation.remove(relationshipKey);
-			return true;
-		}
-		return false;
+	/**
+	 * Deletes a relationship between two classes from the UML diagram.
+	 *
+	 * @param sourceClass      The name of the source class.
+	 * @param destinationClass The name of the destination class.
+	 * @return true if the relationship was successfully deleted, false otherwise.
+	 */
+	public boolean deleteRelationship(String sourceClass, String destinationClass) {
+	    // Construct the relationship key
+	    String relationshipKey = generateRelationshipKey(sourceClass, destinationClass);
+
+	    // Check if the relationship exists
+	    if (classMapToRelation.containsKey(relationshipKey)) {
+	        // Remove the relationship
+	        classMapToRelation.remove(relationshipKey);
+	        return true; // Relationship successfully deleted
+	    }
+	    return false; // Relationship does not exist
 	}
+
+	// Helper method to generate a unique key for a relationship
+	private String generateRelationshipKey(String sourceClass, String destinationClass) {
+	    return sourceClass + "-" + destinationClass;
+	}
+
+	// Helper method to check if a relationship exists between two classes
+	private boolean relationshipExists(String class1, String class2) {
+	    String key1 = generateRelationshipKey(class1, class2);
+	    String key2 = generateRelationshipKey(class2, class1);
+	    return classMapToRelation.containsKey(key1) || classMapToRelation.containsKey(key2);
+	}
+
 
 	/**
 	 * Adds an attribute to a class in the UML diagram.
@@ -163,11 +199,15 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the attribute was successfully renamed, false if the class
 	 *         does not exist or the attribute does not exist.
 	 */
-	public boolean renameAttribute(String className, String attributeName, String newName) {
-		if (classNameMapToName.containsKey(className)) {
-			return classNameMapToName.get(className).renameAttribute(attributeName, newName);
-		}
-		return false;
+	public boolean renameAttribute(String className, String oldAttributeName, String newAttributeName) {
+	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)) {
+	        return false; // Reject if new name is null, empty, or class does not exist
+	    }
+	    UMLClass umlClass = classNameMapToName.get(className);
+	    if (umlClass != null && umlClass.containsAttribute(oldAttributeName)) {
+	        return umlClass.renameAttribute(oldAttributeName, newAttributeName);
+	    }
+	    return false;
 	}
 
 	/**
@@ -196,10 +236,10 @@ public class UMLDiagram implements UMLStructure {
 
 	// Method to rename a method in a class in the UML diagram
 	public boolean renameMethod(String className, String originalName, String newName) {
-		if (classNameMapToName.containsKey(className)) {
-			return classNameMapToName.get(className).renameMethod(originalName, newName);
-		}
-		return false;
+	    if (classNameMapToName.containsKey(className) && originalName != null && newName != null) {
+	        return classNameMapToName.get(className).renameMethod(originalName, newName);
+	    }
+	    return false;
 	}
 
 	/**
