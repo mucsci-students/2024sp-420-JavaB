@@ -1,3 +1,5 @@
+package UMLL;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -95,7 +97,7 @@ public class UMLCli {
 
     // Display the menu
     private static void displayMenu() {
-        System.out.println("  ");
+    	System.out.println("  ");
         System.out.println("\n		Menu:");
         System.out.println("AddClass - Creates a new class.");
         System.out.println("DeleteClass - Deletes a class.");
@@ -259,19 +261,17 @@ public class UMLCli {
         }
     }
 
-    // Method to add a relationship between classes
     private static void addRelationship() {
-        System.out.println("Enter the name of the first class in the relationship: ");
-        String class1 = scanner.next();
-        System.out.print("Enter the name of the second class in the relationship: ");
-        String class2 = scanner.next();
+        System.out.println("Enter the name of the source class: ");
+        String sourceClass = scanner.next();
+        System.out.println("Enter the name of the destination class: ");
+        String destinationClass = scanner.next();
 
-        String ID = class1 + "--" + class2;
-        boolean success = umlDiagram.addRelationship(class1, class2, ID);
+        boolean success = umlDiagram.addRelationship(sourceClass, destinationClass);
         if (success) {
-            System.out.println("Relationship added successfully between " + class1 + " and " + class2 + ".");
+            System.out.println("Relationship added successfully.");
         } else {
-            System.out.println("Failed to add relationship between " + class1 + " and " + class2 + ".");
+            System.out.println("Failed to add relationship.");
         }
     }
 
@@ -281,8 +281,8 @@ public class UMLCli {
         String class1 = scanner.next();
         System.out.print("Enter the name of the second class in the relationship: ");
         String class2 = scanner.next();
-        String ID = class1 + "--" + class2;
-        boolean success = umlDiagram.deleteRelationship(class1, class2, ID);
+        
+        boolean success = umlDiagram.deleteRelationship(class1, class2);
         if (success) {
             System.out.println("Relationship deleted successfully between " + class1 + " and " + class2 + ".");
         } else {
@@ -290,19 +290,22 @@ public class UMLCli {
         }
     }
 
-    // Method to save the UML diagram to a JSON file
+
+
+
+ // Method to save the UML diagram to a JSON file
     private static void saveDiagram() {
         System.out.print("Enter the file path to save the diagram (JSON format): ");
         String filePath = scanner.next().trim();
         try (FileWriter writer = new FileWriter(filePath)) {
             JsonObject jsonDiagram = new JsonObject();
-
+            
             // Convert classes to JSON array
             JsonArray jsonClasses = new JsonArray();
             for (UMLClass umlClass : umlDiagram.getClasses()) {
                 JsonObject jsonClass = new JsonObject();
                 jsonClass.addProperty("name", umlClass.getName());
-
+                
                 JsonArray jsonAttributes = new JsonArray();
                 for (Attribute attribute : umlClass.getAttributes()) {
                     JsonObject jsonAttribute = new JsonObject();
@@ -311,7 +314,7 @@ public class UMLCli {
                     jsonAttributes.add(jsonAttribute);
                 }
                 jsonClass.add("attributes", jsonAttributes);
-
+                
                 JsonArray jsonMethods = new JsonArray();
                 for (Method method : umlClass.getMethods()) {
                     JsonObject jsonMethod = new JsonObject();
@@ -320,22 +323,21 @@ public class UMLCli {
                     jsonMethods.add(jsonMethod);
                 }
                 jsonClass.add("methods", jsonMethods);
-
+                
                 jsonClasses.add(jsonClass);
             }
             jsonDiagram.add("classes", jsonClasses);
-
+            
             // Convert relationships to JSON array
             JsonArray jsonRelationships = new JsonArray();
             for (Relationship relationship : umlDiagram.getRelationships()) {
                 JsonObject jsonRelationship = new JsonObject();
                 jsonRelationship.addProperty("source", relationship.getSource());
                 jsonRelationship.addProperty("destination", relationship.getDestination());
-
                 jsonRelationships.add(jsonRelationship);
             }
             jsonDiagram.add("relationships", jsonRelationships);
-
+            
             gson.toJson(jsonDiagram, writer);
             System.out.println("Diagram saved successfully to " + filePath + ".");
         } catch (IOException e) {
@@ -385,9 +387,7 @@ public class UMLCli {
                 JsonObject jsonRelationship = element.getAsJsonObject();
                 String source = jsonRelationship.get("source").getAsString();
                 String destination = jsonRelationship.get("destination").getAsString();
-                String type = jsonRelationship.get("type").getAsString();
-                String ID = source + "-" + destination;
-                umlDiagram.addRelationship(source, destination, ID);
+                umlDiagram.addRelationship(source, destination);
             }
 
             System.out.println("Diagram loaded successfully from " + filePath + ".");
@@ -396,6 +396,7 @@ public class UMLCli {
         }
     }
 
+
     // Method to list all classes in the UML diagram
     private static void listClasses() {
         ArrayList<UMLClass> classes = umlDiagram.getClasses();
@@ -403,7 +404,7 @@ public class UMLCli {
         for (UMLClass umlClass : classes) {
             System.out.println("- " + umlClass.getName());
         }
-
+        
     }
 
     // Method to list the contents of a specified class in the UML diagram
@@ -482,7 +483,7 @@ public class UMLCli {
         } else {
             System.out.println("Exited without Saving.");
         }
-
+       
     }
 
 }
