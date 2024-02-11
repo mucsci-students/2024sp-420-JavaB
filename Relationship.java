@@ -11,7 +11,7 @@ public class Relationship {
      * Constructs an empty Relationship object.
      */
     public Relationship() {
-        
+
     }
 
     /**
@@ -62,7 +62,7 @@ public class Relationship {
     public String getId() {
         return ID;
     }
-
+  
     /**
      * Gets the name of the source class in the relationship.
      *
@@ -84,11 +84,12 @@ public class Relationship {
     /**
      * Returns a string representation of the Relationship object.
      *
-     * @return A string representation including the relationship ID, source and destination.
+     * @return A string representation including the relationship ID, source and destinatione.
      */
+    
     public String toString() {
         return "Relationship ID: " + ID + "\n" +
                 "Relationship source: " + source + "\n" +
-                "Relationship destination: " + destination + "\n";         
+                "Relationship destination: " + destination + "\n";
     }
 }
