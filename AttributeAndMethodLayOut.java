@@ -1,7 +1,7 @@
 import java.util.Objects;
 /**
  *  Class that helps to structure the layout of attribute name and method name
- *  with their type and visibility.
+ *  with their type.
  */
 public class AttributeAndMethodLayOut {
     /**
@@ -17,13 +17,10 @@ public class AttributeAndMethodLayOut {
      * Constructor to initialize attributes and methods with their parameter.
      * @param name The name of the object.
      * @param type Type of the object.
-     * @param visibility visibility of the object.
      */
-    public AttributeAndMethodLayOut(String name, String  type, Boolean visibility){
-        
+    public AttributeAndMethodLayOut(String name, String  type){
         this.name = name;
         this.type = type;
-        this.visibility = visibility;
     }
 
     /**
@@ -42,6 +39,15 @@ public class AttributeAndMethodLayOut {
         return type;
     }
 
+    /**
+     * Set the object name with new name.
+     * @param newName New name for object.
+     */
+    public void setName(String newName) {
+        this.name = newName;
+    }
+
+    
     /**
      * Set a new type for the object.
      * @param newType New type name for the object be set.
