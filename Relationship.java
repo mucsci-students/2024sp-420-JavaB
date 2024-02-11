@@ -20,7 +20,6 @@ public class Relationship {
      * @param source      The name of the source class in the relationship.
      * @param destination The name of the destination class in the relationship.
      * @param id          The identifier for the relationship.
-     * @param type        The type of relationship (e.g., 'Association', 'Inheritance').
      */
     public Relationship(String source, String destination, String id) {
         this.source = source;
@@ -36,13 +35,6 @@ public class Relationship {
     public void setId(String ID) {
         this.ID = ID;
     }
-
-    /**
-     * Sets the type of relationship.
-     *
-     * @param type The type to set.
-     */
-   
 
     /**
      * Sets the source class in the relationship.
@@ -70,14 +62,7 @@ public class Relationship {
     public String getId() {
         return ID;
     }
-
-    /**
-     * Gets the type of relationship.
-     *
-     * @return The type of the relationship.
-     */
-   
-
+  
     /**
      * Gets the name of the source class in the relationship.
      *
@@ -99,7 +84,7 @@ public class Relationship {
     /**
      * Returns a string representation of the Relationship object.
      *
-     * @return A string representation including the relationship ID, source, destination, and type.
+     * @return A string representation including the relationship ID, source and destinatione.
      */
     
     public String toString() {
