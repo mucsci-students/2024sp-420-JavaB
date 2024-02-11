@@ -19,7 +19,6 @@ public class AttributeAndMethodLayOut {
      * @param type Type of the object.
      */
     public AttributeAndMethodLayOut(String name, String  type){
-        
         this.name = name;
         this.type = type;
     }
@@ -40,6 +39,15 @@ public class AttributeAndMethodLayOut {
         return type;
     }
 
+    /**
+     * Set the object name with new name.
+     * @param newName New name for object.
+     */
+    public void setName(String newName) {
+        this.name = newName;
+    }
+
+    
     /**
      * Set a new type for the object.
      * @param newType New type name for the object be set.
