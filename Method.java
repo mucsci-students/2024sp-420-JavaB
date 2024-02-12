@@ -1,5 +1,3 @@
-package UMLL;
-
 /**
  * Represents a method in a UML diagram.
  */
