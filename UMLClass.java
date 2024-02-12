@@ -1,4 +1,4 @@
-package UMLL;
+package no;
 
 import java.util.*;
 
@@ -16,7 +16,7 @@ public class UMLClass {
 	 * 
 	 * @param String - The name of the class.
 	 * 
-	 * name cannot be null, nor empty, noe have empty spaces
+	 * name cannot be null, nor empty, or have empty spaces
 	 * 
 	 */
 	
@@ -25,9 +25,12 @@ public class UMLClass {
 	}
 	
 	public UMLClass(String name) {
-		this.className = name;
-		attributes = new ArrayList<Attribute>(); 
-		methods = new ArrayList<Method>();
+		if ( !(name == null ||  name == "" )) {
+			this.className = name;
+			attributes = new ArrayList<Attribute>(); 
+			methods = new ArrayList<Method>();
+		}
+		
 	}
 	
 	/**
@@ -38,7 +41,7 @@ public class UMLClass {
 	 */
 
 	public String getName() {
-		return className;		
+		return this.className;		
 	}
 	
 	/**
@@ -51,7 +54,9 @@ public class UMLClass {
 	 */
 
 	public void setName(String newName) {
+		if (!(newName == null || newName == "")) {
 		this.className = newName;
+		}
 	}
 	
 	
@@ -67,6 +72,10 @@ public class UMLClass {
 	 */
 
 	public boolean containsAttribute(String name) {
+		if (name == null || name == "") {
+			return false;
+		}
+		else
 		for(Attribute attribute : attributes) {
 			if(attribute.getName().equals(name)) {
 				return true;
@@ -110,8 +119,10 @@ public class UMLClass {
 	 * 
 	 */
 
-	public Attribute getAttribute(String name)
-	{
+	public Attribute getAttribute(String name){
+		if(name == null || name == "") {
+			return null;
+		}
 		for(Attribute attribute : attributes) {
 			if(attribute.getName().equals(name)) {
 				return attribute;
@@ -134,10 +145,14 @@ public class UMLClass {
 	 */
 
 	public boolean addAttribute(String name, String type, String className) {
+		if ((name == null || type == null || className == null || name == "" || type == "" || className == "") ) {
+			return false;
+		}
 		if(containsAttribute(name)) {
 			return false;
 		}
 		return attributes.add(new Attribute(name, type, className));
+		
 	}
 
 	/**
@@ -154,6 +169,9 @@ public class UMLClass {
 	 */
 
 	public boolean renameAttribute(String original, String newName) {
+		if(original == null || original == "" || newName == null || newName == "") {
+			return false;
+		}
 		if(!containsAttribute(original) && containsMethod(newName)) {
 			return false;
 		}
@@ -179,6 +197,9 @@ public class UMLClass {
 	 */
 
 	public boolean changeAttributeType(String name, String newType) {
+		if(name == null || name == "" || newType == null || newType == "") {
+			return false;
+		}
 		for(Attribute attribute : attributes) {
 			if(attribute.getName().equals(name)) {
 				attribute.setType(newType);
@@ -201,6 +222,9 @@ public class UMLClass {
 	 */
 
 	public boolean deleteAttribute(String name) {
+		if(name == null || name == "") {
+			return false;
+		}
 		if(!containsAttribute(name)) {
 			return false;
 		}
@@ -243,6 +267,9 @@ public class UMLClass {
 	 */
 
 	public boolean containsMethod(String name) {
+		if(name == null || name == "") {
+			return false;
+		}
 		for(Method method : methods) {
 			if(method.getName().equals(name)) {
 				return true;
@@ -288,8 +315,10 @@ public class UMLClass {
 	 * 
 	 */
 
-	public Method getMethod(String name)
-	{
+	public Method getMethod(String name){
+		if(name == null || name == "") {
+			return null;
+		}
 		for(Method method : methods) {
 			if(method.getName().equals(name)) {
 				return method;
@@ -312,6 +341,9 @@ public class UMLClass {
 	 */
 
 	public boolean addMethod(String name, String type) {
+		if(name == null || name == "" || type == null || type == "") {
+			return false;
+		}
 		if(containsMethod(name)) {
 			return false;
 		}
@@ -330,6 +362,9 @@ public class UMLClass {
 	 */
 
 	public boolean renameMethod(String name, String newName) {
+		if(name == null || name == "" || newName == null || newName == "") {
+			return false;
+		}
 		if(!containsMethod(name) && containsMethod(newName)) {
 			return false;
 		}
@@ -354,6 +389,9 @@ public class UMLClass {
 	 */
 
 	public boolean changeMethodType(String name, String type) {
+		if(name == null || name == "" || type == null || type == "") {
+			return false;
+		}
 		for(Method method : methods) {
 			if(method.getName().equals(name)) {
 				method.setType(type);
@@ -375,6 +413,9 @@ public class UMLClass {
 	 */
 
 	public boolean deleteMethod(String name) {
+		if(name == null || name == "") {
+			return false;
+		}
 		for(Method method : methods) {
 			if(method.getName().equals(name)) {
 				return methods.remove(method);
