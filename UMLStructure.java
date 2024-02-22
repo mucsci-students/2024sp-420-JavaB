@@ -62,7 +62,7 @@ public interface UMLStructure {
      * @param ID               The identifier for the relationship.
      * @return True if the relationship is successfully established, false otherwise.
      */
-    boolean addRelationship(String sourceClass, String destinationClass, String ID);
+    boolean addRelationship(String sourceClass, String destinationClass);
 
     /**
      * Removes a relationship between classes.
@@ -72,7 +72,7 @@ public interface UMLStructure {
      * @param ID               The identifier for the relationship.
      * @return True if the relationship is successfully removed, false otherwise.
      */
-    boolean deleteRelationship(String sourceClass, String destinationClass, String ID);
+    boolean deleteRelationship(String sourceClass, String destinationClass);
 
     /**
      * Adds an attribute to a class.

@@ -1,12 +1,15 @@
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class UMLCli {
     // Scanner object for user input
@@ -21,14 +24,20 @@ public class UMLCli {
         System.out.println("Welcome to NRDS UML Editor!");
 
         boolean exit = false;
+
+        // Display menu and get user choice
+        displayMenu();
+
         // Loop until the user chooses to exit
         while (!exit) {
-            // Display menu and get user choice
-            displayMenu();
+            
             String choice = getUserChoice();
 
             // Perform actions based on user choice
             switch (choice) {
+                case "menu":
+                    displayMenu();
+                    break;
                 case "addclass":
                     createClass();
                     break;
@@ -117,6 +126,7 @@ public class UMLCli {
         System.out.println("ListRelationships - List all relationships.");
         System.out.println("Save - Save diagram to JSON file.");
         System.out.println("Load - Load diagram from JSON file.");
+        System.out.println("Menu - Display main menu.");
         System.out.println("Help - Help.");
         System.out.println("Exit - Exit.");
         System.out.println("  ");
@@ -436,39 +446,41 @@ public class UMLCli {
     // Method to display help information about the commands supported by the UML CLI
     private static void help() {
         System.out.println("Help:");
-        System.out.println("This UML Diagram Editor CLI supports the following commands along with their parameters:");
+        System.out.println("This UML Diagram Editor CLI supports the following commands along with their arguments:\n");
         System.out.println("1. AddClass - Create a new class");
-        System.out.println("   Parameters: Name of the class");
+        System.out.println("   Arguments: Name of the class\n");
         System.out.println("2. DeleteClass - Delete a class");
-        System.out.println("   Parameters: Name of the class to delete");
+        System.out.println("   Arguments: Name of the class to delete\n");
         System.out.println("3. RenameClass - Rename a class");
-        System.out.println("   Parameters: Current name of the class, New name for the class");
+        System.out.println("   Arguments: Current name of the class, New name for the class\n");
         System.out.println("4. AddAttribute - Add an attribute to a class");
-        System.out.println("   Parameters: Name of the class, Name of the attribute, Type of the attribute");
+        System.out.println("   Arguments: Name of the class, Name of the attribute, Type of the attribute\n");
         System.out.println("5. DeleteAttribute - Delete an attribute from a class");
-        System.out.println("   Parameters: Name of the class, Name of the attribute to delete");
+        System.out.println("   Arguments: Name of the class, Name of the attribute to delete\n");
         System.out.println("6. RenameAttribute - Rename an attribute in a class");
-        System.out.println("   Parameters: Name of the class, Current name of the attribute, New name for the attribute");
+        System.out.println("   Arguments: Name of the class, Current name of the attribute, New name for the attribute\n");
         System.out.println("7. AddMethod - Add a method to a class");
-        System.out.println("   Parameters: Name of the class, Name of the method, Return type of the method");
+        System.out.println("   Arguments: Name of the class, Name of the method, Return type of the method\n");
         System.out.println("8. RemoveMethod - Delete a method from a class");
-        System.out.println("   Parameters: Name of the class, Name of the method to delete");
+        System.out.println("   Arguments: Name of the class, Name of the method to delete\n");
         System.out.println("9. ChangeMethod - Rename a method in a class");
-        System.out.println("   Parameters: Name of the class, Current name of the method, New name for the method");
+        System.out.println("   Arguments: Name of the class, Current name of the method, New name for the method\n");
         System.out.println("10. AddRelationship - Add a relationship between classes");
-        System.out.println("    Parameters: Name of the first class, Name of the second class, Type of relationship");
+        System.out.println("    Arguments: Name of the first class, Name of the second class, Type of relationship\n");
         System.out.println("11. DeleteRelationship - Delete a relationship between classes");
-        System.out.println("    Parameters: Name of the first class, Name of the second class");
-        System.out.println("12. ListClasses - List all classes");
-        System.out.println("13. ListRelationships - List all relationships");
+        System.out.println("    Arguments: Name of the first class, Name of the second class\n");
+        System.out.println("12. ListClasses - List all classes\n");
+        System.out.println("13. ListRelationships - List all relationships\n");
         System.out.println("14. ListClass - List contents of a specified class");
-        System.out.println("    Parameters: Name of the class to list its contents");
+        System.out.println("    Arguments: Name of the class to list its contents\n");
         System.out.println("15. Save - Save diagram to JSON file");
-        System.out.println("    Parameters: File path to save the diagram (JSON format)");
+        System.out.println("    Arguments: File path to save the diagram (JSON format)\n");
         System.out.println("16. Load - Load diagram from JSON file");
-        System.out.println("    Parameters: File path to load the diagram (JSON format)");
-        System.out.println("17. Help - Help (this command)");
-        System.out.println("18. Exit - Exit");
+        System.out.println("    Arguments: File path to load the diagram (JSON format)\n");
+        System.out.println("17. Menu - Displays Main menu\n");
+        System.out.println("18. Help - Displays detailed information of program\n");
+        System.out.println("19. Exit - Exits program\n");
+    
     }
 
     // Method to handle exit from the UML CLI
@@ -478,8 +490,10 @@ public class UMLCli {
         if (saveChoice.equals("yes")) {
             saveDiagram();
             System.out.println("Diagram saved.");
+            System.exit();
         } else {
             System.out.println("Exited without Saving.");
+            System.exit();
         }
        
     }
