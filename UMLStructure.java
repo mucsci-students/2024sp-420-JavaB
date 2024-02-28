@@ -1,3 +1,4 @@
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -59,20 +60,23 @@ public interface UMLStructure {
      *
      * @param sourceClass      The name of the source class.
      * @param destinationClass The name of the destination class.
-     * @param ID               The identifier for the relationship.
+     * @param type             The identifier for the relationship type.
      * @return True if the relationship is successfully established, false otherwise.
      */
-    boolean addRelationship(String sourceClass, String destinationClass, String ID);
+    boolean addRelationship(String sourceClass, String destinationClass, int type);
 
     /**
      * Removes a relationship between classes.
      *
      * @param sourceClass      The name of the source class.
      * @param destinationClass The name of the destination class.
-     * @param ID               The identifier for the relationship.
      * @return True if the relationship is successfully removed, false otherwise.
      */
-    boolean deleteRelationship(String sourceClass, String destinationClass, String ID);
+    boolean deleteRelationship(String sourceClass, String destinationClass);
+
+    // add comments 
+    
+    boolean changeRelType(String sourceClass, String destinationClass, int type);
 
     /**
      * Adds an attribute to a class.

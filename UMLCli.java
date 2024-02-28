@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
 public class UMLCli {
     // Scanner object for user input
     private static final Scanner scanner = new Scanner(System.in);
@@ -21,14 +22,20 @@ public class UMLCli {
         System.out.println("Welcome to NRDS UML Editor!");
 
         boolean exit = false;
+
+        // Display menu and get user choice
+        displayMenu();
+
         // Loop until the user chooses to exit
         while (!exit) {
-            // Display menu and get user choice
-            displayMenu();
+            
             String choice = getUserChoice();
 
             // Perform actions based on user choice
             switch (choice) {
+                case "menu":
+                    displayMenu();
+                    break;
                 case "addclass":
                     createClass();
                     break;
@@ -62,6 +69,9 @@ public class UMLCli {
                 case "deleterelationship":
                     deleteRelationship();
                     break;
+                case "changetype":
+                    changeType();
+                    break;
                 case "listclasses":
                     listClasses();
                     break;
@@ -94,7 +104,7 @@ public class UMLCli {
     }
 
     // Display the menu
-    private static void displayMenu() {
+    protected static void displayMenu() {
     	System.out.println("  ");
         System.out.println("\n		Menu:");
         System.out.println("AddClass - Creates a new class.");
@@ -111,12 +121,14 @@ public class UMLCli {
         System.out.println("  ");
         System.out.println("AddRelationship - Add a relationship between classes.");
         System.out.println("DeleteRelationship - Delete a relationship between classes.");
+        System.out.println("ChangeType - Change the relationship type between classes. ");
         System.out.println("  ");
         System.out.println("ListClasses - List all classes.");
         System.out.println("ListClass - List contents of a specified class.");
         System.out.println("ListRelationships - List all relationships.");
         System.out.println("Save - Save diagram to JSON file.");
         System.out.println("Load - Load diagram from JSON file.");
+        System.out.println("Menu - Display main menu.");
         System.out.println("Help - Help.");
         System.out.println("Exit - Exit.");
         System.out.println("  ");
@@ -125,7 +137,7 @@ public class UMLCli {
     }
 
     // Get user choice
-    private static String getUserChoice() {
+    protected static String getUserChoice() {
         return scanner.next().toLowerCase().trim();
     }
 
@@ -142,7 +154,7 @@ public class UMLCli {
     }
 
     // Method to delete a class
-    private static void deleteClass() {
+    protected static void deleteClass() {
         System.out.println("Enter the name of the class to delete: ");
         String className = scanner.next();
         boolean success = umlDiagram.deleteClass(className);
@@ -154,7 +166,7 @@ public class UMLCli {
     }
 
     // Method to rename a class
-    private static void renameClass() {
+    protected static void renameClass() {
         System.out.println("Enter the current name of the class: ");
         String oldName = scanner.next();
         System.out.print("Enter the new name of the class: ");
@@ -168,7 +180,7 @@ public class UMLCli {
     }
 
     // Method to add an attribute to a class
-    private static void addAttribute() {
+    protected static void addAttribute() {
         System.out.println("Enter the name of the class to add attribute to: ");
         String className = scanner.next();
         System.out.print("Enter the name of the attribute: ");
@@ -184,7 +196,7 @@ public class UMLCli {
     }
 
     // Method to delete an attribute from a class
-    private static void deleteAttribute() {
+    protected static void deleteAttribute() {
         System.out.println("Enter the name of the class to delete attribute from: ");
         String className = scanner.next();
         System.out.print("Enter the name of the attribute to delete: ");
@@ -198,7 +210,7 @@ public class UMLCli {
     }
 
     // Method to rename an attribute in a class
-    private static void renameAttribute() {
+    protected static void renameAttribute() {
         System.out.println("Enter the name of the class containing the attribute: ");
         String className = scanner.next();
         System.out.print("Enter the current name of the attribute: ");
@@ -214,7 +226,7 @@ public class UMLCli {
     }
 
     // Method to add a method to a class
-    private static void addMethod() {
+    protected static void addMethod() {
         System.out.println("Enter the name of the class to add method to: ");
         String className = scanner.next();
         System.out.print("Enter the name of the method: ");
@@ -230,7 +242,7 @@ public class UMLCli {
     }
 
     // Method to delete a method from a class
-    private static void deleteMethod() {
+    protected static void deleteMethod() {
         System.out.println("Enter the name of the class to delete method from: ");
         String className = scanner.next();
         System.out.print("Enter the name of the method to delete: ");
@@ -244,7 +256,7 @@ public class UMLCli {
     }
 
     // Method to rename a method in a class
-    private static void renameMethod() {
+    protected static void renameMethod() {
         System.out.println("Enter the name of the class containing the method: ");
         String className = scanner.next();
         System.out.print("Enter the current name of the method: ");
@@ -258,14 +270,17 @@ public class UMLCli {
             System.out.println("Failed to rename method in class " + className + ". Class or method may not exist, or new name may already be in use.");
         }
     }
-
-    private static void addRelationship() {
+    
+    //Method to add a relationship to a class
+    protected static void addRelationship() {
         System.out.println("Enter the name of the source class: ");
         String sourceClass = scanner.next();
         System.out.println("Enter the name of the destination class: ");
         String destinationClass = scanner.next();
+        System.out.println("Choose a relationship type (Enter a number): \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
+        int type = scanner.nextInt();
 
-        boolean success = umlDiagram.addRelationship(sourceClass, destinationClass);
+        boolean success = umlDiagram.addRelationship(sourceClass, destinationClass, type);
         if (success) {
             System.out.println("Relationship added successfully.");
         } else {
@@ -274,7 +289,7 @@ public class UMLCli {
     }
 
     // Method to delete a relationship between classes
-    private static void deleteRelationship() {
+    protected static void deleteRelationship() {
         System.out.println("Enter the name of the first class in the relationship: ");
         String class1 = scanner.next();
         System.out.print("Enter the name of the second class in the relationship: ");
@@ -288,11 +303,34 @@ public class UMLCli {
         }
     }
 
+    // Method to change the type of an existing relationship
+    protected static void changeType(){
+        System.out.println("Enter the name of the first class in the relationship: ");
+        String class1 = scanner.next();
+        System.out.print("Enter the name of the second class in the relationship: ");
+        String class2 = scanner.next();
+        System.out.println("Enter the number for the relationship type: \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
+        int type = scanner.nextInt();
 
+        if(type < 1 || type > 4){
+            System.out.println("Invalid number chosen. ");
+        }
+        else {
+        boolean success = umlDiagram.changeRelType(class1, class2, type);
+
+        if(success){
+            System.out.println("Relationship type changed succesfully.");
+        }
+        else {
+            System.out.println("Failed to change type. Relationship has to exist.");
+        }
+        }
+        
+    }
 
 
  // Method to save the UML diagram to a JSON file
-    private static void saveDiagram() {
+    protected static void saveDiagram() {
         System.out.print("Enter the file path to save the diagram (JSON format): ");
         String filePath = scanner.next().trim();
         try (FileWriter writer = new FileWriter(filePath)) {
@@ -332,6 +370,7 @@ public class UMLCli {
                 JsonObject jsonRelationship = new JsonObject();
                 jsonRelationship.addProperty("source", relationship.getSource());
                 jsonRelationship.addProperty("destination", relationship.getDestination());
+                jsonRelationship.addProperty("type", relationship.getType());
                 jsonRelationships.add(jsonRelationship);
             }
             jsonDiagram.add("relationships", jsonRelationships);
@@ -344,7 +383,7 @@ public class UMLCli {
     }
 
     // Method to load a UML diagram from a JSON file
-    private static void loadDiagram() {
+    protected static void loadDiagram() {
         System.out.print("Enter the file path to load the diagram (JSON format): ");
         String filePath = scanner.next().trim();
         try (FileReader reader = new FileReader(filePath)) {
@@ -385,7 +424,22 @@ public class UMLCli {
                 JsonObject jsonRelationship = element.getAsJsonObject();
                 String source = jsonRelationship.get("source").getAsString();
                 String destination = jsonRelationship.get("destination").getAsString();
-                umlDiagram.addRelationship(source, destination);
+                String tempType = jsonRelationship.get("type").getAsString();
+                int type = Integer.parseInt(tempType);
+                if (tempType.equals("Aggregation")) {
+                	type = 1;
+                }
+                else if (tempType.equals("Composition")){
+                	type = 2;
+                }
+                else if (tempType.equals("Inheritance")) {
+                	type = 3;
+                }
+                else if (tempType.equals("Realization")) {
+                	type = 4;
+                }
+                
+                umlDiagram.addRelationship(source, destination, type);
             }
 
             System.out.println("Diagram loaded successfully from " + filePath + ".");
@@ -396,7 +450,7 @@ public class UMLCli {
 
 
     // Method to list all classes in the UML diagram
-    private static void listClasses() {
+    protected static void listClasses() {
         ArrayList<UMLClass> classes = umlDiagram.getClasses();
         System.out.println("Classes:");
         for (UMLClass umlClass : classes) {
@@ -406,7 +460,7 @@ public class UMLCli {
     }
 
     // Method to list the contents of a specified class in the UML diagram
-    private static void listClassContents() {
+    protected static void listClassContents() {
         System.out.print("Enter the name of the class to list its contents: ");
         String className = scanner.next();
         UMLClass umlClass = umlDiagram.getClassNameMapToName().get(className);
@@ -425,7 +479,7 @@ public class UMLCli {
     }
 
     // Method to list all relationships in the UML diagram
-    private static void listRelationships() {
+    protected static void listRelationships() {
         ArrayList<Relationship> relationships = umlDiagram.getRelationships();
         System.out.println("Relationships:");
         for (Relationship relationship : relationships) {
@@ -434,54 +488,59 @@ public class UMLCli {
     }
 
     // Method to display help information about the commands supported by the UML CLI
-    private static void help() {
+    protected static void help() {
         System.out.println("Help:");
-        System.out.println("This UML Diagram Editor CLI supports the following commands along with their parameters:");
+        System.out.println("This UML Diagram Editor CLI supports the following commands along with their arguments:\n");
         System.out.println("1. AddClass - Create a new class");
-        System.out.println("   Parameters: Name of the class");
+        System.out.println("   Arguments: Name of the class\n");
         System.out.println("2. DeleteClass - Delete a class");
-        System.out.println("   Parameters: Name of the class to delete");
+        System.out.println("   Arguments: Name of the class to delete\n");
         System.out.println("3. RenameClass - Rename a class");
-        System.out.println("   Parameters: Current name of the class, New name for the class");
+        System.out.println("   Arguments: Current name of the class, New name for the class\n");
         System.out.println("4. AddAttribute - Add an attribute to a class");
-        System.out.println("   Parameters: Name of the class, Name of the attribute, Type of the attribute");
+        System.out.println("   Arguments: Name of the class, Name of the attribute, Type of the attribute\n");
         System.out.println("5. DeleteAttribute - Delete an attribute from a class");
-        System.out.println("   Parameters: Name of the class, Name of the attribute to delete");
+        System.out.println("   Arguments: Name of the class, Name of the attribute to delete\n");
         System.out.println("6. RenameAttribute - Rename an attribute in a class");
-        System.out.println("   Parameters: Name of the class, Current name of the attribute, New name for the attribute");
+        System.out.println("   Arguments: Name of the class, Current name of the attribute, New name for the attribute\n");
         System.out.println("7. AddMethod - Add a method to a class");
-        System.out.println("   Parameters: Name of the class, Name of the method, Return type of the method");
+        System.out.println("   Arguments: Name of the class, Name of the method, Return type of the method\n");
         System.out.println("8. RemoveMethod - Delete a method from a class");
-        System.out.println("   Parameters: Name of the class, Name of the method to delete");
+        System.out.println("   Arguments: Name of the class, Name of the method to delete\n");
         System.out.println("9. ChangeMethod - Rename a method in a class");
-        System.out.println("   Parameters: Name of the class, Current name of the method, New name for the method");
+        System.out.println("   Arguments: Name of the class, Current name of the method, New name for the method\n");
         System.out.println("10. AddRelationship - Add a relationship between classes");
-        System.out.println("    Parameters: Name of the first class, Name of the second class, Type of relationship");
+        System.out.println("    Arguments: Name of the first class, Name of the second class, Type of relationship\n");
         System.out.println("11. DeleteRelationship - Delete a relationship between classes");
-        System.out.println("    Parameters: Name of the first class, Name of the second class");
-        System.out.println("12. ListClasses - List all classes");
-        System.out.println("13. ListRelationships - List all relationships");
-        System.out.println("14. ListClass - List contents of a specified class");
-        System.out.println("    Parameters: Name of the class to list its contents");
-        System.out.println("15. Save - Save diagram to JSON file");
-        System.out.println("    Parameters: File path to save the diagram (JSON format)");
-        System.out.println("16. Load - Load diagram from JSON file");
-        System.out.println("    Parameters: File path to load the diagram (JSON format)");
-        System.out.println("17. Help - Help (this command)");
-        System.out.println("18. Exit - Exit");
+        System.out.println("    Arguments: Name of the first class, Name of the second class\n");
+        System.out.println("12. ChangeType - Delete a relationship between classes");
+        System.out.println("    Arguments: Name of the first class, Name of the second class, New selection for attribute\n");
+        System.out.println("13. ListClasses - List all classes\n");
+        System.out.println("14. ListRelationships - List all relationships\n");
+        System.out.println("15. ListClass - List contents of a specified class");
+        System.out.println("    Arguments: Name of the class to list its contents\n");
+        System.out.println("16. Save - Save diagram to JSON file");
+        System.out.println("    Arguments: File path to save the diagram (JSON format)\n");
+        System.out.println("17. Load - Load diagram from JSON file");
+        System.out.println("    Arguments: File path to load the diagram (JSON format)\n");
+        System.out.println("18. Menu - Displays Main menu\n");
+        System.out.println("19. Help - Displays detailed information of program\n");
+        System.out.println("20. Exit - Exits program\n");
+    
     }
 
     // Method to handle exit from the UML CLI
-    private static void exit() {
+    protected static void exit() {
         System.out.print("Do you want to save the diagram before exiting? (yes/no): ");
         String saveChoice = scanner.next().trim().toLowerCase();
-        if (saveChoice.equals("yes")) {
+        if (saveChoice.equals("yes") || saveChoice.equals("y")) {
             saveDiagram();
             System.out.println("Diagram saved.");
         } else {
             System.out.println("Exited without Saving.");
         }
        
+        System.exit(1);
     }
 
 }
