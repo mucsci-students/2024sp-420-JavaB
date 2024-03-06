@@ -55,10 +55,48 @@ public class UMLDiagramTest {
     void testAddRelationship() {
         umlDiagram.addClass("ClassA");
         umlDiagram.addClass("ClassB");
-        Assertions.assertTrue(umlDiagram.addRelationship("ClassA", "ClassB"));
-        Assertions.assertFalse(umlDiagram.addRelationship("ClassA", "ClassC")); // Adding relationship with non-existing class should return false
+        Assertions.assertTrue(umlDiagram.addRelationship("ClassA", "ClassB", 2));
+        Assertions.assertFalse(umlDiagram.addRelationship("ClassA", "ClassC", 5)); // Adding relationship with non-existing class should return false
     }
 
+    /**
+     * Test case for adding an empty relationship.
+     */
+    @Test
+    void testAddEmptyRelationship() {
+        umlDiagram.addClass("");
+        Assertions.assertFalse(umlDiagram.addRelationship("", "", 0)); // Adding relationship with non-existing class should return false
+    }
+        
+    /**
+     * Test case for adding an empty relationship.
+     */
+    @Test
+    void testAddSelfRelationship() {
+        umlDiagram.addClass("ClassA");
+        Assertions.assertFalse(umlDiagram.addRelationship("ClassA", "ClassA", 1)); // Adding relationship with non-existing class should return false
+    }
+    
+    /**
+     * Test case for adding an empty relationship.
+     */
+    @Test
+    void testAddRelationshipBadType1() {
+        umlDiagram.addClass("ClassA");
+        umlDiagram.addClass("ClassB");
+        Assertions.assertFalse(umlDiagram.addRelationship("ClassA", "ClassB", 0)); // Adding relationship with non-existing class should return false
+    }
+    
+    /**
+     * Test case for adding an empty relationship.
+     */
+    @Test
+    void testAddRelationshipBadType2() {
+        umlDiagram.addClass("ClassA");
+        umlDiagram.addClass("ClassB");
+        Assertions.assertFalse(umlDiagram.addRelationship("ClassA", "ClassB", 5)); // Adding relationship with non-existing class should return false
+    }
+    
     /**
      * Test case for deleting a relationship.
      */
@@ -66,11 +104,33 @@ public class UMLDiagramTest {
     void testDeleteRelationship() {
         umlDiagram.addClass("ClassA");
         umlDiagram.addClass("ClassB");
-        umlDiagram.addRelationship("ClassA", "ClassB");
+        umlDiagram.addRelationship("ClassA", "ClassB", 4);
         Assertions.assertTrue(umlDiagram.deleteRelationship("ClassA", "ClassB"));
         Assertions.assertFalse(umlDiagram.deleteRelationship("ClassA", "ClassB")); // Deleting non-existing relationship should return false
     }
 
+    /**
+     * Test case for deleting a relationship.
+     */
+    @Test
+    void testDeleteRelationshipEmptyParam() {
+        umlDiagram.addClass("");
+        umlDiagram.addClass("");
+        umlDiagram.addRelationship("", "", 4);
+        Assertions.assertFalse(umlDiagram.deleteRelationship("", "")); // Deleting non-existing relationship should return false
+    }
+    
+    /**
+     * Test case for deleting a relationship.
+     */
+    @Test
+    void testDeleteRelationshipSameName() {
+        umlDiagram.addClass("ClassA");
+        umlDiagram.addClass("ClassA");
+        umlDiagram.addRelationship("ClassA", "ClassA", 4);
+        Assertions.assertFalse(umlDiagram.deleteRelationship("ClassA", "ClassA")); // Deleting non-existing relationship should return false
+    }
+    
     /**
      * Test case for adding an attribute.
      */
@@ -142,7 +202,7 @@ public class UMLDiagramTest {
     void testSaveLoadJSON() throws IOException {
         umlDiagram.addClass("ClassA");
         umlDiagram.addClass("ClassB");
-        umlDiagram.addRelationship("ClassA", "ClassB");
+        umlDiagram.addRelationship("ClassA", "ClassB", 1);
         String fileName = "test.json";
         Assertions.assertTrue(umlDiagram.saveToJSON(fileName));
 
@@ -164,7 +224,7 @@ public class UMLDiagramTest {
     void testClear() {
         umlDiagram.addClass("ClassA");
         umlDiagram.addClass("ClassB");
-        umlDiagram.addRelationship("ClassA", "ClassB");
+        umlDiagram.addRelationship("ClassA", "ClassB", 3);
         umlDiagram.clear();
         Assertions.assertTrue(umlDiagram.getClasses().isEmpty());
         Assertions.assertTrue(umlDiagram.getRelationships().isEmpty());
@@ -179,4 +239,15 @@ public class UMLDiagramTest {
         Assertions.assertTrue(umlDiagram.hasClass("ClassA"));
         Assertions.assertFalse(umlDiagram.hasClass("NonExistingClass"));
     }
+    
+    /**
+     * Test case for checking if an empty class exists.
+     */
+    @Test
+    void testHasClassEmpty() {
+        umlDiagram.addClass("");
+        Assertions.assertFalse(umlDiagram.hasClass(""));
+    }
+    
 }
+
