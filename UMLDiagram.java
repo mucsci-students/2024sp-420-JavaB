@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class UMLDiagram implements UMLStructure {
 
 	// Maps class names to UMLClass objects
@@ -21,6 +22,7 @@ public class UMLDiagram implements UMLStructure {
 		classMapToRelation = new HashMap<>();
 	}
 
+ 
 	public ArrayList<UMLClass> getClasses() {
 		return new ArrayList<>(classNameMapToName.values());
 	}
@@ -29,7 +31,7 @@ public class UMLDiagram implements UMLStructure {
 	public ArrayList<Relationship> getRelationships() {
 		return new ArrayList<>(classMapToRelation.values());
 	}
-
+	
 	// Getters for maps
 	public Map<String, UMLClass> getClassNameMapToName() {
 		return classNameMapToName;
@@ -46,6 +48,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the class was successfully added, false if the class already
 	 *         exists.
 	 */
+
 	public boolean addClass(String className) {
 		
 		    if (className == null || className.isEmpty()) {
@@ -65,6 +68,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the class was successfully deleted, false if the class does
 	 *         not exist.
 	 */
+ 
 	public boolean deleteClass(String className) {
 	    if (classNameMapToName.containsKey(className)) {
 	        classNameMapToName.remove(className);
@@ -84,6 +88,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the class was successfully renamed, false if the oldName does
 	 *         not exist or newName is already in use.
 	 */
+ 
 	public boolean renameClass(String oldName, String newName) {
 		
 		    if (newName == null || newName.isEmpty()) {
@@ -107,18 +112,32 @@ public class UMLDiagram implements UMLStructure {
 		return false;
 	}
 
+	/*public String getRelationshipType(String class1, String class2) {
+		if (classNameMapToName.containsKey(class1) && classNameMapToName.containsKey(class2)) {
+	        // Check if the relationship already exists
+	        if (!relationshipExists(class1, class2)) {
+	            // Add the relationship
+	            classMapToRelation.get(Relationship.relationType);
+	            return ""; // Relationship successfully added
+	        }
+	    }
+		return "";
+	}*/
 	// Method to add a relationship to the diagram
-	public boolean addRelationship(String class1, String class2) {
-	    if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty()) {
+ 
+	public boolean addRelationship(String class1, String class2, int type) {
+		if (class1.equals(class2)) {
+			return false;
+		}
+	    if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type < 1 || type > 4){
 	        return false; // Reject null or empty class names
 	    }
-
 	    // Check if both classes exist in the diagram
 	    if (classNameMapToName.containsKey(class1) && classNameMapToName.containsKey(class2)) {
 	        // Check if the relationship already exists
 	        if (!relationshipExists(class1, class2)) {
 	            // Add the relationship
-	            classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2));
+	            classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));
 	            return true; // Relationship successfully added
 	        }
 	    }
@@ -132,7 +151,12 @@ public class UMLDiagram implements UMLStructure {
 	 * @param destinationClass The name of the destination class.
 	 * @return true if the relationship was successfully deleted, false otherwise.
 	 */
+
 	public boolean deleteRelationship(String sourceClass, String destinationClass) {
+		
+		if(sourceClass.equals(destinationClass)) {
+			return false;
+		}
 	    // Construct the relationship key
 	    String relationshipKey = generateRelationshipKey(sourceClass, destinationClass);
 
@@ -145,6 +169,28 @@ public class UMLDiagram implements UMLStructure {
 	    return false; // Relationship does not exist
 	}
 
+	//add comment
+	
+ 
+	public boolean changeRelType(String class1, String class2, int type){
+		if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type < 1 || type > 4){
+	        return false; // Reject null or empty class names
+	    }
+		String relationshipKey = generateRelationshipKey(class1, class2);
+	// Check if both classes exist in the diagram
+	if (classNameMapToName.containsKey(class1) && classNameMapToName.containsKey(class2)) {
+				if(classMapToRelation.containsKey(relationshipKey)){
+				classMapToRelation.remove(relationshipKey);
+	        // Check if the relationship already exists
+	        	if (!relationshipExists(class1, class2)) {
+	            // Add the relationship
+	            	classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));
+	            	return true; // Relationship successfully added
+	        	}
+	    	}
+		}
+	    return false;
+	}
 	// Helper method to generate a unique key for a relationship
 	private String generateRelationshipKey(String sourceClass, String destinationClass) {
 	    return sourceClass + "-" + destinationClass;
@@ -167,6 +213,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the attribute was successfully added, false if the class does
 	 *         not exist.
 	 */
+
 	public boolean addAttribute(String className, String attributeName, String attributeType) {
 		if (classNameMapToName.containsKey(className)) {
 			return classNameMapToName.get(className).addAttribute(attributeName, attributeType, className);
@@ -182,6 +229,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the attribute was successfully deleted, false if the class
 	 *         does not exist.
 	 */
+
 
 	public boolean deleteAttribute(String className, String attributeName) {
 		if (classNameMapToName.containsKey(className)) {
@@ -199,6 +247,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the attribute was successfully renamed, false if the class
 	 *         does not exist or the attribute does not exist.
 	 */
+ 
 	public boolean renameAttribute(String className, String oldAttributeName, String newAttributeName) {
 	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)) {
 	        return false; // Reject if new name is null, empty, or class does not exist
@@ -219,6 +268,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the method was successfully added, false if the class does
 	 *         not exist.
 	 */
+ 
 	public boolean addMethod(String className, String methodName, String methodType) {
 		if (classNameMapToName.containsKey(className)) {
 			return classNameMapToName.get(className).addMethod(methodName, methodType);
@@ -227,6 +277,7 @@ public class UMLDiagram implements UMLStructure {
 	}
 
 	// Method to delete a method from a class in the UML diagram
+
 	public boolean deleteMethod(String className, String methodName) {
 		if (classNameMapToName.containsKey(className)) {
 			return classNameMapToName.get(className).deleteMethod(methodName);
@@ -235,6 +286,7 @@ public class UMLDiagram implements UMLStructure {
 	}
 
 	// Method to rename a method in a class in the UML diagram
+ 
 	public boolean renameMethod(String className, String originalName, String newName) {
 	    if (classNameMapToName.containsKey(className) && originalName != null && newName != null) {
 	        return classNameMapToName.get(className).renameMethod(originalName, newName);
@@ -250,6 +302,7 @@ public class UMLDiagram implements UMLStructure {
 	 *         occurred during the process.
 	 * @throws IOException if an I/O error occurs while writing to the file.
 	 */
+ 
 	public boolean saveToJSON(String fileName) throws IOException {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		try (FileWriter writer = new FileWriter(fileName)) {
@@ -268,6 +321,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the diagram was successfully loaded, false if an error
 	 *         occurred during the process.
 	 */
+
 	public boolean loadFromJSON(String fileName) {
 		Gson gson = new Gson();
 		try (FileReader reader = new FileReader(fileName)) {
@@ -281,6 +335,7 @@ public class UMLDiagram implements UMLStructure {
 	/**
      * Clears all classes and relationships from the UML diagram.
      */
+
 	public void clear() {
 		classNameMapToName.clear();
 		classMapToRelation.clear();
@@ -291,6 +346,7 @@ public class UMLDiagram implements UMLStructure {
      * @param className The name of the class to check.
      * @return true if the class exists in the diagram, false otherwise.
      */
+ 
 	public boolean hasClass(String className) {
 		return classNameMapToName.containsKey(className);
 	}
