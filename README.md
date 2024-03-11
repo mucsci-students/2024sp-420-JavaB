@@ -15,6 +15,7 @@ Save and load to standar JSON format.
 # 1.Requirements: 
 
 - Java Development Kit (JDK)
+- Gradle
 - Gson library (for JSON serialization and deserialization)
 
 # 2. Running the Application
