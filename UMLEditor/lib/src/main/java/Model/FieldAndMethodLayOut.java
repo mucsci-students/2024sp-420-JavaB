@@ -1,26 +1,29 @@
+package Model;
+
+
 import java.util.Objects;
 /**
- *  Class that helps to structure the layout of attribute name and method name
- *  with their type.
+ *  Class that help to structure the lay out of attribute name and method name
+ *  with their type and visibility.
  */
-public class AttributeAndMethodLayOut {
+public class FieldAndMethodLayOut {
     /**
-     * Attributes and methods have name and type.
-     *  e.g
-     *    +Id: int
-     *    +managerID()
+     * Attributes and methods has visibility,name and type.
+     *  
      */
-    private String name;
+    protected String name;
     private  String type;
+   
 
     /**
-     * Constructor to initialize attributes and methods with their parameter.
+     * Constructor to initializes attribute and methods with their parameter.
      * @param name The name of the object.
      * @param type Type of the object.
      */
     public AttributeAndMethodLayOut(String name, String  type){
         this.name = name;
         this.type = type;
+       
     }
 
     /**
@@ -47,7 +50,6 @@ public class AttributeAndMethodLayOut {
         this.name = newName;
     }
 
-    
     /**
      * Set a new type for the object.
      * @param newType New type name for the object be set.
@@ -56,11 +58,12 @@ public class AttributeAndMethodLayOut {
         this.type = newType;
     }
 
+
     /**
-     * This method will check whether the instance of another object can not have the same name
+     * This method will check whether the instance of another object can not have same name
      * this one.
      * @param obj Object name.
-     * @return true if their same name is otherwise false.
+     * @return true if their same name otherwise false.
      */
     public boolean equals(Object obj) {
         if(obj instanceof AttributeAndMethodLayOut){

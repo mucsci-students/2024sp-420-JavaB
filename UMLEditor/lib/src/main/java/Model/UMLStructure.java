@@ -1,3 +1,6 @@
+package Model;
+
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -27,7 +30,7 @@ public interface UMLStructure {
      * @param className The name of the class to check.
      * @return true if the class exists in the structure, false otherwise.
      */
-    boolean hasClass(String className);
+    // boolean hasClass(String className);
 
     /**
      * Creates a new class.
@@ -59,30 +62,33 @@ public interface UMLStructure {
      *
      * @param sourceClass      The name of the source class.
      * @param destinationClass The name of the destination class.
-     * @param ID               The identifier for the relationship.
+     * @param type             The identifier for the relationship type.
      * @return True if the relationship is successfully established, false otherwise.
      */
-    boolean addRelationship(String sourceClass, String destinationClass, String ID);
+    boolean addRelationship(String sourceClass, String destinationClass, int type);
 
     /**
      * Removes a relationship between classes.
      *
      * @param sourceClass      The name of the source class.
      * @param destinationClass The name of the destination class.
-     * @param ID               The identifier for the relationship.
      * @return True if the relationship is successfully removed, false otherwise.
      */
-    boolean deleteRelationship(String sourceClass, String destinationClass, String ID);
+    boolean deleteRelationship(String sourceClass, String destinationClass);
+
+    // add comments 
+    
+    boolean changeRelType(String sourceClass, String destinationClass, int type);
 
     /**
      * Adds an attribute to a class.
      *
      * @param className     The name of the class to which the attribute will be added.
-     * @param attributeName The name of the attribute to be added.
-     * @param attributeType The type of the attribute.
+     * @param fieldName The name of the attribute to be added.
+     * @param fieldType The type of the attribute.
      * @return True if the attribute is successfully added, false otherwise.
      */
-    boolean addAttribute(String className, String attributeName, String attributeType);
+    boolean addField(String className, String fieldName, String fieldType);
 
     /**
      * Removes an attribute from a class.
@@ -91,7 +97,7 @@ public interface UMLStructure {
      * @param attributeName The name of the attribute to be removed.
      * @return True if the attribute is successfully removed, false otherwise.
      */
-    boolean deleteAttribute(String className, String attributeName);
+    boolean deleteField(String className, String attributeName);
 
     /**
      * Renames an attribute in a class.
@@ -101,7 +107,7 @@ public interface UMLStructure {
      * @param newAttributeName The new name for the attribute.
      * @return True if the attribute is successfully renamed, false otherwise.
      */
-    boolean renameAttribute(String className, String oldAttributeName, String newAttributeName);
+    boolean renameField(String className, String oldAttributeName, String newAttributeName);
 
     /**
      * Adds a method to a class.

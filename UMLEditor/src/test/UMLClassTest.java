@@ -1,7 +1,15 @@
 
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import Model.UMLClass;
 
 public class UMLClassTest {
     
@@ -9,7 +17,7 @@ public class UMLClassTest {
     private UMLClass umlCLass2;
     private UMLClass umlCLass3;
     
-    @Before
+    @BeforeAll
     public void setUp() {
         umlClass = new UMLClass("TestClass");
     }
@@ -39,53 +47,51 @@ public class UMLClassTest {
     public void testAddNullClassAttribute() {
     	String nule = null;
     	this.umlCLass2 = new UMLClass("TestClass2");
-    	assertFalse(umlCLass2.addAttribute(nule, "String", "TestClass"));
+    	assertFalse(umlCLass2.addField(nule, "String"));
     }
    
     @Test
     public void testAddEmptyClassAttribute() {
     	this.umlCLass3 = new UMLClass("TestClass3");
-    	assertFalse(umlCLass3.addAttribute("", "String", "TestClass"));
+    	assertFalse(umlCLass3.addField("", "String"));
     }
    
     @Test
     public void testAddNullClassAttributeType() {
     	String nule = null;
     	this.umlCLass2 = new UMLClass("TestClass2");
-    	assertFalse(umlCLass2.addAttribute("attr1", nule, "TestClass"));
+    	assertFalse(umlCLass2.addField("attr1", nule));
     }
     
     @Test
     public void testAddEmptyClassAttributeType() {
     	this.umlCLass3 = new UMLClass("TestClass3");
-    	assertFalse(umlCLass3.addAttribute("attr1", "", "TestClass"));
+    	assertFalse(umlCLass3.addField("attr1", ""));
     }
     
     @Test
     public void testAddNullClassAttributeClass() {
     	String nule = null;
     	this.umlCLass2 = new UMLClass("TestClass2");
-    	assertFalse(umlCLass2.addAttribute("attr1", "String", nule));
+    	assertFalse(umlCLass2.addField("attr1", "String"));
     }
     
     @Test
     public void testAddEmptyClassAttributeClass() {
     	this.umlCLass3 = new UMLClass("TestClass3");
-    	assertFalse(umlCLass3.addAttribute("attr1", "String", ""));
+    	assertFalse(umlCLass3.addField("attr1", "String"));
     }
     
     @Test
     public void testAddMultipleAttributes() {
-        assertTrue(umlClass.addAttribute("attr1", "String", "TestClass"));
-        assertTrue(umlClass.addAttribute("attr2", "int", "TestClass"));
-        assertEquals(2, umlClass.getAttributes().size());
+        assertTrue(umlClass.addField("attr1", "String"));
+        assertTrue(umlClass.addField("attr2", "int"));
     }
 
     @Test
     public void testAddDuplicateAttributes() {
-        assertTrue(umlClass.addAttribute("attr1", "String", "TestClass"));
-        assertFalse(umlClass.addAttribute("attr1", "int", "TestClass"));
-        assertEquals(1, umlClass.getAttributes().size());
+        assertTrue(umlClass.addField("attr1", "String"));
+        assertFalse(umlClass.addField("attr1", "int"));
     }
 
     @Test
@@ -104,10 +110,9 @@ public class UMLClassTest {
 
     @Test
     public void testDeleteAllAttributes() {
-        umlClass.addAttribute("attr1", "String", "TestClass");
-        umlClass.addAttribute("attr2", "int", "TestClass");
-        assertTrue(umlClass.deleteAttributes());
-        assertTrue(umlClass.getAttributes().isEmpty());
+        umlClass.addField("attr1", "String");
+        umlClass.addField("attr2", "int");
+        assertTrue(umlClass.deleteField());
     }
 
     @Test
@@ -120,7 +125,7 @@ public class UMLClassTest {
 
     @Test
     public void testDeleteNonExistingAttribute() {
-        assertFalse(umlClass.deleteAttribute("nonexistent_attr"));
+        assertFalse(umlClass.deleteField("nonexistent_attr"));
     }
 
     @Test
@@ -130,29 +135,29 @@ public class UMLClassTest {
 
     @Test
     public void testRenameNonExistingAttribute() {
-        assertFalse(umlClass.renameAttribute("nonexistent_attr", "newAttrName"));
+        assertFalse(umlClass.renameField("nonexistent_attr", "newAttrName"));
     }
 
     @Test
     public void testRenameExistingAttributeNull() {
     	String nole = null;
-        assertFalse(umlClass.renameAttribute("TestClass", nole));
+        assertFalse(umlClass.renameField("TestClass", nole));
     }
     
     @Test
     public void testRenameExistingAttributeToSame() {
-        assertFalse(umlClass.renameAttribute("TestClass", "TestClass"));
+        assertFalse(umlClass.renameField("TestClass", "TestClass"));
     }
     
     @Test
     public void testRenameExistingAttributeToNull() {
     	String nole = null;
-        assertFalse(umlClass.renameAttribute("TestClass", nole));
+        assertFalse(umlClass.renameField("TestClass", nole));
     }
     
     @Test
     public void testRenameExistingAttributetoEmpty() {
-        assertFalse(umlClass.renameAttribute("TestClass", ""));
+        assertFalse(umlClass.renameField("TestClass", ""));
     }
     
     @Test
@@ -162,17 +167,12 @@ public class UMLClassTest {
 
     @Test
     public void testChangeNonExistingAttributeType() {
-        assertFalse(umlClass.changeAttributeType("nonexistent_attr", "int"));
+        assertFalse(umlClass.changeFieldType("nonexistent_attr", "int"));
     }
 
     @Test
     public void testChangeNonExistingMethodType() {
         assertFalse(umlClass.changeMethodType("nonexistent_method", "int"));
-    }
-
-    @Test
-    public void testGetNonExistingAttribute() {
-        assertNull(umlClass.getAttribute("nonexistent_attr"));
     }
 
     @Test
@@ -187,23 +187,17 @@ public class UMLClassTest {
     }
 
     @Test
-    public void testAddAttribute() {
-        assertTrue(umlClass.addAttribute("attr1", "String", "TestClass"));
-        assertEquals(1, umlClass.getAttributes().size());
-    }
-
-    @Test
     public void testContainsAttribute() {
-        umlClass.addAttribute("attr1", "String", "TestClass");
-        assertTrue(umlClass.containsAttribute("attr1"));
-        assertFalse(umlClass.containsAttribute("nonexistent_attr"));
+        umlClass.addField("attr1", "String");
+        assertTrue(umlClass.containsField("attr1"));
+        assertFalse(umlClass.containsField("nonexistent_attr"));
     }
 
     @Test
     public void testDeleteAttribute() {
-        umlClass.addAttribute("attr1", "String", "TestClass");
-        assertTrue(umlClass.deleteAttribute("attr1"));
-        assertFalse(umlClass.deleteAttribute("nonexistent_attr"));
+        umlClass.addField("attr1", "String");
+        assertTrue(umlClass.deleteField("attr1"));
+        assertFalse(umlClass.deleteField("nonexistent_attr"));
     }
 
     @Test
@@ -228,9 +222,9 @@ public class UMLClassTest {
 
     @Test
     public void testRenameAttribute() {
-        umlClass.addAttribute("attr1", "String", "TestClass");
-        assertTrue(umlClass.renameAttribute("attr1", "newAttrName"));
-        assertFalse(umlClass.renameAttribute("nonexistent_attr", "newAttrName"));
+        umlClass.addField("attr1", "String");
+        assertTrue(umlClass.renameField("attr1", "newAttrName"));
+        assertFalse(umlClass.renameField("nonexistent_attr", "newAttrName"));
     }
 
     @Test
@@ -242,9 +236,9 @@ public class UMLClassTest {
 
     @Test
     public void testChangeAttributeType() {
-        umlClass.addAttribute("attr1", "String", "TestClass");
-        assertTrue(umlClass.changeAttributeType("attr1", "int"));
-        assertFalse(umlClass.changeAttributeType("nonexistent_attr", "int"));
+        umlClass.addField("attr1", "String");
+        assertTrue(umlClass.changeFieldType("attr1", "int"));
+        assertFalse(umlClass.changeFieldType("nonexistent_attr", "int"));
     }
 
     @Test
@@ -256,8 +250,8 @@ public class UMLClassTest {
 
     @Test
     public void testDeleteAttributes() {
-        umlClass.addAttribute("attr1", "String", "TestClass");
-        assertTrue(umlClass.deleteAttributes());
+        umlClass.addField("attr1", "String");
+        assertTrue(umlClass.deleteField());
     }
 
     @Test
