@@ -1,53 +1,38 @@
-// Import necessary classes and interfaces
-import org.gradle.api.JavaVersion;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat;
-import org.gradle.api.tasks.testing.logging.TestLogEvent;
-
-// Apply Java and application plugins
 plugins {
-    id("java"); // Apply Java plugin for Java project
-    id("application"); // Apply application plugin to create a runnable application
+    id 'java'
+    id 'application'
 }
 
-// Define repositories to resolve dependencies
 repositories {
-    mavenCentral(); // Use Maven Central repository for dependency resolution
+    mavenCentral()
 }
 
-// Declare project dependencies
 dependencies {
-    implementation("com.google.guava:guava:31.1-jre"); // Add Guava dependency
-    implementation(group = "com.google.code.gson", name = "gson", version = "2.10.1"); // Add Gson dependency
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1"); // Add JUnit Jupiter API for testing
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1"); // Add JUnit Jupiter engine for testing
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
-// Configure the application plugin
 application {
-    mainClassName = "Controller.UMLEditor"; // Specify the main class for the application
+    mainClassName = 'Controller.UMLEditor'
 }
 
-// Configure Java toolchain
 java {
     toolchain {
-        languageVersion.set(JavaVersion.VERSION_16); // Set Java language version to 16
+        languageVersion = JavaLanguageVersion.of(16)
     }
 }
 
-// Configure tasks related to testing
-tasks.named("test") {
-    useJUnitPlatform(); // Use JUnit Platform for running tests
-    testLogging {
-        events(TestLogEvent.FAILED, TestLogEvent.SKIPPED) // Log failed and skipped test events
-        exceptionFormat = TestExceptionFormat.FULL // Log full stack traces for test exceptions
-    }
+tasks.named('test') {
+    useJUnitPlatform()
 }
 
-// Configure running the application
 run {
-    if (project.hasProperty("cli")) { // Check if 'cli' property is set
-        args = ["--cli"]; // Set command-line arguments if 'cli' property is present
+    if (project.hasProperty('cli')) {
+        args = ['--cli']
     }
+    
 }
+
 
