@@ -17,6 +17,7 @@ Save and load to standar JSON format.
 - Java Development Kit (JDK)
 - Gradle
 - Gson library (for JSON serialization and deserialization)
+- Manually add JSON 2.10.1 into Junit https://mvnrepository.com/artifact/com.google.code.gson/gson/2.10.1
 
 # 2. Running the Application
 To run the UML Editor Command Line Tool,
