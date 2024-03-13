@@ -1,5 +1,9 @@
-import Model.Field;
+package com.classuml;
+
 import org.junit.Test;
+
+import com.classuml.Model.Field;
+
 import static org.junit.Assert.*;
 
 public class fieldTest {
@@ -78,7 +82,7 @@ public class fieldTest {
 
 	@Test
 	public void testFieldImmutability() {
-	    Field field = new Field("constant", "final int");
+	    // Field field = new Field("constant", "final int");
 	    // Assuming a method that attempts to change the type or name
 	    // field.setType("int");
 	    // assertTrue("Field type should not be changeable for 'final' fields", field.getType().equals("final int"));

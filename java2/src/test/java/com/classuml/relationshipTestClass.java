@@ -1,7 +1,8 @@
+package com.classuml;
 
 import org.junit.Test;
 
-import Model.Relationship;
+import com.classuml.Model.Relationship;
 
 import static org.junit.Assert.*;
 

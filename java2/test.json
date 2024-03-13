@@ -1,0 +1,23 @@
+{
+  "classNameMapToName": {
+    "ClassA": {
+      "className": "ClassA",
+      "fields": [],
+      "methods": []
+    },
+    "ClassB": {
+      "className": "ClassB",
+      "fields": [],
+      "methods": []
+    }
+  },
+  "classMapToRelation": {
+    "ClassA-ClassB": {
+      "source": "ClassA",
+      "destination": "ClassB",
+      "relationType": 1
+    }
+  },
+  "parameters": [],
+  "methods": []
+}

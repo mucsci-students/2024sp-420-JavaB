@@ -1,0 +1,136 @@
+-------------------------------------------------------------------------------
+Test set: com.classuml.UMLClassTest
+-------------------------------------------------------------------------------
+Tests run: 38, Failures: 3, Errors: 30, Skipped: 0, Time elapsed: 0.023 s <<< FAILURE! - in com.classuml.UMLClassTest
+testChangeNonExistingAttributeType  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.changeFieldType(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testChangeNonExistingAttributeType(UMLClassTest.java:166)
+
+testDeleteAllAttributes  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteAllAttributes(UMLClassTest.java:109)
+
+testContainsMethod  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testContainsMethod(UMLClassTest.java:207)
+
+testChangeAttributeType  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testChangeAttributeType(UMLClassTest.java:235)
+
+testDeleteMethods  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteMethods(UMLClassTest.java:255)
+
+testRenameExistingAttributetoEmpty  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.renameField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameExistingAttributetoEmpty(UMLClassTest.java:156)
+
+testAddDuplicateAttributes  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testAddDuplicateAttributes(UMLClassTest.java:89)
+
+testChangeMethodType  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testChangeMethodType(UMLClassTest.java:242)
+
+testGetNonExistingMethod  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.getMethod(String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testGetNonExistingMethod(UMLClassTest.java:176)
+
+testRenameAttribute  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameAttribute(UMLClassTest.java:221)
+
+testAddNullClassAttributeClass  Time elapsed: 0 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <false> but was: <true>
+	at com.classuml.UMLClassTest.testAddNullClassAttributeClass(UMLClassTest.java:72)
+
+testRenameExistingAttributeToNull  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.renameField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameExistingAttributeToNull(UMLClassTest.java:151)
+
+testRenameExistingAttributeToSame  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.renameField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameExistingAttributeToSame(UMLClassTest.java:145)
+
+testDeleteNonExistingAttribute  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.deleteField(String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteNonExistingAttribute(UMLClassTest.java:124)
+
+testGetName  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.getName()" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testGetName(UMLClassTest.java:39)
+
+testDeleteAllMethods  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteAllMethods(UMLClassTest.java:116)
+
+testDeleteMethod  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteMethod(UMLClassTest.java:214)
+
+testAddMultipleAttributes  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testAddMultipleAttributes(UMLClassTest.java:83)
+
+testAddNullClassName  Time elapsed: 0.002 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <false> but was: <true>
+	at com.classuml.UMLClassTest.testAddNullClassName(UMLClassTest.java:26)
+
+testRenameNonExistingMethod  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.renameMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameNonExistingMethod(UMLClassTest.java:161)
+
+testAddMethod  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testAddMethod(UMLClassTest.java:201)
+
+testRenameNonExistingAttribute  Time elapsed: 0.002 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.renameField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameNonExistingAttribute(UMLClassTest.java:134)
+
+testContainsAttribute  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testContainsAttribute(UMLClassTest.java:187)
+
+testDeleteAttribute  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteAttribute(UMLClassTest.java:194)
+
+testAddMultipleMethods  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testAddMultipleMethods(UMLClassTest.java:95)
+
+testDeleteNonExistingMethod  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.deleteMethod(String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteNonExistingMethod(UMLClassTest.java:129)
+
+testRenameMethod  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameMethod(UMLClassTest.java:228)
+
+testAddEmptyClassAttributeClass  Time elapsed: 0.001 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <false> but was: <true>
+	at com.classuml.UMLClassTest.testAddEmptyClassAttributeClass(UMLClassTest.java:78)
+
+testAddDuplicateMethods  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addMethod(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testAddDuplicateMethods(UMLClassTest.java:102)
+
+testSetName  Time elapsed: 0 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.setName(String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testSetName(UMLClassTest.java:181)
+
+testChangeNonExistingMethodType  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.changeMethodType(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testChangeNonExistingMethodType(UMLClassTest.java:171)
+
+testRenameExistingAttributeNull  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.renameField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testRenameExistingAttributeNull(UMLClassTest.java:140)
+
+testDeleteAttributes  Time elapsed: 0.001 s  <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.classuml.Model.UMLClass.addField(String, String)" because "this.umlClass" is null
+	at com.classuml.UMLClassTest.testDeleteAttributes(UMLClassTest.java:249)
+

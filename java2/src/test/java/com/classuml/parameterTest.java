@@ -1,7 +1,9 @@
-package lib;
+package com.classuml;
 
-import Model.Parameter;
 import org.junit.Test;
+
+import com.classuml.Model.Parameter;
+
 import static org.junit.Assert.*;
 
 public class parameterTest {
@@ -48,7 +50,7 @@ public class parameterTest {
  // This test assumes Parameter is immutable and does not have setter methods.
     @Test(expected = UnsupportedOperationException.class)
     public void testImmutability() {
-        Parameter parameter = new Parameter("paramName", "String");
+        // Parameter parameter = new Parameter("paramName", "String");
         // Attempt to modify parameter's state here, e.g., via reflection or if there were setter methods
     }
     @Test
