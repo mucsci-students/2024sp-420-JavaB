@@ -25,6 +25,7 @@ public class UMLDiagram implements UMLStructure {
 	private UMLDiagram diagram;
 	private List<Parameter> parameters = new ArrayList<>();
 	private ArrayList<Method> methods = new ArrayList<>();
+	private Memento memento = new Memento();
 
 	private transient UMLGui gui;
 
@@ -48,6 +49,33 @@ public class UMLDiagram implements UMLStructure {
 	public void setDiagram(UMLDiagram diagram) {
 	    this.diagram = diagram;
 	}
+	public void setClassNameMap(Map<String, UMLClass> classNameMap)
+	{
+		this.classNameMapToName = classNameMap;
+	}
+	public void setClassMap(Map<String, Relationship> classMapRel)
+	{
+		this.classMapToRelation = classMapRel;
+
+	}
+	public void setParams(List<Parameter> params)
+	{
+		this.parameters = params;
+
+	}
+	public void setMethods(ArrayList<Method> methods2)
+	{
+		this.methods = methods2;
+	}
+	public void setMemento(Memento memento2)
+	{
+		this.memento = memento2;
+	}
+	public void setClassName(String classTwo)
+	{
+		this.className = classTwo;
+	}
+
 
 
 	public ArrayList<UMLClass> getClasses() {
@@ -475,8 +503,32 @@ public class UMLDiagram implements UMLStructure {
 
 	
 	/****************************** SAVE & LOAD *****************************************************************/
-
-
+	public boolean undo()
+	{
+		memento.saveState();
+	}
+	public boolean redo()
+	{
+		UMLDiagram = memento.redoState();
+	}
+	public boolean saveState()
+	{
+		UMLDiagram state = new UMLDiagram();
+		state.setGui(this.gui);
+		state.setDiagram(this.diagram);
+		state.setclassNameMap = this.classNameMapToName;
+		state.setClassMap = this.classMapToRelation;
+		state.setParams = this.parameters;
+		state.setMethods = this.methods;
+		state.setMemento = this.memento;
+		state.setClassName = this.className;
+		memento.saveState(state);
+	}
+	public boolean clearState()
+	{
+		memento.clearStates();
+		return false;
+	}
 	/**
 	 * Saves the UML diagram as a JSON file.
 	 *
