@@ -41,6 +41,7 @@ public class UMLCli {
 
 			String choice = getUserChoice();
 
+
 			// Perform actions based on user choice
 			switch (choice) {
             case "menu":
@@ -133,6 +134,12 @@ public class UMLCli {
             case "exit":
                 exit();
                 break;
+			case "undo":
+				undo();
+				break;
+			case "redo":
+				redo();
+				break;
             default:
                 System.out.println("Invalid choice. Please enter a valid command.");
                 break;
@@ -187,6 +194,22 @@ public class UMLCli {
 		return scanner.next().toLowerCase().trim();
 	}
 
+	protected static void undo() {
+		boolean success = umlDiagram.undo();
+		if (success) {
+			System.out.println("Undo worked!");
+		} else {
+			System.out.println("There was nothing to undo!");
+		}
+	}
+	protected static void redo() {
+		boolean success = umlDiagram.redo();
+		if (success) {
+			System.out.println("Redo worked!");
+		} else {
+			System.out.println("There was nothing to redo!");
+		}
+	}
 /**************************************************************************************************************************************/
     /**   CLASSES   **/
 /**************************************************************************************************************************************/
