@@ -29,12 +29,26 @@ public class UMLDiagram implements UMLStructure {
 
 	private transient UMLGui gui;
 
-	 
-	// Constructor
 	public UMLDiagram(UMLGui gui) {
 		this.gui = gui;
-
- 
+	}
+	public String getClassName() {
+		return className;
+	}
+	public UMLDiagram getDiagram() {
+		return diagram;
+	}
+	public List<Parameter> getParameters() {
+		return parameters;
+	}
+	public ArrayList<Method> getMethods() {
+		return methods;
+	}
+	public Memento getMemento() {
+		return memento;
+	}
+	public UMLGui getGui() {
+		return gui;
 	}
 	public void setGui(UMLGui gui) {
 	    this.gui = gui;
@@ -505,15 +519,39 @@ public class UMLDiagram implements UMLStructure {
 	/****************************** SAVE & LOAD *****************************************************************/
 	public boolean undo()
 	{
+		UMLDiagram  undo = memento.undoState();
+		if(undo.equals(null))
+			return false;
+		this.gui = undo.getGui();
+		this.diagram = undo.getDiagram();
+		this.classNameMapToName = undo.getClassNameMapToName();
+		this.classMapToRelation = undo.getClassMapToRelation();
+		this.parameters = undo.getParameters();
+		this.methods = undo.getMethods();
+		this.memento = undo.memento;
 		memento.saveState();
+		return true;
 	}
 	public boolean redo()
 	{
-		UMLDiagram = memento.redoState();
+		UMLDiagram  redo = memento.undoState();
+		if(redo.equals(null))
+			return false;
+		this.gui = redo.getGui();
+		this.diagram = redo.getDiagram();
+		this.classNameMapToName = redo.getClassNameMapToName();
+		this.classMapToRelation = redo.getClassMapToRelation();
+		this.parameters = redo.getParameters();
+		this.methods = redo.getMethods();
+		this.memento = redo.memento;
+		memento.saveState();
+		return true;
 	}
 	public boolean saveState()
 	{
 		UMLDiagram state = new UMLDiagram();
+		if(state.equals(null))
+			return false;
 		state.setGui(this.gui);
 		state.setDiagram(this.diagram);
 		state.setclassNameMap = this.classNameMapToName;
@@ -523,6 +561,7 @@ public class UMLDiagram implements UMLStructure {
 		state.setMemento = this.memento;
 		state.setClassName = this.className;
 		memento.saveState(state);
+		return true;
 	}
 	public boolean clearState()
 	{
