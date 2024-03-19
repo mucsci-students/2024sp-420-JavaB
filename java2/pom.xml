@@ -116,7 +116,7 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
             <version>2.6.6</version>
             <configuration>
-                <mainClass>com.classuml.View.UMLGui</mainClass>
+                <mainClass>com.classuml.Controller.UMLGui</mainClass>
             </configuration>
         </plugin>
           <plugin>
@@ -181,7 +181,7 @@
               <!-- Usage: mvn clean javafx:run -->
               <id>default-cli</id>
               <configuration>
-                <mainClass>com.classuml.View.UMLGui</mainClass>
+                <mainClass>com.classuml.Controller.UMLGui</mainClass>
               </configuration>
                     </execution>
                 </executions>
