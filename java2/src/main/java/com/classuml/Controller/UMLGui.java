@@ -343,14 +343,21 @@ public class UMLGui extends JFrame implements ActionListener {
      * otherwise shows an error message.
      */
 	private void renameClass() {
-		String oldName = JOptionPane.showInputDialog(this, "Enter the current class name:", "Rename Class",
-				JOptionPane.PLAIN_MESSAGE);
-		if (oldName != null && !oldName.trim().isEmpty()) {
-			String newName = JOptionPane.showInputDialog(this, "Enter the new class name for '" + oldName + "':",
+		String[] classNames = new String[diagram.getClasses().size()];
+		int index = 0;
+		for(UMLClass classes: diagram.getClasses()){
+			classNames[index] = classes.getName();
+			index++;
+		}
+
+		
+		Object oldName = JOptionPane.showInputDialog(this, "Enter the current class name:", "Rename Class",
+				JOptionPane.PLAIN_MESSAGE, null, classNames, classNames[0]);
+		if (oldName != null) {
+			String newName = JOptionPane.showInputDialog(this, "Enter the new class name: ",
 					"Rename Class", JOptionPane.PLAIN_MESSAGE);
-			if (newName != null && !newName.trim().isEmpty()) {
 				try {
-					boolean renamed = diagram.renameClass(oldName, newName);
+					boolean renamed = diagram.renameClass(oldName.getClass().getName(), newName);
 					if (renamed) {
 						updateDiagramView();
 						JOptionPane.showMessageDialog(this, "Class renamed successfully.", "Class Renamed",
@@ -365,7 +372,6 @@ public class UMLGui extends JFrame implements ActionListener {
 							"An error occurred while renaming the class: " + ex.getMessage(), "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
-			}
 		}
 	}
 
