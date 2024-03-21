@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.classuml.UMLDiagramTest" time="0.142" tests="18" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="com.classuml.UMLDiagramTest" time="0.137" tests="18" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-17.0.2\bin"/>
-    <property name="sun.java.command" value="C:\Users\Cullen\AppData\Local\Temp\surefire14875833317259877591\surefirebooter12910062057658030272.jar C:\Users\Cullen\AppData\Local\Temp\surefire14875833317259877591 2024-03-21T11-19-22_094-jvmRun1 surefire13420068367970557307tmp surefire_02702617517530710479tmp"/>
+    <property name="sun.java.command" value="C:\Users\Cullen\AppData\Local\Temp\surefire10342694630714614052\surefirebooter11744620700000162574.jar C:\Users\Cullen\AppData\Local\Temp\surefire10342694630714614052 2024-03-21T12-10-32_485-jvmRun1 surefire14153806450983485455tmp surefire_017690809903317158307tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\Cullen\Java2Git\2024sp-420-Java2\2024sp-420-JavaB\java2\target\test-classes;C:\Users\Cullen\Java2Git\2024sp-420-Java2\2024sp-420-JavaB\java2\target\classes;C:\Users\Cullen\.m2\repository\org\springframework\boot\spring-boot\2.7.18\spring-boot-2.7.18.jar;C:\Users\Cullen\.m2\repository\org\springframework\spring-core\5.3.31\spring-core-5.3.31.jar;C:\Users\Cullen\.m2\repository\org\springframework\spring-jcl\5.3.31\spring-jcl-5.3.31.jar;C:\Users\Cullen\.m2\repository\org\springframework\spring-context\5.3.31\spring-context-5.3.31.jar;C:\Users\Cullen\.m2\repository\org\springframework\spring-aop\5.3.31\spring-aop-5.3.31.jar;C:\Users\Cullen\.m2\repository\org\springframework\spring-beans\5.3.31\spring-beans-5.3.31.jar;C:\Users\Cullen\.m2\repository\org\springframework\spring-expression\5.3.31\spring-expression-5.3.31.jar;C:\Users\Cullen\.m2\repository\com\googlecode\json-simple\json-simple\1.1.1\json-simple-1.1.1.jar;C:\Users\Cullen\.m2\repository\org\junit\jupiter\junit-jupiter\5.10.2\junit-jupiter-5.10.2.jar;C:\Users\Cullen\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\Cullen\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\Cullen\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\Cullen\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\Cullen\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\Cullen\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\Cullen\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-controls\13\javafx-controls-13.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-controls\13\javafx-controls-13-win.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-graphics\13\javafx-graphics-13.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-graphics\13\javafx-graphics-13-win.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-base\13\javafx-base-13.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-base\13\javafx-base-13-win.jar;C:\Users\Cullen\.m2\repository\javax\json\javax.json-api\1.1.4\javax.json-api-1.1.4.jar;C:\Users\Cullen\.m2\repository\org\glassfish\javax.json\1.0.4\javax.json-1.0.4.jar;C:\Users\Cullen\.m2\repository\com\google\code\gson\gson\2.10.1\gson-2.10.1.jar;C:\Users\Cullen\.m2\repository\junit\junit\4.13.2\junit-4.13.2.jar;C:\Users\Cullen\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\Cullen\.m2\repository\com\google\guava\guava\33.0.0-jre\guava-33.0.0-jre.jar;C:\Users\Cullen\.m2\repository\com\google\guava\failureaccess\1.0.2\failureaccess-1.0.2.jar;C:\Users\Cullen\.m2\repository\com\google\guava\listenablefuture\9999.0-empty-to-avoid-conflict-with-guava\listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar;C:\Users\Cullen\.m2\repository\com\google\code\findbugs\jsr305\3.0.2\jsr305-3.0.2.jar;C:\Users\Cullen\.m2\repository\org\checkerframework\checker-qual\3.41.0\checker-qual-3.41.0.jar;C:\Users\Cullen\.m2\repository\com\google\errorprone\error_prone_annotations\2.23.0\error_prone_annotations-2.23.0.jar;C:\Users\Cullen\.m2\repository\com\google\j2objc\j2objc-annotations\2.8\j2objc-annotations-2.8.jar;C:\Users\Cullen\.m2\repository\com\networknt\json-schema-validator\1.3.3\json-schema-validator-1.3.3.jar;C:\Users\Cullen\.m2\repository\com\ethlo\time\itu\1.8.0\itu-1.8.0.jar;C:\Users\Cullen\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.15.3\jackson-databind-2.15.3.jar;C:\Users\Cullen\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.15.3\jackson-annotations-2.15.3.jar;C:\Users\Cullen\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.15.3\jackson-core-2.15.3.jar;C:\Users\Cullen\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-yaml\2.15.3\jackson-dataformat-yaml-2.15.3.jar;C:\Users\Cullen\.m2\repository\org\yaml\snakeyaml\2.1\snakeyaml-2.1.jar;C:\Users\Cullen\.m2\repository\org\slf4j\slf4j-api\2.0.9\slf4j-api-2.0.9.jar;C:\Users\Cullen\.m2\repository\org\slf4j\slf4j-simple\2.0.10\slf4j-simple-2.0.10.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-fxml\13\javafx-fxml-13.jar;C:\Users\Cullen\.m2\repository\org\openjfx\javafx-fxml\13\javafx-fxml-13-win.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\Cullen\AppData\Local\Temp\surefire14875833317259877591\surefirebooter12910062057658030272.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\Cullen\AppData\Local\Temp\surefire10342694630714614052\surefirebooter11744620700000162574.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="17.0.2+8-LTS-86"/>
@@ -56,22 +56,22 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="testHasClassEmpty" classname="com.classuml.UMLDiagramTest" time="0.029"/>
-  <testcase name="testDeleteClass" classname="com.classuml.UMLDiagramTest" time="0.004"/>
+  <testcase name="testHasClassEmpty" classname="com.classuml.UMLDiagramTest" time="0.028"/>
+  <testcase name="testDeleteClass" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testSaveLoadJSON" classname="com.classuml.UMLDiagramTest" time="0.074"/>
-  <testcase name="testAddEmptyRelationship" classname="com.classuml.UMLDiagramTest" time="0"/>
+  <testcase name="testAddEmptyRelationship" classname="com.classuml.UMLDiagramTest" time="0.001"/>
   <testcase name="testClear" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testRenameAttribute" classname="com.classuml.UMLDiagramTest" time="0"/>
-  <testcase name="testRenameClass" classname="com.classuml.UMLDiagramTest" time="0.001"/>
+  <testcase name="testRenameClass" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testAddClass" classname="com.classuml.UMLDiagramTest" time="0"/>
-  <testcase name="testDeleteMethod" classname="com.classuml.UMLDiagramTest" time="0.001"/>
+  <testcase name="testDeleteMethod" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testDeleteRelationshipEmptyParam" classname="com.classuml.UMLDiagramTest" time="0"/>
-  <testcase name="testAddMethod" classname="com.classuml.UMLDiagramTest" time="0.001"/>
+  <testcase name="testAddMethod" classname="com.classuml.UMLDiagramTest" time="0.008"/>
   <testcase name="testRenameMethod" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testHasClass" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testAddAttribute" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testDeleteRelationship" classname="com.classuml.UMLDiagramTest" time="0"/>
-  <testcase name="testAddRelationship" classname="com.classuml.UMLDiagramTest" time="0.001"/>
-  <testcase name="testAddRelationshipBadType1" classname="com.classuml.UMLDiagramTest" time="0.001"/>
+  <testcase name="testAddRelationship" classname="com.classuml.UMLDiagramTest" time="0"/>
+  <testcase name="testAddRelationshipBadType1" classname="com.classuml.UMLDiagramTest" time="0"/>
   <testcase name="testAddRelationshipBadType2" classname="com.classuml.UMLDiagramTest" time="0"/>
 </testsuite>

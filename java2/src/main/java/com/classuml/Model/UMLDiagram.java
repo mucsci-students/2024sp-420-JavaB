@@ -91,9 +91,9 @@ public class UMLDiagram implements UMLStructure {
 		for(Map.Entry<String, UMLClass> entry: classNameMap.entrySet())
 		{
 			UMLClass class2 = new UMLClass(entry.getValue());
-			
 			map2.put(entry.getKey(), class2);
 		}
+		classNameMapToName = map2;
 	}
 	public void setClassMap(Map<String, Relationship> classMapRel)
 	{
@@ -104,6 +104,7 @@ public class UMLDiagram implements UMLStructure {
 			
 			map2.put(entry.getKey(), rel2);
 		}
+		classMapToRelation = map2;
 
 	}
 	public void setParams(List<Parameter> params)
@@ -627,13 +628,13 @@ public class UMLDiagram implements UMLStructure {
 		UMLDiagram  redo = memento.redo();
 		if(redo==null)
 			return false;
-		this.gui = redo.getGui();
-		this.diagram = redo.getDiagram();
-		this.classNameMapToName = redo.getClassNameMapToName();
-		this.classMapToRelation = redo.getClassMapToRelation();
-		this.parameters = redo.getParameters();
-		this.methods = redo.getMethods();
-		this.memento = redo.getMemento();
+		setGui(redo.getGui());
+		//setDiagram(undo.getDiagram());
+		setClassNameMap(redo.getClassNameMapToName());
+		setClassMap(redo.getClassMapToRelation());
+		setParams(redo.getParameters());
+		setMethods(redo.getMethods());
+		setMemento(redo.getMemento());
 		//saveState();
 		return true;
 	}
@@ -645,12 +646,11 @@ public class UMLDiagram implements UMLStructure {
 		state.setClassNameMap(this.classNameMapToName);
 		state.setClassMap(this.classMapToRelation);
 		state.setParams(this.parameters);
+		if(this.methods != null)
 		state.setMethods(this.methods);
 		state.setMemento(this.memento);
 		state.setClassName(this.className);
-		System.out.println(state.toString());
 		memento.saveState(state);
-		System.out.println("Test" + state.toString());
 		return true;
 	}
 	public boolean clearState()

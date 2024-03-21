@@ -24,7 +24,10 @@ public class UMLClass {
 	}
 	public UMLClass(UMLClass class2)
 	{
-		setName(class2.getName());
+		className = class2.getName();
+		this.fields = new ArrayList<>();
+	    this.methods = new ArrayList<>();
+		this.parameters = new ArrayList<>();
 		for(Field field2 : class2.getFields())
 		{
 			addField(field2.getName(), field2.getType());
