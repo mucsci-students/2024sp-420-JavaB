@@ -4,34 +4,65 @@ import java.util.Deque;
 
 public class Memento 
 {
-    Deque<UMLDiagram> statesUndo = new ArrayDeque<UMLDiagram>();
-    Deque<UMLDiagram> statesRedo = new ArrayDeque<UMLDiagram>();
-    UMLDiagram state;
+    private ArrayDeque<UMLDiagram> statesUndo = new ArrayDeque<UMLDiagram>();
+    private ArrayDeque<UMLDiagram> statesRedo = new ArrayDeque<UMLDiagram>();
+    public Memento()
+    {
+    }
+    public Memento(ArrayDeque<UMLDiagram> statesUndo2, ArrayDeque<UMLDiagram> statesRedo2)
+    {
+        statesUndo.clear();
+        statesRedo.clear();
+        for(UMLDiagram umlUndo: statesUndo2)
+        {
+            UMLDiagram undoList = new UMLDiagram(umlUndo);
+            this.statesUndo.add(undoList);
+        }
+        for(UMLDiagram umlRedo: statesRedo2)
+        {
+            UMLDiagram redoList = new UMLDiagram(umlRedo);
+            this.statesRedo.add(redoList);
+        }
+        
+    }
+    public ArrayDeque<UMLDiagram> getUndo()
+    {
+        return statesUndo;
+    }
+    public ArrayDeque<UMLDiagram> getRedo()
+    {
+        return statesRedo;
+    } 
     public boolean saveState(UMLDiagram curState)
     {
+        System.out.println("Saved!");
         if(curState != null)
         {
-            statesUndo.add(curState);
+            statesUndo.push(curState);
             return true;
-        }
+        }  
         return false;
     }
     public UMLDiagram undoState()
     {
-        state = null;
+        System.out.println("Here!");
         if(statesUndo.isEmpty())
-            return state;
-        state = statesUndo.pop();
-        statesRedo.add(state);
-        return state;
+            return null;
+        System.out.println(statesUndo.toString());
+        //statesUndo.pop();
+        UMLDiagram state2 = new UMLDiagram(statesUndo.pop());
+        System.out.println("Divider!!!");
+        System.out.println(statesUndo.toString());
+        statesRedo.push(state2);
+        return state2;
     }
     public UMLDiagram redo()
     {
-        state = null;
+        System.out.println("Redo called!");
         if(statesRedo.isEmpty())
-            return state;
-        state = statesRedo.pop();
-        return state;
+            return null;
+        UMLDiagram state3 = new UMLDiagram(statesRedo.pop());
+        return state3;
     }
     public void clearStates()
     {

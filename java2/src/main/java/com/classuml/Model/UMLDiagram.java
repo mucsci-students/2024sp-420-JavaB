@@ -32,6 +32,15 @@ public class UMLDiagram implements UMLStructure {
 	public UMLDiagram(UMLGui gui) {
 		this.gui = gui;
 	}
+	public UMLDiagram(UMLDiagram diagram2)
+	{
+		this.gui = diagram2.getGui();
+		setClassNameMap(diagram2.getClassNameMapToName());
+		setClassMap(diagram2.getClassMapToRelation());
+		setParams(diagram2.getParameters());
+		setMethods(diagram2.getMethods());
+		setMemento(diagram2.getMemento());
+	}
 	public String getClassName() {
 		return className;
 	}
@@ -60,30 +69,72 @@ public class UMLDiagram implements UMLStructure {
 	}
 
 	// In the class constructor or a setter method
-	public void setDiagram(UMLDiagram diagram) {
-	    this.diagram = diagram;
+	/*public void setDiagram(UMLDiagram diagram) {
+		if(diagram == null)
+		{
+		System.out.println("Why?");
+		return;
+		}
+	    this.gui = diagram.getGui();
+		if(diagram.getDiagram() != null)
+			setDiagram(diagram.getDiagram());
+		setClassNameMap(diagram.getClassNameMapToName());
+		setClassMap(diagram.getClassMapToRelation());
+		setParams(diagram.getParameters());
+		setMethods(diagram.getMethods());
+		setMemento(diagram.getMemento());
 	}
+	*/
 	public void setClassNameMap(Map<String, UMLClass> classNameMap)
 	{
-		this.classNameMapToName = classNameMap;
+		Map<String, UMLClass> map2 = new HashMap<String, UMLClass>();
+		for(Map.Entry<String, UMLClass> entry: classNameMap.entrySet())
+		{
+			UMLClass class2 = new UMLClass(entry.getValue());
+			
+			map2.put(entry.getKey(), class2);
+		}
 	}
 	public void setClassMap(Map<String, Relationship> classMapRel)
 	{
-		this.classMapToRelation = classMapRel;
+		Map<String, Relationship> map2 = new HashMap<String, Relationship>();
+		for(Map.Entry<String, Relationship> entry: classMapRel.entrySet())
+		{
+			Relationship rel2 = new Relationship(entry.getValue().getSource(), entry.getValue().getDestination(), entry.getValue().getType());
+			
+			map2.put(entry.getKey(), rel2);
+		}
 
 	}
 	public void setParams(List<Parameter> params)
 	{
-		this.parameters = params;
+		this.parameters.clear();
+		for(Parameter param:params)
+		{
+			Parameter param2 = new Parameter(param.getName(), param.getType());
+			parameters.add(param2);
+		}
 
 	}
 	public void setMethods(ArrayList<Method> methods2)
 	{
-		this.methods = methods2;
+		this.methods.clear();
+		for(Method method2:methods2)
+		{
+			Method method3 = new Method(method2.getName(), method2.getReturnType());
+			for(Parameter param2:method2.getParameters())
+			{
+				method3.addParameter(param2.getName(),param2.getType());
+			}
+
+			this.methods.add(method3);
+		}
 	}
 	public void setMemento(Memento memento2)
 	{
-		this.memento = memento2;
+		Memento testMem = new Memento(memento2.getUndo(), memento2.getRedo());
+		this.memento = testMem;
+		
 	}
 	public void setClassName(String classTwo)
 	{
@@ -131,7 +182,7 @@ public class UMLDiagram implements UMLStructure {
     	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
     	    }
 	    }
-		saveState();
+		//saveState();
 	    return true;
 	}
 
@@ -151,7 +202,7 @@ public class UMLDiagram implements UMLStructure {
 
 	        classMapToRelation.values().removeIf(relationship ->
 	                relationship.getSource().equals(className) || relationship.getDestination().equals(className));
-			saveState();
+			//saveState();
 	        return true; // Return true to indicate successful removal
 	    }
 	    return false; // Return false if the class name does not exist
@@ -187,7 +238,7 @@ public class UMLDiagram implements UMLStructure {
 				}
 				
 			});
-			saveState();
+			//saveState();
 			return true;
 		}
 		return false;
@@ -207,7 +258,7 @@ public class UMLDiagram implements UMLStructure {
 	        if (!relationshipExists(class1, class2)) {
 	            // Add the relationship
 	            classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));
-				saveState();
+				//saveState();
 	            return true; // Relationship successfully added
 	        }
 		    if (this.gui != null) {
@@ -233,7 +284,7 @@ public class UMLDiagram implements UMLStructure {
 	    if (classMapToRelation.containsKey(relationshipKey)) {
 	        // Remove the relationship
 	        classMapToRelation.remove(relationshipKey);
-			saveState();
+			//saveState();
 	        return true; // Relationship successfully deleted
 	    }
 	    return false; // Relationship does not exist
@@ -255,7 +306,7 @@ public class UMLDiagram implements UMLStructure {
 	        	if (!relationshipExists(class1, class2)) {
 	            // Add the relationship
 	            	classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));
-					saveState();
+					//saveState();
 	            	return true; // Relationship successfully added
 	        	}
 	    	}
@@ -295,7 +346,7 @@ public class UMLDiagram implements UMLStructure {
 	    if (umlClass != null) {
 			if(!umlClass.addField(fieldName, fieldType))// Corrected to match UMLClass's method signature
 				return false;
-			saveState();
+			//saveState();
 	        return true;
 	    }
 	    if (this.gui != null) {
@@ -319,7 +370,7 @@ public class UMLDiagram implements UMLStructure {
 		if (classNameMapToName.containsKey(className)) {
 			if(!classNameMapToName.get(className).deleteField(attributeName))
 				return false;
-			saveState();
+			//saveState();
 			return true;
 		}
 		return false;
@@ -349,7 +400,7 @@ public class UMLDiagram implements UMLStructure {
 	        // Delegate the renaming to the UMLClass instance
 			if(!umlClass.renameField(oldAttributeName, newAttributeName))
 				return false;
-			saveState();
+			//saveState();
 	        return true;
 	    }
 	    // Return false if the class does not exist or the field does not exist in the class
@@ -374,7 +425,7 @@ public class UMLDiagram implements UMLStructure {
 		if (classNameMapToName.containsKey(className)) {
 			if(!classNameMapToName.get(className).addMethod(methodName, methodType))
 				return false;
-			saveState();
+			//saveState();
 			return true;
 		}
 	    if (this.gui != null) {
@@ -389,7 +440,7 @@ public class UMLDiagram implements UMLStructure {
 		if (classNameMapToName.containsKey(className)) {
 			if(!classNameMapToName.get(className).deleteMethod(methodName))
 				return false;
-			saveState();
+			//saveState();
 			return true;
 		}
 		return false;
@@ -401,7 +452,7 @@ public class UMLDiagram implements UMLStructure {
 	    if (classNameMapToName.containsKey(className) && originalName != null && newName != null) {
 			if(!classNameMapToName.get(className).renameMethod(originalName, newName))
 				return false;
-			saveState();
+			//saveState();
 	        return true;
 	    }
 	    return false;
@@ -429,7 +480,7 @@ public class UMLDiagram implements UMLStructure {
 	    // Delegate the task to add the parameter to the specific method of the UMLClass
 		if(!targetClass.addParameter(methodName, parameterName, parameterType))
 			return false;
-		saveState();
+		//saveState();
 	    return true;
 	}
 
@@ -454,7 +505,7 @@ public class UMLDiagram implements UMLStructure {
 	        if (method != null) {
 				if(!method.renameParameter(oldParameterName, newParameterName))
 					return false;
-				saveState();
+				//saveState();
 	            return true;
 	        }
 	    }
@@ -478,7 +529,7 @@ public class UMLDiagram implements UMLStructure {
 	    if (umlClass != null) {
 			if(!umlClass.deleteParameter(methodName, parameterName))
 				return false;
-			saveState();
+			//saveState();
 	        return true;
 	    }
 	    return false;
@@ -504,7 +555,7 @@ public class UMLDiagram implements UMLStructure {
 			if(method.getName().equals(methodName)){
 				if(!method.changeParameterType(parameterName, newParamType))
 					return false;
-				saveState();
+				//saveState();
 				return true;
 			}
 		}
@@ -526,7 +577,7 @@ public class UMLDiagram implements UMLStructure {
 			if (method.getName().equals(methodName)){
 				if(!method.deleteAllParameters())
 					return false;
-				saveState();
+				//saveState();
 				return	true;
 			}
 		}
@@ -550,7 +601,7 @@ public class UMLDiagram implements UMLStructure {
 				method.replaceParameterList(newParameterList);
 			}
 		}
-		saveState();
+		//saveState();
 		return true;
 	}
 
@@ -561,19 +612,19 @@ public class UMLDiagram implements UMLStructure {
 		UMLDiagram  undo = memento.undoState();
 		if(undo==null)
 			return false;
-		this.gui = undo.getGui();
-		this.diagram = undo.getDiagram();
-		this.classNameMapToName = undo.getClassNameMapToName();
-		this.classMapToRelation = undo.getClassMapToRelation();
-		this.parameters = undo.getParameters();
-		this.methods = undo.getMethods();
-		this.memento = undo.memento;
-		saveState();
+		setGui(undo.getGui());
+		//setDiagram(undo.getDiagram());
+		setClassNameMap(undo.getClassNameMapToName());
+		setClassMap(undo.getClassMapToRelation());
+		setParams(undo.getParameters());
+		setMethods(undo.getMethods());
+		setMemento(undo.getMemento());
+		//saveState();
 		return true;
 	}
 	public boolean redo()
 	{
-		UMLDiagram  redo = memento.undoState();
+		UMLDiagram  redo = memento.redo();
 		if(redo==null)
 			return false;
 		this.gui = redo.getGui();
@@ -582,24 +633,24 @@ public class UMLDiagram implements UMLStructure {
 		this.classMapToRelation = redo.getClassMapToRelation();
 		this.parameters = redo.getParameters();
 		this.methods = redo.getMethods();
-		this.memento = redo.memento;
-		saveState();
+		this.memento = redo.getMemento();
+		//saveState();
 		return true;
 	}
 	public boolean saveState()
 	{
 		UMLDiagram state = new UMLDiagram();
-		if(state.equals(null))
-			return false;
 		state.setGui(this.gui);
-		state.setDiagram(this.diagram);
+		//state.setDiagram(this.diagram);
 		state.setClassNameMap(this.classNameMapToName);
 		state.setClassMap(this.classMapToRelation);
 		state.setParams(this.parameters);
 		state.setMethods(this.methods);
 		state.setMemento(this.memento);
 		state.setClassName(this.className);
+		System.out.println(state.toString());
 		memento.saveState(state);
+		System.out.println("Test" + state.toString());
 		return true;
 	}
 	public boolean clearState()
@@ -652,7 +703,7 @@ public class UMLDiagram implements UMLStructure {
 	public void clear() {
 		classNameMapToName.clear();
 		classMapToRelation.clear();
-		saveState();
+		//saveState();
 	}
 	 /**
      * Checks if a class exists in the UML diagram.

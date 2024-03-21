@@ -20,6 +20,25 @@ public class UMLClass {
 	public UMLClass() {
 		this.fields = new ArrayList<>();
 	    this.methods = new ArrayList<>();
+		this.parameters = new ArrayList<>();
+	}
+	public UMLClass(UMLClass class2)
+	{
+		setName(class2.getName());
+		for(Field field2 : class2.getFields())
+		{
+			addField(field2.getName(), field2.getType());
+		}
+		for(Method method2 : class2.getMethods())
+		{
+			addMethod(method2.getName(), method2.getReturnType());
+			for(Parameter param2 : class2.getParameters())
+			{
+				addParameter(method2.getName(),param2.getName(), param2.getType());
+			}
+	
+		}
+
 	}
 
 	/**
