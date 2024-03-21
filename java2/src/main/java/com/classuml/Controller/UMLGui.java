@@ -946,6 +946,12 @@ public class UMLGui extends JFrame implements ActionListener {
 
                         jsonMethods.add(jsonMethod);
                     }
+					JsonArray jsonPoss = new JsonArray();
+					JsonObject jsonPos = new JsonObject();
+					//jsonPos.addProperty("x", clspos.getX());
+					//jsonPos.addProperty("y", clspos.getY());
+					
+					jsonClass.add("position", jsonPoss);
                     jsonClass.add("methods", jsonMethods);
 
                     jsonClasses.add(jsonClass);
@@ -1007,6 +1013,10 @@ public class UMLGui extends JFrame implements ActionListener {
 	                    if (jsonClass.has("name")) {
 	                        String className = jsonClass.get("name").getAsString();
 	                        diagram.addClass(className);
+
+							//int posX = jsonClass.get("x").getAsInt(); 
+							//int posY = jsonClass.get("y").getAsInt();
+							//Setup set functions for guiView
 
 	                        // Load fields
 	                        if (jsonClass.has("fields")) {
