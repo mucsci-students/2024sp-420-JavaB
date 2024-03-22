@@ -174,6 +174,7 @@ public class UMLDiagram implements UMLStructure {
 	 *         exists.
 	 */
 	public boolean addClass(String className) {
+		memento.clearRedo();
 		saveState();
 	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)) {    	
 			memento.popUndo();
@@ -198,6 +199,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean deleteClass(String className) {
+		memento.clearRedo();
 		saveState();
 	    // Check if the class name exists in the map before attempting to remove
 	    if (classNameMapToName.containsKey(className)) {
@@ -223,6 +225,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean renameClass(String oldName, String newName) {
+		memento.clearRedo();
 		saveState();
 		
 		    if (newName == null || newName.isEmpty()) {
@@ -254,6 +257,7 @@ public class UMLDiagram implements UMLStructure {
 	
 	// Method to add a relationship to the diagram
 	public boolean addRelationship(String class1, String class2, int type) {
+		memento.clearRedo();
 		saveState();
 	    if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type < 1 || type > 4){
 			memento.popUndo();
@@ -284,6 +288,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
 
 	public boolean deleteRelationship(String sourceClass, String destinationClass) {
+		memento.clearRedo();
 		saveState();
 	    // Construct the relationship key
 	    String relationshipKey = generateRelationshipKey(sourceClass, destinationClass);
@@ -302,6 +307,7 @@ public class UMLDiagram implements UMLStructure {
 	
  
 	public boolean changeRelType(String class1, String class2, int type){
+		memento.clearRedo();
 		saveState();
 		if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type < 1 || type > 4){
 			memento.popUndo();
@@ -352,6 +358,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
 
 	public boolean addField(String className, String fieldName, String fieldType) {
+		memento.clearRedo();
 		saveState();
 	    UMLClass umlClass = this.getClassByName(className); // Assuming getClassByName is implemented correctly
 	    if (umlClass != null) {
@@ -379,6 +386,7 @@ public class UMLDiagram implements UMLStructure {
 
 
 	public boolean deleteField(String className, String attributeName) {
+		memento.clearRedo();
 		saveState();
 		if (classNameMapToName.containsKey(className)) {
 			if(classNameMapToName.get(className).deleteField(attributeName))
@@ -401,6 +409,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean renameField(String className, String oldAttributeName, String newAttributeName) {
+		memento.clearRedo();
 		saveState();
 	    // Check for null or empty new attribute name, or if the class does not exist
 	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)) {
@@ -439,6 +448,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean addMethod(String className, String methodName, String methodType) {
+		memento.clearRedo();
 		saveState();
 		if (classNameMapToName.containsKey(className)) {
 			if(classNameMapToName.get(className).addMethod(methodName, methodType))
@@ -496,6 +506,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter is successfully added, false otherwise
 	 */
 	public boolean addParameter(String className, String methodName, String parameterName, String parameterType) {
+		memento.clearRedo();
 		saveState();
 	    UMLClass targetClass = classNameMapToName.get(className);
 	    if (targetClass == null) {
@@ -524,6 +535,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
 	// In UMLDiagram class
 	public boolean renameParameter(String className, String methodName, String oldParameterName, String newParameterName) {
+		memento.clearRedo();
 		saveState();
 	    UMLClass umlClass = getClassByName(className);
 	    if (umlClass != null) {
@@ -552,6 +564,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter is successfully deleted, false otherwise
 	 */
 	public boolean deleteParameter(String className, String methodName, String parameterName) {
+		memento.clearRedo();
 		saveState();
 	    UMLClass umlClass = getClassByName(className);
 	    if (umlClass != null) {
@@ -580,6 +593,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter type is successfully changed, false otherwise
 	 */
 	public boolean changeParamType(String methodName, String parameterName, String newParamType){
+		memento.clearRedo();
 		saveState();
 		for(Method method : methods){
 			if(method.getName().equals(methodName)){
@@ -604,6 +618,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if all parameters are successfully removed, false otherwise
 	 */
 	public boolean removeAllPar(String methodName){
+		memento.clearRedo();
 		saveState();
 		for(Method method : methods){
 			if (method.getName().equals(methodName)){
@@ -629,6 +644,7 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter list is successfully replaced, false otherwise
 	 */
 	public boolean replaceParameterList(String methodName, ArrayList<Parameter> newParameterList){
+		memento.clearRedo();
 		saveState();
 		for(Method method : methods){
 			if(method.getName().equals(methodName)){
