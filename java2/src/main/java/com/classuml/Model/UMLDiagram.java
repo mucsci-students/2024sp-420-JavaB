@@ -174,7 +174,9 @@ public class UMLDiagram implements UMLStructure {
 	 *         exists.
 	 */
 	public boolean addClass(String className) {
+		saveState();
 	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)) {    	
+			memento.popUndo();
 	        return false; // Class already exists or invalid name      
 	    }
 		if(!classNameMapToName.containsKey(className)) {
@@ -183,7 +185,6 @@ public class UMLDiagram implements UMLStructure {
     	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
     	    }
 	    }
-		//saveState();
 	    return true;
 	}
 
@@ -197,15 +198,16 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean deleteClass(String className) {
+		saveState();
 	    // Check if the class name exists in the map before attempting to remove
 	    if (classNameMapToName.containsKey(className)) {
 	        classNameMapToName.remove(className);
 
 	        classMapToRelation.values().removeIf(relationship ->
 	                relationship.getSource().equals(className) || relationship.getDestination().equals(className));
-			//saveState();
 	        return true; // Return true to indicate successful removal
 	    }
+		memento.popUndo();
 	    return false; // Return false if the class name does not exist
 	}
 
@@ -221,8 +223,10 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean renameClass(String oldName, String newName) {
+		saveState();
 		
 		    if (newName == null || newName.isEmpty()) {
+				memento.popUndo();
 		        return false; // New name cannot be null or empty
 		    }
 		if (classNameMapToName.containsKey(oldName) && !classNameMapToName.containsKey(newName)) {
@@ -239,9 +243,9 @@ public class UMLDiagram implements UMLStructure {
 				}
 				
 			});
-			//saveState();
 			return true;
 		}
+		memento.popUndo();
 		return false;
 	}
 
@@ -250,7 +254,9 @@ public class UMLDiagram implements UMLStructure {
 	
 	// Method to add a relationship to the diagram
 	public boolean addRelationship(String class1, String class2, int type) {
+		saveState();
 	    if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type < 1 || type > 4){
+			memento.popUndo();
 	        return false; // Reject if class names are null/empty or if type is out of valid range
 	    }
 	    // Check if both classes exist in the diagram
@@ -259,13 +265,13 @@ public class UMLDiagram implements UMLStructure {
 	        if (!relationshipExists(class1, class2)) {
 	            // Add the relationship
 	            classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));
-				//saveState();
 	            return true; // Relationship successfully added
 	        }
 		    if (this.gui != null) {
 		        this.gui.notifyClassAdded(className); // Notify GUI about the new class
 		    }
 	    }
+		memento.popUndo();
 	    return false;
 	} 
 
@@ -278,6 +284,7 @@ public class UMLDiagram implements UMLStructure {
 	 */
 
 	public boolean deleteRelationship(String sourceClass, String destinationClass) {
+		saveState();
 	    // Construct the relationship key
 	    String relationshipKey = generateRelationshipKey(sourceClass, destinationClass);
 
@@ -285,9 +292,9 @@ public class UMLDiagram implements UMLStructure {
 	    if (classMapToRelation.containsKey(relationshipKey)) {
 	        // Remove the relationship
 	        classMapToRelation.remove(relationshipKey);
-			//saveState();
 	        return true; // Relationship successfully deleted
 	    }
+		memento.popUndo();
 	    return false; // Relationship does not exist
 	}
 
@@ -295,7 +302,9 @@ public class UMLDiagram implements UMLStructure {
 	
  
 	public boolean changeRelType(String class1, String class2, int type){
+		saveState();
 		if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type < 1 || type > 4){
+			memento.popUndo();
 	        return false; // Reject null or empty class names
 	    }
 		String relationshipKey = generateRelationshipKey(class1, class2);
@@ -307,11 +316,11 @@ public class UMLDiagram implements UMLStructure {
 	        	if (!relationshipExists(class1, class2)) {
 	            // Add the relationship
 	            	classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));
-					//saveState();
 	            	return true; // Relationship successfully added
 	        	}
 	    	}
 		}
+		memento.popUndo();
 	    return false;
 	}
 	
@@ -343,16 +352,18 @@ public class UMLDiagram implements UMLStructure {
 	 */
 
 	public boolean addField(String className, String fieldName, String fieldType) {
+		saveState();
 	    UMLClass umlClass = this.getClassByName(className); // Assuming getClassByName is implemented correctly
 	    if (umlClass != null) {
-			if(!umlClass.addField(fieldName, fieldType))// Corrected to match UMLClass's method signature
-				return false;
-			//saveState();
-	        return true;
+			if(umlClass.addField(fieldName, fieldType))// Corrected to match UMLClass's method signature
+				return true;
+			memento.popUndo();
+	        return false;
 	    }
 	    if (this.gui != null) {
 	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
 	    }
+		memento.popUndo();
 	    return false;
 	}
 
@@ -368,12 +379,14 @@ public class UMLDiagram implements UMLStructure {
 
 
 	public boolean deleteField(String className, String attributeName) {
+		saveState();
 		if (classNameMapToName.containsKey(className)) {
-			if(!classNameMapToName.get(className).deleteField(attributeName))
-				return false;
-			//saveState();
-			return true;
+			if(classNameMapToName.get(className).deleteField(attributeName))
+				return true;
+			memento.popUndo();
+			return false;
 		}
+		memento.popUndo();
 		return false;
 	}
 
@@ -388,8 +401,10 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean renameField(String className, String oldAttributeName, String newAttributeName) {
+		saveState();
 	    // Check for null or empty new attribute name, or if the class does not exist
 	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)) {
+			memento.popUndo();
 	        return false;
 	    }
 
@@ -399,12 +414,13 @@ public class UMLDiagram implements UMLStructure {
 	    // Ensure the old attribute exists before attempting to rename
 	    if (umlClass != null && umlClass.containsField(oldAttributeName)) {
 	        // Delegate the renaming to the UMLClass instance
-			if(!umlClass.renameField(oldAttributeName, newAttributeName))
-				return false;
-			//saveState();
-	        return true;
+			if(umlClass.renameField(oldAttributeName, newAttributeName))
+				return true;
+			memento.popUndo();
+	        return false;
 	    }
 	    // Return false if the class does not exist or the field does not exist in the class
+		memento.popUndo();
 	    return false;
 	}
 
@@ -423,39 +439,45 @@ public class UMLDiagram implements UMLStructure {
 	 */
  
 	public boolean addMethod(String className, String methodName, String methodType) {
+		saveState();
 		if (classNameMapToName.containsKey(className)) {
-			if(!classNameMapToName.get(className).addMethod(methodName, methodType))
-				return false;
-			//saveState();
-			return true;
+			if(classNameMapToName.get(className).addMethod(methodName, methodType))
+				return true;
+			memento.popUndo();
+			return false;
 		}
 	    if (this.gui != null) {
 	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
 	    }
+		memento.popUndo();
 		return false;
 	}
 
 	// Method to delete a method from a class in the UML diagram
 
 	public boolean deleteMethod(String className, String methodName) {
+		saveState();
 		if (classNameMapToName.containsKey(className)) {
-			if(!classNameMapToName.get(className).deleteMethod(methodName))
-				return false;
-			//saveState();
-			return true;
+			if(classNameMapToName.get(className).deleteMethod(methodName))
+				return true;
+			memento.popUndo();
+			return false;
 		}
+		memento.popUndo();
 		return false;
 	}
 
 	// Method to rename a method in a class in the UML diagram
  
 	public boolean renameMethod(String className, String originalName, String newName) {
+		saveState();
 	    if (classNameMapToName.containsKey(className) && originalName != null && newName != null) {
-			if(!classNameMapToName.get(className).renameMethod(originalName, newName))
-				return false;
-			//saveState();
-	        return true;
+			if(classNameMapToName.get(className).renameMethod(originalName, newName))
+				return true;
+			memento.popUndo();
+	        return false;
 	    }
+		memento.popUndo();
 	    return false;
 	}
 	
@@ -474,15 +496,17 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter is successfully added, false otherwise
 	 */
 	public boolean addParameter(String className, String methodName, String parameterName, String parameterType) {
+		saveState();
 	    UMLClass targetClass = classNameMapToName.get(className);
 	    if (targetClass == null) {
+			memento.popUndo();
 	        return false; // Class not found
 	    }
 	    // Delegate the task to add the parameter to the specific method of the UMLClass
-		if(!targetClass.addParameter(methodName, parameterName, parameterType))
-			return false;
-		//saveState();
-	    return true;
+		if(targetClass.addParameter(methodName, parameterName, parameterType))
+			return true;
+		memento.popUndo();
+	    return false;
 	}
 
 	/**
@@ -500,16 +524,18 @@ public class UMLDiagram implements UMLStructure {
 	 */
 	// In UMLDiagram class
 	public boolean renameParameter(String className, String methodName, String oldParameterName, String newParameterName) {
+		saveState();
 	    UMLClass umlClass = getClassByName(className);
 	    if (umlClass != null) {
 	        Method method = umlClass.getMethodByName(methodName);
 	        if (method != null) {
-				if(!method.renameParameter(oldParameterName, newParameterName))
-					return false;
-				//saveState();
-	            return true;
+				if(method.renameParameter(oldParameterName, newParameterName))
+					return true;
+				memento.popUndo();
+	            return false;
 	        }
 	    }
+		memento.popUndo();
 	    return false; // Class or method not found
 	}
 
@@ -526,13 +552,15 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter is successfully deleted, false otherwise
 	 */
 	public boolean deleteParameter(String className, String methodName, String parameterName) {
+		saveState();
 	    UMLClass umlClass = getClassByName(className);
 	    if (umlClass != null) {
-			if(!umlClass.deleteParameter(methodName, parameterName))
-				return false;
-			//saveState();
-	        return true;
+			if(umlClass.deleteParameter(methodName, parameterName))
+				return true;
+			memento.popUndo();
+	        return false;
 	    }
+		memento.popUndo();
 	    return false;
 	}
 
@@ -552,14 +580,16 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter type is successfully changed, false otherwise
 	 */
 	public boolean changeParamType(String methodName, String parameterName, String newParamType){
+		saveState();
 		for(Method method : methods){
 			if(method.getName().equals(methodName)){
-				if(!method.changeParameterType(parameterName, newParamType))
-					return false;
-				//saveState();
-				return true;
+				if(method.changeParameterType(parameterName, newParamType))
+					return true;
+				memento.popUndo();
+				return false;
 			}
 		}
+		memento.popUndo();
 		return false;
 	}
 
@@ -574,14 +604,16 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if all parameters are successfully removed, false otherwise
 	 */
 	public boolean removeAllPar(String methodName){
+		saveState();
 		for(Method method : methods){
 			if (method.getName().equals(methodName)){
-				if(!method.deleteAllParameters())
-					return false;
-				//saveState();
-				return	true;
+				if(method.deleteAllParameters())
+					return true;
+				memento.popUndo();
+				return	false;
 			}
 		}
+		memento.popUndo();
 		return false;
 	}
 
@@ -597,12 +629,12 @@ public class UMLDiagram implements UMLStructure {
 	 * @return true if the parameter list is successfully replaced, false otherwise
 	 */
 	public boolean replaceParameterList(String methodName, ArrayList<Parameter> newParameterList){
+		saveState();
 		for(Method method : methods){
 			if(method.getName().equals(methodName)){
 				method.replaceParameterList(newParameterList);
 			}
 		}
-		//saveState();
 		return true;
 	}
 
@@ -610,6 +642,16 @@ public class UMLDiagram implements UMLStructure {
 	/****************************** SAVE & LOAD *****************************************************************/
 	public boolean undo()
 	{
+		UMLDiagram state = new UMLDiagram();
+		state.setGui(this.gui);
+		//state.setDiagram(this.diagram);
+		state.setClassNameMap(this.classNameMapToName);
+		state.setClassMap(this.classMapToRelation);
+		state.setParams(this.parameters);
+		if(this.methods != null)
+			state.setMethods(this.methods);
+		state.setMemento(this.memento);
+		state.setClassName(this.className);
 		UMLDiagram  undo = memento.undoState();
 		if(undo==null)
 			return false;
@@ -620,14 +662,19 @@ public class UMLDiagram implements UMLStructure {
 		setParams(undo.getParameters());
 		setMethods(undo.getMethods());
 		setMemento(undo.getMemento());
+		memento.pushRedo(state);
 		//saveState();
 		return true;
 	}
 	public boolean redo()
 	{
+		
 		UMLDiagram  redo = memento.redo();
 		if(redo==null)
+		{
 			return false;
+		}
+		saveState();
 		setGui(redo.getGui());
 		//setDiagram(undo.getDiagram());
 		setClassNameMap(redo.getClassNameMapToName());
@@ -635,7 +682,7 @@ public class UMLDiagram implements UMLStructure {
 		setParams(redo.getParameters());
 		setMethods(redo.getMethods());
 		setMemento(redo.getMemento());
-		//saveState();
+		
 		return true;
 	}
 	public boolean saveState()
@@ -647,7 +694,7 @@ public class UMLDiagram implements UMLStructure {
 		state.setClassMap(this.classMapToRelation);
 		state.setParams(this.parameters);
 		if(this.methods != null)
-		state.setMethods(this.methods);
+			state.setMethods(this.methods);
 		state.setMemento(this.memento);
 		state.setClassName(this.className);
 		memento.saveState(state);

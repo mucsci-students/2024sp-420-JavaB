@@ -11,8 +11,6 @@ public class Memento
     }
     public Memento(ArrayDeque<UMLDiagram> statesUndo2, ArrayDeque<UMLDiagram> statesRedo2)
     {
-        statesUndo.clear();
-        statesRedo.clear();
         for(UMLDiagram umlUndo: statesUndo2)
         {
             UMLDiagram undoList = new UMLDiagram(umlUndo);
@@ -53,7 +51,9 @@ public class Memento
         UMLDiagram state2 = new UMLDiagram(statesUndo.pop());
         System.out.println("Divider!!!");
         System.out.println(statesUndo.toString());
-        statesRedo.push(state2);
+        System.out.println(state2.toString());
+        //UMLDiagram testPush = new UMLDiagram(state2);
+        //state2.getMemento().getRedo().push(testPush);
         return state2;
     }
     public UMLDiagram redo()
@@ -63,6 +63,14 @@ public class Memento
             return null;
         UMLDiagram state3 = new UMLDiagram(statesRedo.pop());
         return state3;
+    }
+    public void popUndo()
+    {
+        statesUndo.pop();
+    }
+    public void pushRedo(UMLDiagram curState)
+    {
+        statesRedo.push(curState);
     }
     public void clearStates()
     {

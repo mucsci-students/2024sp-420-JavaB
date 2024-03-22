@@ -49,77 +49,62 @@ public class UMLCli {
                 break;
             case "addclass":
             case "ac":
-				umlDiagram.saveState();
                 createClass();
                 break;
             case "deleteclass":
             case "dc":
-				umlDiagram.saveState();
                 deleteClass();
                 break;
             case "renameclass":
             case "rc":
-				umlDiagram.saveState();
                 renameClass();
                 break;
             case "addparameter":
             case "ap":
-				umlDiagram.saveState();
                 addParameter();
                 break;
             case "deleteparameter":
             case "dp":
-				umlDiagram.saveState();
                 deleteParameter();
                 break;
             case "renameparameter":
             case "rp":
-				umlDiagram.saveState();
                 renameParameter();
                 break;
             case "addfield":
             case "af":
-				umlDiagram.saveState();
             	addField();
             	break;
             case "renamefield":
             case "rf":
-				umlDiagram.saveState();
             	renameField();
             	break;
             case "deletefield":
             case "df":
-				umlDiagram.saveState();
             	deleteField();
             	break;
             case "addmethod":
             case "am":
-				umlDiagram.saveState();
                 addMethod();
                 break;
             case "deletemethod":
             case "dm":
-				umlDiagram.saveState();
                 deleteMethod();
                 break;
             case "renamemethod":
             case "rm":
-				umlDiagram.saveState();
                 renameMethod();
                 break;
             case "addrelationship":
             case "ar":
-				umlDiagram.saveState();
                 addRelationship();
                 break;
             case "deleterelationship":
             case "dr":
-				umlDiagram.saveState();
                 deleteRelationship();
                 break;
             case "changetype":
             case "ct":
-				umlDiagram.saveState();
                 changeType();
                 break;
             case "listclasses":
