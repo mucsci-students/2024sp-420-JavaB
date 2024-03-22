@@ -21,13 +21,16 @@ public class guiView extends JComponent {
     private List<String> relationships;
 
     private final int padding = 10;
-    private int x = padding;
-    private int y = padding;
+    private int x = 20;
+    private int y = 20;
     private Point lastPoint;
 
     private FontMetrics fm;
     private int uniformWidth = -1; // Cached width for uniform drawing
     private int totalHeight = -1; // Cached total height
+
+    private int boxWidth = 0;
+    private int boxHeight = 0;
 
     
    /**
@@ -206,15 +209,15 @@ public class guiView extends JComponent {
         int localY = padding;
         localY = drawItem(g, "Class: " + className, x, localY, true);
 
-        for (String field : fields) {
-            localY = drawItem(g, "Field: " + field, x, localY, false);
-        }
+        //for (String field : fields) {
+            localY = drawItem(g, "Field: " + fields, x, localY, false);
+        //}
         for (String method : methods) {
-            localY = drawItem(g, "Method: " + method, x, localY, false);
+            localY = drawItem(g, "Method: " + methods, x, localY, false);
         }
-        for (String relationship : relationships) {
-            localY = drawItem(g, relationship, x, localY, false);
-        }
+        // for (String relationship : relationships) {
+        //     localY = drawItem(g, relationship, x, localY, false);
+        // }
     }
 
     /**
@@ -227,9 +230,6 @@ public class guiView extends JComponent {
         int maxWidth = fm.stringWidth("Class: " + className);
         maxWidth = Math.max(maxWidth, calculateWidthForList(fm, fields, "Field: "));
         maxWidth = Math.max(maxWidth, calculateWidthForList(fm, methods, "Method: "));
-        for (String relationship : relationships) {
-            maxWidth = Math.max(maxWidth, fm.stringWidth(relationship));
-        }
         return maxWidth + padding * 2;
     }
 
@@ -241,7 +241,7 @@ public class guiView extends JComponent {
      */
     private int calculateTotalHeight(FontMetrics fm) {
         int heightPerItem = fm.getHeight();
-        int totalItems = 1 + fields.size() + methods.size() + relationships.size();
+        int totalItems =  (fm.getHeight() * fields.size()) + (fm.getHeight() * methods.size()) + (fm.getHeight() * relationships.size());
         return (heightPerItem + padding) * totalItems + padding * 2;
     }
 
@@ -309,7 +309,7 @@ public class guiView extends JComponent {
     private int calculateWidthForList(FontMetrics fm, List<String> items, String prefix) {
         int maxWidth = 0;
         for (String item : items) {
-            maxWidth = Math.max(maxWidth, fm.stringWidth(prefix + item.split(",")[1].trim()));
+            maxWidth = Math.max(maxWidth, fm.stringWidth(prefix + item.split(",")[0].trim()));
         }
         return maxWidth;
     }
