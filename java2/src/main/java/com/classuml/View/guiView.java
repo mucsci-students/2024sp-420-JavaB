@@ -210,7 +210,7 @@ public class guiView extends JComponent {
         localY = drawItem(g, "Class: " + className, x, localY, true);
 
         //for (String field : fields) {
-            localY = drawItem(g, "Field: " + fields, x, localY, false);
+            localY = drawItem(g, "Fields: " + fields, x, localY, false);
         //}
         for (String method : methods) {
             localY = drawItem(g, "Method: " + method, x, localY, false);
