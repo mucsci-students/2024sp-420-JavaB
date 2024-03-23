@@ -213,7 +213,7 @@ public class guiView extends JComponent {
             localY = drawItem(g, "Field: " + fields, x, localY, false);
         //}
         for (String method : methods) {
-            localY = drawItem(g, "Method: " + methods, x, localY, false);
+            localY = drawItem(g, "Method: " + method, x, localY, false);
         }
         // for (String relationship : relationships) {
         //     localY = drawItem(g, relationship, x, localY, false);

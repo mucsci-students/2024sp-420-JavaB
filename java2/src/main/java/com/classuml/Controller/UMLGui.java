@@ -422,6 +422,14 @@ public class UMLGui extends JFrame implements ActionListener {
 		return classNames;
 	}
 
+	private String[] returnTypes(){
+		return new String[] {"null", "int", "double", "boolean", "string", "object"};
+	}
+
+	private String[] attributeTypes(){
+		return new String[] {"int", "double", "boolean", "string"};
+	}
+
 /**************************************************************************************************************************************/
     /**   FIELDS   **/
 /**************************************************************************************************************************************/
@@ -436,7 +444,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		String[] classNames = getClassNames();
 		JComboBox<String>namesBox = new JComboBox<String>(classNames);
 		JTextField fieldName = new JTextField();
-		JTextField fieldType = new JTextField();
+		JComboBox<String> fieldType = new JComboBox<String>(attributeTypes());
 		JPanel oPanel = new JPanel();
 		oPanel.setLayout(new BoxLayout(oPanel ,BoxLayout.Y_AXIS));
 		oPanel.add(new JLabel("Select the Class to add the Field to: "));
@@ -457,7 +465,7 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		if (namesBox.getSelectedItem() != null && fieldName != null && fieldType != null && entered == 0) {
 			try {
-				boolean added = diagram.addField(namesBox.getSelectedItem().toString(), fieldName.getText(), fieldType.getText());
+				boolean added = diagram.addField(namesBox.getSelectedItem().toString(), fieldName.getText(), fieldType.getSelectedItem().toString());
 				if (added) {
 					updateDiagramView();
 					JOptionPane.showMessageDialog(this, "Field added successfully.", "Field Added",
@@ -540,13 +548,42 @@ public class UMLGui extends JFrame implements ActionListener {
      * otherwise shows an error message.
      */
 	private void deleteField() {
-		String className = JOptionPane.showInputDialog(this, "Enter the class name from which to delete an field:",
-				"Delete Field", JOptionPane.PLAIN_MESSAGE);
-		String fieldName = JOptionPane.showInputDialog(this, "Enter the field name to delete:", "Delete Field",
-				JOptionPane.PLAIN_MESSAGE);
-		if (className != null && !className.trim().isEmpty() && fieldName != null && !fieldName.trim().isEmpty()) {
+		
+		String[] classNames = getClassNames();
+		JComboBox<String> namesBox = new JComboBox<String>(classNames); 
+		
+		JPanel dPanel = new JPanel();
+		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));
+		dPanel.add(new JLabel("Select the Class Containing the Field: "));
+		dPanel.add(namesBox);
+		
+		int entered = -1;
+		if(classNames.length == 0){
+			JOptionPane.showMessageDialog(this, "there are no Classes");
+		}else{
+			entered = JOptionPane.showConfirmDialog(this, dPanel,
+				"Delete Field", JOptionPane.OK_CANCEL_OPTION);
+		}
+		
+		dPanel = new JPanel();
+		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));
+		String[] fieldNames = getClassFields(namesBox.getSelectedItem().toString());
+		JComboBox<String> fieldsBox = new JComboBox<String>(fieldNames);
+		dPanel.add(new JLabel("Select the Field to delete: "));
+		dPanel.add(fieldsBox);
+		
+		entered = -1;
+		if(classNames.length == 0){
+			JOptionPane.showMessageDialog(this, "there are no Fields in this Class");
+		}else{
+			entered = JOptionPane.showConfirmDialog(this, dPanel,
+				"Delete Field", JOptionPane.OK_CANCEL_OPTION);
+		}
+
+
+		if (namesBox.getSelectedItem() != null && fieldsBox.getSelectedItem() != null && entered == 0) {
 			try {
-				boolean deleted = diagram.deleteField(className, fieldName);
+				boolean deleted = diagram.deleteField(namesBox.getSelectedItem().toString(), fieldsBox.getSelectedItem().toString());
 				if (deleted) {
 					updateDiagramView();
 					JOptionPane.showMessageDialog(this, "Attribute deleted successfully.", "Attribute Deleted",
@@ -583,17 +620,24 @@ public class UMLGui extends JFrame implements ActionListener {
      * otherwise shows an error message.
      */
 	private void addMethod() {
-		String className = JOptionPane.showInputDialog(this, "Enter the class name to add a method to:", "Add Method",
-				JOptionPane.PLAIN_MESSAGE);
-		if (className != null && !className.trim().isEmpty()) {
-			String methodName = JOptionPane.showInputDialog(this, "Enter the method name:", "Add Method",
-					JOptionPane.PLAIN_MESSAGE);
-			if (methodName != null && !methodName.trim().isEmpty()) {
-				String returnType = JOptionPane.showInputDialog(this, "Enter the return type of the method:",
-						"Add Method", JOptionPane.PLAIN_MESSAGE);
-				if (returnType != null && !returnType.trim().isEmpty()) {
+		String [] classNames = getClassNames();
+		JComboBox<String> namesBox = new JComboBox<String>(classNames);
+		JTextField methName = new JTextField();
+		JComboBox<String> methType = new JComboBox<String>(returnTypes());
+
+		JPanel mPanel = new JPanel();
+		mPanel.setLayout(new BoxLayout(mPanel, BoxLayout.Y_AXIS));
+		mPanel.add(new JLabel("Select a Class: "));
+		mPanel.add(namesBox);
+		mPanel.add(new JLabel("Enter the Name: "));
+		mPanel.add(methName);
+		mPanel.add(new JLabel("Select the return type: "));
+		mPanel.add(methType);
+
+		if (namesBox.getSelectedItem() != null) {
+			if (methName != null && methType != null) {
 					try {
-						boolean added = diagram.addMethod(className, methodName, returnType);
+						boolean added = diagram.addMethod(namesBox.getSelectedItem().toString(), methName.toString(), methType.getSelectedItem().toString());
 						if (added) {
 							updateDiagramView();
 							JOptionPane.showMessageDialog(this, "Method added successfully.", "Method Added",
@@ -607,7 +651,6 @@ public class UMLGui extends JFrame implements ActionListener {
 								"An error occurred while adding the method: " + ex.getMessage(), "Error",
 								JOptionPane.ERROR_MESSAGE);
 					}
-				}
 			}
 		}
 	}
@@ -619,12 +662,19 @@ public class UMLGui extends JFrame implements ActionListener {
      * otherwise shows an error message.
      */
 	private void renameMethod() {
-		String className = JOptionPane.showInputDialog(this, "Enter the class name containing the method:",
-				"Rename Method", JOptionPane.PLAIN_MESSAGE);
-		String oldMethodName = JOptionPane.showInputDialog(this, "Enter the current method name:", "Rename Method",
-				JOptionPane.PLAIN_MESSAGE);
-		String newMethodName = JOptionPane.showInputDialog(this, "Enter the new method name:", "Rename Method",
-				JOptionPane.PLAIN_MESSAGE);
+		String[] classNames = getClassNames();
+		JComboBox<String> namesBox = new JComboBox<String>(classNames);
+
+		JPanel rPanel = new JPanel();
+		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));
+		rPanel.add(new JLabel("Select the Class: "));
+		rPanel.add(namesBox);
+
+		JOptionPane.showConfirmDialog(this, rPanel, "Rename Method", JOptionPane.OK_CANCEL_OPTION);
+
+		rPanel = new JPanel();
+		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));
+
 		if (className != null && !className.trim().isEmpty() && oldMethodName != null && !oldMethodName.trim().isEmpty()
 				&& newMethodName != null && !newMethodName.trim().isEmpty()) {
 			try {
