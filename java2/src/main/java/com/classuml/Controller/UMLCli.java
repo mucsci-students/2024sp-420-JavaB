@@ -182,6 +182,8 @@ public class UMLCli {
         System.out.println("Load (lo)- Load diagram from JSON file.");
         System.out.println("Menu (m)- Display main menu.");
         System.out.println("Help (h)- Help.");
+		System.out.println("Undo - undos the last command.");
+		System.out.println("Redo - goes back to state before previous undo.");
         System.out.println("Exit - Exit.");
         System.out.println("  ");
         System.out.println("  ");
@@ -193,7 +195,7 @@ public class UMLCli {
 	private static String getUserChoice() {
 		return scanner.next().toLowerCase().trim();
 	}
-
+	//Calls undo.
 	protected static void undo() {
 		boolean success = umlDiagram.undo();
 		if (success) {
@@ -202,6 +204,7 @@ public class UMLCli {
 			System.out.println("There was nothing to undo!");
 		}
 	}
+	//Calls redo.
 	protected static void redo() {
 		boolean success = umlDiagram.redo();
 		if (success) {

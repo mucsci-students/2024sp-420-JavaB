@@ -9,6 +9,7 @@ public class Memento
     public Memento()
     {
     }
+    //Deep copy constructor.
     public Memento(ArrayDeque<UMLDiagram> statesUndo2, ArrayDeque<UMLDiagram> statesRedo2)
     {
         for(UMLDiagram umlUndo: statesUndo2)
@@ -23,17 +24,19 @@ public class Memento
         }
         
     }
+    //Returns undo deque.
     public ArrayDeque<UMLDiagram> getUndo()
     {
         return statesUndo;
     }
+    //Returns redo deque.
     public ArrayDeque<UMLDiagram> getRedo()
     {
         return statesRedo;
     } 
+    //Saves the passed in state.
     public boolean saveState(UMLDiagram curState)
     {
-        System.out.println("Saved!");
         if(curState != null)
         {
             statesUndo.push(curState);
@@ -41,42 +44,39 @@ public class Memento
         }  
         return false;
     }
+    //Returns undo diagram.
     public UMLDiagram undoState()
     {
-        System.out.println("Here!");
         if(statesUndo.isEmpty())
             return null;
-        System.out.println(statesUndo.toString());
-        //statesUndo.pop();
         UMLDiagram state2 = new UMLDiagram(statesUndo.pop());
-        System.out.println("Divider!!!");
-        System.out.println(statesUndo.toString());
-        System.out.println(state2.toString());
-        //UMLDiagram testPush = new UMLDiagram(state2);
-        //state2.getMemento().getRedo().push(testPush);
         return state2;
     }
+    //Returns redo diagram.
     public UMLDiagram redo()
     {
-        System.out.println("Redo called!");
         if(statesRedo.isEmpty())
             return null;
         UMLDiagram state3 = new UMLDiagram(statesRedo.pop());
         return state3;
     }
+    //Pops top of undo, used if command called failed but state was saved.
     public void popUndo()
     {
         statesUndo.pop();
     }
+    //Pushes passed in diagram onto statesRedo.
     public void pushRedo(UMLDiagram curState)
     {
         statesRedo.push(curState);
     }
+    //Clears both states.
     public void clearStates()
     {
         statesUndo.clear();
         statesRedo.clear();
     }
+    //Clears redo when new command is issues after undoing.
     public void clearRedo()
     {
         statesRedo.clear();

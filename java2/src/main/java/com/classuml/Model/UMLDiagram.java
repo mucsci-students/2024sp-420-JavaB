@@ -68,23 +68,6 @@ public class UMLDiagram implements UMLStructure {
 		classNameMapToName = new HashMap<>();
 	}
 
-	// In the class constructor or a setter method
-	/*public void setDiagram(UMLDiagram diagram) {
-		if(diagram == null)
-		{
-		System.out.println("Why?");
-		return;
-		}
-	    this.gui = diagram.getGui();
-		if(diagram.getDiagram() != null)
-			setDiagram(diagram.getDiagram());
-		setClassNameMap(diagram.getClassNameMapToName());
-		setClassMap(diagram.getClassMapToRelation());
-		setParams(diagram.getParameters());
-		setMethods(diagram.getMethods());
-		setMemento(diagram.getMemento());
-	}
-	*/
 	public void setClassNameMap(Map<String, UMLClass> classNameMap)
 	{
 		Map<String, UMLClass> map2 = new HashMap<String, UMLClass>();
@@ -656,11 +639,14 @@ public class UMLDiagram implements UMLStructure {
 
 	
 	/****************************** SAVE & LOAD *****************************************************************/
+	/**
+	 * Undos to previous state.
+	 * @return Returns true if worked, false if nothing to undo.
+	 */
 	public boolean undo()
 	{
 		UMLDiagram state = new UMLDiagram();
 		state.setGui(this.gui);
-		//state.setDiagram(this.diagram);
 		state.setClassNameMap(this.classNameMapToName);
 		state.setClassMap(this.classMapToRelation);
 		state.setParams(this.parameters);
@@ -672,16 +658,18 @@ public class UMLDiagram implements UMLStructure {
 		if(undo==null)
 			return false;
 		setGui(undo.getGui());
-		//setDiagram(undo.getDiagram());
 		setClassNameMap(undo.getClassNameMapToName());
 		setClassMap(undo.getClassMapToRelation());
 		setParams(undo.getParameters());
 		setMethods(undo.getMethods());
 		setMemento(undo.getMemento());
 		memento.pushRedo(state);
-		//saveState();
 		return true;
 	}
+	/**
+	 * Redos to state ontop of redo deque.
+	 * @return boolean, returns true if it worked, if nothing in it false.
+	 */
 	public boolean redo()
 	{
 		
@@ -692,7 +680,6 @@ public class UMLDiagram implements UMLStructure {
 		}
 		saveState();
 		setGui(redo.getGui());
-		//setDiagram(undo.getDiagram());
 		setClassNameMap(redo.getClassNameMapToName());
 		setClassMap(redo.getClassMapToRelation());
 		setParams(redo.getParameters());
@@ -701,11 +688,14 @@ public class UMLDiagram implements UMLStructure {
 		
 		return true;
 	}
+	/**
+	 * Saves current state into undo deque.
+	 * @return boolean, will always return true.
+	 */
 	public boolean saveState()
 	{
 		UMLDiagram state = new UMLDiagram();
 		state.setGui(this.gui);
-		//state.setDiagram(this.diagram);
 		state.setClassNameMap(this.classNameMapToName);
 		state.setClassMap(this.classMapToRelation);
 		state.setParams(this.parameters);
