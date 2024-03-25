@@ -11,4 +11,5 @@ com\classuml\View\guiView$1.class
 com\classuml\Controller\UMLCli.class
 com\classuml\Controller\UMLEditor.class
 com\classuml\Model\FieldAndMethodLayOut.class
+com\classuml\Model\Memento.class
 com\classuml\Model\UMLStructure.class
