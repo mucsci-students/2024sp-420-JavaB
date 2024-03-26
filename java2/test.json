@@ -3,12 +3,20 @@
     "ClassA": {
       "className": "ClassA",
       "fields": [],
-      "methods": []
+      "methods": [],
+      "position": {
+        "x": 20,
+        "y": 20
+      }
     },
     "ClassB": {
       "className": "ClassB",
       "fields": [],
-      "methods": []
+      "methods": [],
+      "position": {
+        "x": 20,
+        "y": 20
+      }
     }
   },
   "classMapToRelation": {

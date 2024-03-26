@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.awt.Point;
 
 
 public class UMLDiagram implements UMLStructure {
@@ -83,8 +84,11 @@ public class UMLDiagram implements UMLStructure {
 	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)) {    	
 	        return false; // Class already exists or invalid name      
 	    }
+		int x = 20;
+		int y = 20;
+		Point pos = new Point(x, y);
 		if(!classNameMapToName.containsKey(className)) {
-			classNameMapToName.put(className, new UMLClass(className));
+			classNameMapToName.put(className, new UMLClass(className, pos));
     	    if (this.gui != null) {
     	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
     	    }
@@ -252,6 +256,18 @@ public class UMLDiagram implements UMLStructure {
 	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
 	    }
 	    return false;
+	}
+
+	public boolean setPosition(String className, Point position){
+		UMLClass umlClass = this.getClassByName(className);
+		if(umlClass != null){
+			umlClass.setPosition(position);
+			return true;
+		}
+		if (this.gui != null){
+			this.gui.notifyClassAdded(className);
+		}
+		return false;
 	}
 
 
