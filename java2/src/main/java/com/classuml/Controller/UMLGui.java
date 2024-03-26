@@ -333,8 +333,8 @@ public class UMLGui extends JFrame implements ActionListener {
 	        List<String> relationshipDescriptions = diagram.getRelationshipsForClass(className).stream()
 	                .map(Relationship::toString)
 	                .collect(Collectors.toList());
-
-	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, relationshipDescriptions);
+			UMLClass guiClass = new UMLClass(className);
+	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, relationshipDescriptions, guiClass);
 	        classPanelContainer.add(classComp);
 	        classPanelContainer.revalidate();
 	        classPanelContainer.repaint();
@@ -1464,7 +1464,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	            .map(Method::toString)
 	            .collect(Collectors.toList());
 
-	        guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions);
+	        guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions, umlClass);
 	        classPanelContainer.add(classComp);
 			// Create a Point from the JSON
 			Point position = umlClass.getPosition();

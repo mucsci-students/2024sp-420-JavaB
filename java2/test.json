@@ -4,6 +4,7 @@
       "className": "ClassA",
       "fields": [],
       "methods": [],
+      "parameters": [],
       "position": {
         "x": 20,
         "y": 20
@@ -13,6 +14,7 @@
       "className": "ClassB",
       "fields": [],
       "methods": [],
+      "parameters": [],
       "position": {
         "x": 20,
         "y": 20

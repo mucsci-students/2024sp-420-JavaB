@@ -1,6 +1,9 @@
 package com.classuml.View;
 
 import javax.swing.*;
+
+import com.classuml.Model.UMLClass;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,6 +22,7 @@ public class guiView extends JComponent {
     private List<String> fields;
     private List<String> methods;
     private List<String> relationships;
+    private UMLClass guiClass;
 
     private final int padding = 10;
     private int x = 20;
@@ -41,11 +45,12 @@ public class guiView extends JComponent {
      * @param methods       The list of method descriptions.
      * @param relationships The list of relationship descriptions.
      */
-    public guiView(String className, List<String> fields, List<String> methods, List<String> relationships) {
+    public guiView(String className, List<String> fields, List<String> methods, List<String> relationships, UMLClass guiClass) {
         this.className = className;
         this.fields = fields;
         this.methods = methods;
         this.relationships = relationships;
+        this.guiClass = guiClass;
         initComponent();
     }
 
@@ -78,6 +83,8 @@ public class guiView extends JComponent {
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
+        Point pos = new Point(x, y);
+        guiClass.setPosition(pos);
         Rectangle bounds = getBounds();
         setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
     }
@@ -186,6 +193,8 @@ public class guiView extends JComponent {
         Rectangle bounds = getBounds();
         int newX = Math.max(0, Math.min(bounds.x + x, getParent().getWidth() - bounds.width));
         int newY = Math.max(0, Math.min(bounds.y + y, getParent().getHeight() - bounds.height));
+        Point pos = new Point(newX, newY);
+        guiClass.setPosition(pos);
 
         setBounds(newX, newY, bounds.width, bounds.height);
     }
