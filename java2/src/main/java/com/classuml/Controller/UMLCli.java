@@ -1,5 +1,7 @@
 package com.classuml.Controller;
-
+ 
+import jline.TerminalFactory;
+import jline.console.ConsoleReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,7 +18,8 @@ import com.google.gson.JsonObject;
 
 public class UMLCli {
 	// Scanner object for user input
-	private static final Scanner scanner = new Scanner(System.in);
+	//private static final Scanner scanner = new Scanner(System.in);
+	private static ConsoleReader creader;
 	// Gson object for JSON serialization and de-serialization
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	// UMLDiagram object to store the UML diagram
@@ -28,7 +31,8 @@ public class UMLCli {
 /**************************************************************************************************************************************/
 
 	// Main method
-	public static void launch(){
+	public static void launch() throws IOException {
+		creader = setConsoleReader();
 		System.out.println("Welcome to NRDS UML Editor!");
 
 		boolean exit = false; 
@@ -40,7 +44,6 @@ public class UMLCli {
 		while (!exit) {
 
 			String choice = getUserChoice();
-
 
 			// Perform actions based on user choice
 			switch (choice) {
@@ -134,19 +137,19 @@ public class UMLCli {
             case "exit":
                 exit();
                 break;
-			case "undo":
-				undo();
-				break;
-			case "redo":
-				redo();
-				break;
             default:
                 System.out.println("Invalid choice. Please enter a valid command.");
                 break;
             }
 		}
 		// Close scanner
-		scanner.close();
+		//scanner.close();
+	}
+
+	private static ConsoleReader setConsoleReader() throws IOException {
+		ConsoleReader creader = new ConsoleReader();
+		creader.setPrompt("> ");
+		return creader;
 	}
 
 	// Display the menu
@@ -182,8 +185,6 @@ public class UMLCli {
         System.out.println("Load (lo)- Load diagram from JSON file.");
         System.out.println("Menu (m)- Display main menu.");
         System.out.println("Help (h)- Help.");
-		System.out.println("Undo - undos the last command.");
-		System.out.println("Redo - goes back to state before previous undo.");
         System.out.println("Exit - Exit.");
         System.out.println("  ");
         System.out.println("  ");
@@ -192,35 +193,21 @@ public class UMLCli {
 
 
 	// Get user choice
-	private static String getUserChoice() {
-		return scanner.next().toLowerCase().trim();
+	private static String getUserChoice() throws IOException {
+		//return creader.readLine().toLowerCase().trim();
+		return creader.readLine().toLowerCase().trim();
 	}
-	//Calls undo.
-	protected static void undo() {
-		boolean success = umlDiagram.undo();
-		if (success) {
-			System.out.println("Undo worked!");
-		} else {
-			System.out.println("There was nothing to undo!");
-		}
-	}
-	//Calls redo.
-	protected static void redo() {
-		boolean success = umlDiagram.redo();
-		if (success) {
-			System.out.println("Redo worked!");
-		} else {
-			System.out.println("There was nothing to redo!");
-		}
-	}
+
 /**************************************************************************************************************************************/
     /**   CLASSES   **/
-/**************************************************************************************************************************************/
+/**
+ * @throws IOException ************************************************************************************************************************************/
 
 	// Method to create a new class
-	protected static void createClass() {
+	protected static void createClass() throws IOException {
 		System.out.println("Enter the name of the class: ");
-		String className = scanner.next();
+		//String className = creader.readLine();
+		String className = creader.readLine();
 		boolean success = umlDiagram.addClass(className);
 		if (success) {
 			System.out.println("Class " + className + " created successfully.");
@@ -230,9 +217,10 @@ public class UMLCli {
 	}
 
 	// Method to delete a class
-	protected static void deleteClass() {
+	protected static void deleteClass() throws IOException {
 		System.out.println("Enter the name of the class to delete: ");
-		String className = scanner.next();
+		//String className = creader.readLine();
+		String className = creader.readLine();
 		boolean success = umlDiagram.deleteClass(className);
 		if (success) {
 			System.out.println("Class " + className + " deleted successfully.");
@@ -242,11 +230,11 @@ public class UMLCli {
 	}
 
 	// Method to rename a class
-	protected static void renameClass() {
+	protected static void renameClass() throws IOException {
 		System.out.println("Enter the current name of the class: ");
-		String oldName = scanner.next();
+		String oldName = creader.readLine();
 		System.out.print("Enter the new name of the class: ");
-		String newName = scanner.next();
+		String newName = creader.readLine();
 		boolean success = umlDiagram.renameClass(oldName, newName);
 		if (success) {
 			System.out.println("Class " + oldName + " renamed to " + newName + " successfully.");
@@ -258,18 +246,19 @@ public class UMLCli {
 	
 /**************************************************************************************************************************************/
     /**   PARAMETERS   **/
-/**************************************************************************************************************************************/
+/**
+ * @throws IOException ************************************************************************************************************************************/
 
 	// Method to add a parameter to a class
-    protected static void addParameter() {
+    protected static void addParameter() throws IOException {
         System.out.println("Enter the name of the class to add parameter to: ");
-        String className = scanner.next();
+        String className = creader.readLine();
         System.out.print("Enter the name of the method to add a parameter: ");
-        String methodName = scanner.next();
+        String methodName = creader.readLine();
         System.out.print("Enter the parameter name: ");
-        String paramName = scanner.next();
+        String paramName = creader.readLine();
         System.out.print("Enter the name of parameter type: ");
-        String typeName = scanner.next();
+        String typeName = creader.readLine();
         boolean success = umlDiagram.addParameter(className, methodName, paramName, typeName);
         if (success) {
             System.out.println("Parameter " + paramName + " added to class " + className + " successfully.");
@@ -279,13 +268,13 @@ public class UMLCli {
     }
 
     // Method to delete a parameter from a class
-    protected static void deleteParameter() {
+    protected static void deleteParameter() throws IOException {
         System.out.println("Enter the name of the class to delete parameter from: ");
-        String className = scanner.next();
+        String className = creader.readLine();
         System.out.println("Enter the name of the method to to delete parameter from: ");
-        String methodName = scanner.next();
+        String methodName = creader.readLine();
         System.out.print("Enter the name of the parameter to delete: ");
-        String paramName = scanner.next();
+        String paramName = creader.readLine();
         boolean success = umlDiagram.deleteParameter(className, methodName, paramName);
         if (success) {
             System.out.println("Parameter " + paramName + " deleted from class " + className + " successfully.");
@@ -295,15 +284,15 @@ public class UMLCli {
     }
 
     // Method to rename a parameter in a class
-    protected static void renameParameter() {
+    protected static void renameParameter() throws IOException {
         System.out.println("Enter the name of the class containing the parameter: ");
-        String className = scanner.next();
+        String className = creader.readLine();
         System.out.println("Enter the name of the method to to delete parameter from: ");
-        String methodName = scanner.next();
+        String methodName = creader.readLine();
         System.out.print("Enter the current name of the parameter: ");
-        String oldParamName = scanner.next();
+        String oldParamName = creader.readLine();
         System.out.print("Enter the new name of the parameter: ");
-        String newParamName = scanner.next();
+        String newParamName = creader.readLine();
         boolean success = umlDiagram.renameParameter(className, methodName, oldParamName, newParamName);
         if (success) {
             System.out.println("Parameter " + oldParamName + " renamed to " + newParamName + " in class " + className + " successfully.");
@@ -314,17 +303,18 @@ public class UMLCli {
     
 /**************************************************************************************************************************************/
     /**   FIELDS   **/
-/**************************************************************************************************************************************/
+/**
+ * @throws IOException ************************************************************************************************************************************/
 
 
 	// Method to add an attribute to a class
-	protected static void addField() {
+	protected static void addField() throws IOException {
 		System.out.println("Enter the name of the class to add field to: ");
-		String className = scanner.next();
+		String className = creader.readLine();
 		System.out.print("Enter the name of the field: ");
-		String fieldName = scanner.next();
+		String fieldName = creader.readLine();
 		System.out.print("Enter the type of the field: ");
-		String fieldType = scanner.next();
+		String fieldType = creader.readLine();
 		boolean success = umlDiagram.addField(className, fieldName, fieldType);
 		if (success) {
 			System.out.println("Field " + fieldName + " added to class " + className + " successfully.");
@@ -334,11 +324,11 @@ public class UMLCli {
 	}
 
 	// Method to delete an attribute from a class
-	protected static void deleteField() {
+	protected static void deleteField() throws IOException {
 		System.out.println("Enter the name of the class to delete field from: ");
-		String className = scanner.next();
+		String className = creader.readLine();
 		System.out.print("Enter the name of the field to delete: ");
-		String fieldName = scanner.next();
+		String fieldName = creader.readLine();
 		boolean success = umlDiagram.deleteField(className, fieldName);
 		if (success) {
 			System.out.println("Field " + fieldName + " deleted from class " + className + " successfully.");
@@ -349,13 +339,13 @@ public class UMLCli {
 	}
 
 	// Method to rename an attribute in a class
-	protected static void renameField() {
+	protected static void renameField() throws IOException {
 		System.out.println("Enter the name of the class containing the field: ");
-		String className = scanner.next();
+		String className = creader.readLine();
 		System.out.print("Enter the current name of the field: ");
-		String oldFieldName = scanner.next();
+		String oldFieldName = creader.readLine();
 		System.out.print("Enter the new name of the field: ");
-		String newFieldName = scanner.next();
+		String newFieldName = creader.readLine();
 		boolean success = umlDiagram.renameField(className, oldFieldName, newFieldName);
 		if (success) {
 			System.out.println("Field " + oldFieldName + " renamed to " + newFieldName + " in class "
@@ -369,17 +359,18 @@ public class UMLCli {
 	
 /**************************************************************************************************************************************/
     /**   METHODS   **/
-/**************************************************************************************************************************************/
+/**
+ * @throws IOException ************************************************************************************************************************************/
 
 
 	// Method to add a method to a class
-	protected static void addMethod() {
+	protected static void addMethod() throws IOException {
 		System.out.println("Enter the name of the class to add method to: ");
-		String className = scanner.next();
+		String className = creader.readLine();
 		System.out.print("Enter the name of the method: ");
-		String methodName = scanner.next();
+		String methodName = creader.readLine();
 		System.out.print("Enter the return type of the method: ");
-		String returnType = scanner.next();
+		String returnType = creader.readLine();
 		boolean success = umlDiagram.addMethod(className, methodName, returnType);
 		if (success) {
 			System.out.println("Method " + methodName + " added to class " + className + " successfully.");
@@ -389,11 +380,11 @@ public class UMLCli {
 	}
 
 	// Method to delete a method from a class
-	protected static void deleteMethod() {
+	protected static void deleteMethod() throws IOException {
 		System.out.println("Enter the name of the class to delete method from: ");
-		String className = scanner.next();
+		String className = creader.readLine();
 		System.out.print("Enter the name of the method to delete: ");
-		String methodName = scanner.next();
+		String methodName = creader.readLine();
 		boolean success = umlDiagram.deleteMethod(className, methodName);
 		if (success) {
 			System.out.println("Method " + methodName + " deleted from class " + className + " successfully.");
@@ -403,13 +394,13 @@ public class UMLCli {
 	}
 
 	// Method to rename a method in a class
-	protected static void renameMethod() {
+	protected static void renameMethod() throws IOException {
 		System.out.println("Enter the name of the class containing the method: ");
-		String className = scanner.next();
+		String className = creader.readLine();
 		System.out.print("Enter the current name of the method: ");
-		String oldMethodName = scanner.next();
+		String oldMethodName = creader.readLine();
 		System.out.print("Enter the new name of the method: ");
-		String newMethodName = scanner.next();
+		String newMethodName = creader.readLine();
 		boolean success = umlDiagram.renameMethod(className, oldMethodName, newMethodName);
 		if (success) {
 			System.out.println("Method " + oldMethodName + " renamed to " + newMethodName + " in class " + className
@@ -422,17 +413,19 @@ public class UMLCli {
 
 /**************************************************************************************************************************************/
     /**   RELATIONSHIPS   **/
-/**************************************************************************************************************************************/
+/**
+ * @throws IOException ************************************************************************************************************************************/
 
 	// Method to add a relationship to a class
-	protected static void addRelationship() {
+	protected static void addRelationship() throws IOException {
 		System.out.println("Enter the name of the source class: ");
-		String sourceClass = scanner.next();
+		String sourceClass = creader.readLine();
 		System.out.println("Enter the name of the destination class: ");
-		String destinationClass = scanner.next();
+		String destinationClass = creader.readLine();
 		System.out.println(
 				"Choose a relationship type (Enter a number): \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
-		int type = scanner.nextInt();
+		//int type = Integer.getInteger(creader.readLine());
+		int type = Integer.getInteger(creader.readLine());
 
 		boolean success = umlDiagram.addRelationship(sourceClass, destinationClass, type);
 		if (success) {
@@ -443,11 +436,11 @@ public class UMLCli {
 	}
 
 	// Method to delete a relationship between classes
-	protected static void deleteRelationship() {
+	protected static void deleteRelationship() throws IOException {
 		System.out.println("Enter the name of the first class in the relationship: ");
-		String class1 = scanner.next();
+		String class1 = creader.readLine();
 		System.out.print("Enter the name of the second class in the relationship: ");
-		String class2 = scanner.next();
+		String class2 = creader.readLine();
 
 		boolean success = umlDiagram.deleteRelationship(class1, class2);
 		if (success) {
@@ -458,14 +451,14 @@ public class UMLCli {
 	}
 
 	// Method to change the type of an existing relationship
-	protected static void changeType() {
+	protected static void changeType() throws IOException {
 		System.out.println("Enter the name of the first class in the relationship: ");
-		String class1 = scanner.next();
+		String class1 = creader.readLine();
 		System.out.print("Enter the name of the second class in the relationship: ");
-		String class2 = scanner.next();
+		String class2 = creader.readLine();
 		System.out.println(
 				"Enter the number for the relationship type: \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
-		int type = scanner.nextInt();
+		int type = Integer.getInteger(creader.readLine());
 
 		if (type < 1 || type > 4) {
 			System.out.println("Invalid number chosen. ");
@@ -483,13 +476,14 @@ public class UMLCli {
 
 /**************************************************************************************************************************************/
     /**   SAVE DIAGRAM   **/
-/**************************************************************************************************************************************/
+/**
+ * @throws IOException ************************************************************************************************************************************/
 
 	
 	// Method to save the UML diagram to a JSON file
-	protected static void saveDiagram() {
+	protected static void saveDiagram() throws IOException {
 		System.out.print("Enter the file path to save the diagram (JSON format): ");
-		String filePath = scanner.next().trim();
+		String filePath = creader.readLine().trim();
 		try (FileWriter writer = new FileWriter(filePath)) {
 			JsonObject jsonDiagram = new JsonObject();
 
@@ -542,13 +536,14 @@ public class UMLCli {
 	
 /**************************************************************************************************************************************/
     /**   LOAD DIAGRAM   **/
-/**************************************************************************************************************************************/
+/**
+ * @throws IOException ************************************************************************************************************************************/
 
 	
 	// Method to load a UML diagram from a JSON file
-	protected static void loadDiagram() {
+	protected static void loadDiagram() throws IOException {
         System.out.print("Enter the file path to load the diagram (JSON format): ");
-        String filePath = scanner.next().trim();
+        String filePath = creader.readLine().trim();
         try (FileReader reader = new FileReader(filePath)) {
             JsonObject jsonDiagram = gson.fromJson(reader, JsonObject.class);
 
@@ -625,9 +620,9 @@ public class UMLCli {
 
 	}
 
-	protected static void listClassContents() {
+	protected static void listClassContents() throws IOException {
 	    System.out.print("Enter the name of the class to list its contents: ");
-	    String className = scanner.next();
+	    String className = creader.readLine();
 	    UMLClass umlClass = umlDiagram.getClassNameMapToName().get(className);
 
 	    if (umlClass != null) {
@@ -714,9 +709,9 @@ public class UMLCli {
 	}
 
 	// Method to handle exit from the UML CLI
-	protected static void exit() {
+	protected static void exit() throws IOException {
 		System.out.print("Do you want to save the diagram before exiting? (yes/no): ");
-		String saveChoice = scanner.next().trim().toLowerCase();
+		String saveChoice = creader.readLine().trim().toLowerCase();
 		if (saveChoice.equals("yes")) {
 			saveDiagram();
 			System.out.println("Diagram saved.");
