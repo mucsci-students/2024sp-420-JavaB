@@ -68,6 +68,20 @@ public class guiView extends JComponent {
         repaint();
     }
 
+
+    /**
+     * Sets the position of the component.
+     *
+     * @param x the x-coordinate
+     * @param y the y-coordinate
+     */
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+        Rectangle bounds = getBounds();
+        setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+    }
+
     @Override
     public Dimension getPreferredSize() {
         if (fm == null) {
