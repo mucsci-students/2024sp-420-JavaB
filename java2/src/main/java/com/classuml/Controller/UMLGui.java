@@ -1492,7 +1492,7 @@ public class UMLGui extends JFrame implements ActionListener {
      * the event dispatch thread for Swing components.
      * @param args Command line arguments passed to the program (not used).
      */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException{
 		boolean cliMode = false;
 		for (String arg : args) {
             if (arg.equals("cli")) {
