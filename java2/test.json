@@ -4,13 +4,21 @@
       "className": "ClassA",
       "fields": [],
       "methods": [],
-      "parameters": []
+      "parameters": [],
+      "position": {
+        "x": 20,
+        "y": 20
+      }
     },
     "ClassB": {
       "className": "ClassB",
       "fields": [],
       "methods": [],
-      "parameters": []
+      "parameters": [],
+      "position": {
+        "x": 20,
+        "y": 20
+      }
     }
   },
   "classMapToRelation": {

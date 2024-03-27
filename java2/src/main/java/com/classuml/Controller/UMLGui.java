@@ -36,6 +36,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import java.awt.Point;
+
 
 // Assuming UMLDiagram and related classes are in the Model package
 
@@ -331,8 +333,8 @@ public class UMLGui extends JFrame implements ActionListener {
 	        List<String> relationshipDescriptions = diagram.getRelationshipsForClass(className).stream()
 	                .map(Relationship::toString)
 	                .collect(Collectors.toList());
-
-	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, relationshipDescriptions);
+			UMLClass guiClass = new UMLClass(className);
+	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, relationshipDescriptions, guiClass);
 	        classPanelContainer.add(classComp);
 	        classPanelContainer.revalidate();
 	        classPanelContainer.repaint();
@@ -1247,6 +1249,13 @@ public class UMLGui extends JFrame implements ActionListener {
                     JsonObject jsonClass = new JsonObject();
                     jsonClass.addProperty("name", umlClass.getName());
 
+					// Add the position property
+					Point pos = umlClass.getPosition();
+					JsonObject position = new JsonObject();
+					position.addProperty("x", pos.x);
+					position.addProperty("y", pos.y);
+					jsonClass.add("position", position);
+
                     // Convert fields to JSON array
                     JsonArray jsonFields = new JsonArray();
                     for (Field attribute : umlClass.getFields()) {
@@ -1276,12 +1285,7 @@ public class UMLGui extends JFrame implements ActionListener {
 
                         jsonMethods.add(jsonMethod);
                     }
-					JsonArray jsonPoss = new JsonArray();
-					JsonObject jsonPos = new JsonObject();
-					//jsonPos.addProperty("x", clspos.getX());
-					//jsonPos.addProperty("y", clspos.getY());
 					
-					jsonClass.add("position", jsonPoss);
                     jsonClass.add("methods", jsonMethods);
 
                     jsonClasses.add(jsonClass);
@@ -1344,9 +1348,14 @@ public class UMLGui extends JFrame implements ActionListener {
 	                        String className = jsonClass.get("name").getAsString();
 	                        diagram.addClass(className);
 
-							//int posX = jsonClass.get("x").getAsInt(); 
-							//int posY = jsonClass.get("y").getAsInt();
-							//Setup set functions for guiView
+							// Load the position
+							JsonObject jsonPosition = jsonClass.get("position").getAsJsonObject();
+							int x = jsonPosition.get("x").getAsInt();
+    						int y = jsonPosition.get("y").getAsInt();
+							Point position = new Point(x, y);
+							
+							// Create a Point object
+							diagram.setPosition(className, position);
 
 	                        // Load fields
 	                        if (jsonClass.has("fields")) {
@@ -1455,8 +1464,17 @@ public class UMLGui extends JFrame implements ActionListener {
 	            .map(Method::toString)
 	            .collect(Collectors.toList());
 
-	        guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions);
+	        guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions, umlClass);
 	        classPanelContainer.add(classComp);
+			// Create a Point from the JSON
+			Point position = umlClass.getPosition();
+			int x = position.x;
+			int y = position.y;
+		
+			// Set the position
+			classComp.setPosition(x,y);
+		
+			classPanelContainer.add(classComp);
 	    }
 
 	    classPanelContainer.revalidate();
@@ -1474,7 +1492,7 @@ public class UMLGui extends JFrame implements ActionListener {
      * the event dispatch thread for Swing components.
      * @param args Command line arguments passed to the program (not used).
      */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException{
 		boolean cliMode = false;
 		for (String arg : args) {
             if (arg.equals("cli")) {

@@ -1,5 +1,7 @@
 package com.classuml.Controller;
 
+import java.io.IOException;
+
 /**
  * The {@code UMLEditor} class serves as the entry point to the UML diagram editor application.
  * It decides between launching the application in GUI (Graphical User Interface) mode or CLI
@@ -20,7 +22,7 @@ public class UMLEditor {
      * @param args The command-line arguments passed to the application. The presence of "--cli"
      *             argument switches the application to CLI mode, otherwise, GUI mode is launched.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
         // Check if the --cli argument is provided
         boolean cliMode = false;
         for (String arg : args) {

@@ -3,6 +3,8 @@ package com.classuml.Model;
 
 import java.util.*;
 
+import java.awt.Point;
+
 /**
  * Represents a UML class with its class name, fields and methods.
  */
@@ -12,6 +14,7 @@ public class UMLClass {
 	private ArrayList<Field> fields;
 	private ArrayList<Method> methods;
 	private ArrayList<Parameter> parameters;
+	private Point position;
 
 	
 	/**
@@ -55,6 +58,22 @@ public class UMLClass {
 	    }
 
 	}
+	public UMLClass(String name, Point pos) {
+		this();
+	    if (name != null && !name.isEmpty()) {
+	        this.className = name;
+	    }
+		this.position = pos;
+
+	}
+
+	public void setPosition(Point position) {
+        this.position = position;
+    }
+
+    public Point getPosition() {
+        return position;
+    }
 
 	/**
 	 * Retrieves the name of the UML class.
