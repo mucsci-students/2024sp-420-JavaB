@@ -5,10 +5,16 @@ com\classuml\Model\Method.class
 com\classuml\Controller\UMLGui.class
 com\classuml\Model\Relationship.class
 com\classuml\Model\UMLDiagram.class
+com\classuml\Controller\InteractiveParameterConsumer.class
+com\classuml\Controller\UMLCli$CliCommands.class
 com\classuml\View\guiView$2.class
+com\classuml\Controller\UMLCli$ClearScreen.class
 com\classuml\Model\UMLClass.class
+com\classuml\Controller\UMLCli$ReadInteractive.class
 com\classuml\View\guiView$1.class
 com\classuml\Controller\UMLCli.class
+com\classuml\Controller\UMLCli$MyCommand.class
 com\classuml\Controller\UMLEditor.class
 com\classuml\Model\FieldAndMethodLayOut.class
+com\classuml\Controller\CustomFactory.class
 com\classuml\Model\UMLStructure.class

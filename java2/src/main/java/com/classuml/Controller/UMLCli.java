@@ -1,5 +1,22 @@
 package com.classuml.Controller;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import jline.console.ConsoleReader;
+import jline.console.completer.ArgumentCompleter.ArgumentList;
+import jline.console.completer.ArgumentCompleter.WhitespaceArgumentDelimiter;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.IFactory;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.ParentCommand;
+import picocli.CommandLine.Spec;
+import picocli.shell.jline2.PicocliJLineCompleter;
+
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,7 +33,8 @@ import com.google.gson.JsonObject;
 
 public class UMLCli {
 	// Scanner object for user input
-	private static final Scanner scanner = new Scanner(System.in);
+	//private static final Scanner scanner = new Scanner(System.in);
+	private static ConsoleReader reader;
 	// Gson object for JSON serialization and de-serialization
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	// UMLDiagram object to store the UML diagram
@@ -28,7 +46,26 @@ public class UMLCli {
 /**************************************************************************************************************************************/
 
 	// Main method
-	public static void launch(){
+	public static void launch() throws IOException {
+		reader = getConsoleReader();
+        IFactory factory = new CustomFactory(new InteractiveParameterConsumer(reader));
+            
+    	// Set up the completion
+    	CliCommands commands = new CliCommands(reader);
+        CommandLine cmd = new CommandLine(commands, factory);
+        reader.addCompleter(new PicocliJLineCompleter(cmd.getCommandSpec()));
+
+		/**
+		// start the shell and process input until the user quits with Ctrl-D
+        String line;
+		while ((line = reader.readLine("prompt> ")) != null) {
+			ArgumentList list = new WhitespaceArgumentDelimiter()
+				.delimit(line, line.length());
+			new CommandLine(commands, factory)
+				.execute(list.getArguments());
+		}
+		*/
+
 		System.out.println("Welcome to NRDS UML Editor!");
 
 		boolean exit = false; 
@@ -139,7 +176,7 @@ public class UMLCli {
             }
 		}
 		// Close scanner
-		scanner.close();
+		//scanner.close();
 	}
 
 	// Display the menu
@@ -181,10 +218,107 @@ public class UMLCli {
         System.out.print("Please enter your choice: ");
     }
 
+	/**
+     * Top-level command that just prints help.
+     */
+    @Command(name = "", description = "Example interactive shell with completion",
+            footer = {"", "Press Ctrl-C to exit."},
+            subcommands = {MyCommand.class, ClearScreen.class, ReadInteractive.class})
+    static class CliCommands implements Runnable {
+        final ConsoleReader reader;
+        final PrintWriter out;
+        
+        @Spec
+        private CommandSpec spec;
+
+        CliCommands(ConsoleReader reader) {
+            this.reader = reader;
+            out = new PrintWriter(reader.getOutput());
+        }
+
+        public void run() {
+            out.println(spec.commandLine().getUsageMessage());
+        }
+    }
+
+    /**
+     * A command with some options to demonstrate completion.
+     */
+    @Command(name = "cmd", mixinStandardHelpOptions = true, version = "1.0",
+            description = "Command with some options to demonstrate TAB-completion" +
+                    " (note that enum values also get completed)")
+    static class MyCommand implements Runnable {
+        @Option(names = {"-v", "--verbose"})
+        private boolean[] verbosity = {};
+
+        @Option(names = {"-d", "--duration"})
+        private int amount;
+
+        @Option(names = {"-u", "--timeUnit"})
+        private TimeUnit unit;
+
+        @ParentCommand CliCommands parent;
+
+        public void run() {
+            if (verbosity.length > 0) {
+                parent.out.printf("Hi there. You asked for %d %s.%n", amount, unit);
+            } else {
+                parent.out.println("hi!");
+            }
+        }
+    }
+
+    /**
+     * Command that clears the screen.
+     */
+    @Command(name = "cls", aliases = "clear", mixinStandardHelpOptions = true,
+            description = "Clears the screen", version = "1.0")
+    static class ClearScreen implements Callable<Void> {
+
+        @ParentCommand CliCommands parent;
+
+        public Void call() throws IOException {
+            parent.reader.clearScreen();
+            return null;
+        }
+    }
+    
+    /**
+     * Command that optionally reads and password interactively.
+     */
+    @Command(name = "pwd", mixinStandardHelpOptions = true,
+            description = "Interactively reads a password", version = "1.0")
+    static class ReadInteractive implements Callable<Void> {
+        
+        @Option(names = {"-p"}, parameterConsumer = InteractiveParameterConsumer.class)
+        private String password;
+
+        @ParentCommand CliCommands parent;
+
+        public Void call() throws Exception {
+            if(password == null) {
+                parent.out.println("No password prompted");
+            } else {
+                parent.out.println("Password is '" + password + "'");
+            }
+            return null;
+        }
+    }
+
+	private static ConsoleReader getConsoleReader() throws IOException {
+		ConsoleReader creader = new ConsoleReader();
+		creader.setPrompt("");
+		return creader;
+	}
 
 	// Get user choice
-	private static String getUserChoice() {
-		return scanner.next().toLowerCase().trim();
+	private static String getUserChoice() throws IOException {
+		//return getReaderValue().toLowerCase().trim();
+		return reader.readLine().toLowerCase().trim();
+	}
+
+	private static String getReaderValue() throws IOException {
+		return reader.readLine();
 	}
 
 /**************************************************************************************************************************************/
@@ -192,9 +326,9 @@ public class UMLCli {
 /**************************************************************************************************************************************/
 
 	// Method to create a new class
-	protected static void createClass() {
+	protected static void createClass() throws IOException {
 		System.out.println("Enter the name of the class: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		boolean success = umlDiagram.addClass(className);
 		if (success) {
 			System.out.println("Class " + className + " created successfully.");
@@ -204,9 +338,9 @@ public class UMLCli {
 	}
 
 	// Method to delete a class
-	protected static void deleteClass() {
+	protected static void deleteClass() throws IOException {
 		System.out.println("Enter the name of the class to delete: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		boolean success = umlDiagram.deleteClass(className);
 		if (success) {
 			System.out.println("Class " + className + " deleted successfully.");
@@ -216,11 +350,11 @@ public class UMLCli {
 	}
 
 	// Method to rename a class
-	protected static void renameClass() {
+	protected static void renameClass() throws IOException {
 		System.out.println("Enter the current name of the class: ");
-		String oldName = scanner.next();
+		String oldName = getReaderValue();
 		System.out.print("Enter the new name of the class: ");
-		String newName = scanner.next();
+		String newName = getReaderValue();
 		boolean success = umlDiagram.renameClass(oldName, newName);
 		if (success) {
 			System.out.println("Class " + oldName + " renamed to " + newName + " successfully.");
@@ -235,15 +369,15 @@ public class UMLCli {
 /**************************************************************************************************************************************/
 
 	// Method to add a parameter to a class
-    protected static void addParameter() {
+    protected static void addParameter() throws IOException {
         System.out.println("Enter the name of the class to add parameter to: ");
-        String className = scanner.next();
+        String className = getReaderValue();
         System.out.print("Enter the name of the method to add a parameter: ");
-        String methodName = scanner.next();
+        String methodName = getReaderValue();
         System.out.print("Enter the parameter name: ");
-        String paramName = scanner.next();
+        String paramName = getReaderValue();
         System.out.print("Enter the name of parameter type: ");
-        String typeName = scanner.next();
+        String typeName = getReaderValue();
         boolean success = umlDiagram.addParameter(className, methodName, paramName, typeName);
         if (success) {
             System.out.println("Parameter " + paramName + " added to class " + className + " successfully.");
@@ -253,13 +387,13 @@ public class UMLCli {
     }
 
     // Method to delete a parameter from a class
-    protected static void deleteParameter() {
+    protected static void deleteParameter() throws IOException {
         System.out.println("Enter the name of the class to delete parameter from: ");
-        String className = scanner.next();
+        String className = getReaderValue();
         System.out.println("Enter the name of the method to to delete parameter from: ");
-        String methodName = scanner.next();
+        String methodName = getReaderValue();
         System.out.print("Enter the name of the parameter to delete: ");
-        String paramName = scanner.next();
+        String paramName = getReaderValue();
         boolean success = umlDiagram.deleteParameter(className, methodName, paramName);
         if (success) {
             System.out.println("Parameter " + paramName + " deleted from class " + className + " successfully.");
@@ -269,15 +403,15 @@ public class UMLCli {
     }
 
     // Method to rename a parameter in a class
-    protected static void renameParameter() {
+    protected static void renameParameter() throws IOException {
         System.out.println("Enter the name of the class containing the parameter: ");
-        String className = scanner.next();
+        String className = getReaderValue();
         System.out.println("Enter the name of the method to to delete parameter from: ");
-        String methodName = scanner.next();
+        String methodName = getReaderValue();
         System.out.print("Enter the current name of the parameter: ");
-        String oldParamName = scanner.next();
+        String oldParamName = getReaderValue();
         System.out.print("Enter the new name of the parameter: ");
-        String newParamName = scanner.next();
+        String newParamName = getReaderValue();
         boolean success = umlDiagram.renameParameter(className, methodName, oldParamName, newParamName);
         if (success) {
             System.out.println("Parameter " + oldParamName + " renamed to " + newParamName + " in class " + className + " successfully.");
@@ -292,13 +426,13 @@ public class UMLCli {
 
 
 	// Method to add an attribute to a class
-	protected static void addField() {
+	protected static void addField() throws IOException {
 		System.out.println("Enter the name of the class to add field to: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		System.out.print("Enter the name of the field: ");
-		String fieldName = scanner.next();
+		String fieldName = getReaderValue();
 		System.out.print("Enter the type of the field: ");
-		String fieldType = scanner.next();
+		String fieldType = getReaderValue();
 		boolean success = umlDiagram.addField(className, fieldName, fieldType);
 		if (success) {
 			System.out.println("Field " + fieldName + " added to class " + className + " successfully.");
@@ -308,11 +442,11 @@ public class UMLCli {
 	}
 
 	// Method to delete an attribute from a class
-	protected static void deleteField() {
+	protected static void deleteField() throws IOException {
 		System.out.println("Enter the name of the class to delete field from: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		System.out.print("Enter the name of the field to delete: ");
-		String fieldName = scanner.next();
+		String fieldName = getReaderValue();
 		boolean success = umlDiagram.deleteField(className, fieldName);
 		if (success) {
 			System.out.println("Field " + fieldName + " deleted from class " + className + " successfully.");
@@ -323,13 +457,13 @@ public class UMLCli {
 	}
 
 	// Method to rename an attribute in a class
-	protected static void renameField() {
+	protected static void renameField() throws IOException {
 		System.out.println("Enter the name of the class containing the field: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		System.out.print("Enter the current name of the field: ");
-		String oldFieldName = scanner.next();
+		String oldFieldName = getReaderValue();
 		System.out.print("Enter the new name of the field: ");
-		String newFieldName = scanner.next();
+		String newFieldName = getReaderValue();
 		boolean success = umlDiagram.renameField(className, oldFieldName, newFieldName);
 		if (success) {
 			System.out.println("Field " + oldFieldName + " renamed to " + newFieldName + " in class "
@@ -347,13 +481,13 @@ public class UMLCli {
 
 
 	// Method to add a method to a class
-	protected static void addMethod() {
+	protected static void addMethod() throws IOException {
 		System.out.println("Enter the name of the class to add method to: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		System.out.print("Enter the name of the method: ");
-		String methodName = scanner.next();
+		String methodName = getReaderValue();
 		System.out.print("Enter the return type of the method: ");
-		String returnType = scanner.next();
+		String returnType = getReaderValue();
 		boolean success = umlDiagram.addMethod(className, methodName, returnType);
 		if (success) {
 			System.out.println("Method " + methodName + " added to class " + className + " successfully.");
@@ -363,11 +497,11 @@ public class UMLCli {
 	}
 
 	// Method to delete a method from a class
-	protected static void deleteMethod() {
+	protected static void deleteMethod() throws IOException {
 		System.out.println("Enter the name of the class to delete method from: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		System.out.print("Enter the name of the method to delete: ");
-		String methodName = scanner.next();
+		String methodName = getReaderValue();
 		boolean success = umlDiagram.deleteMethod(className, methodName);
 		if (success) {
 			System.out.println("Method " + methodName + " deleted from class " + className + " successfully.");
@@ -377,13 +511,13 @@ public class UMLCli {
 	}
 
 	// Method to rename a method in a class
-	protected static void renameMethod() {
+	protected static void renameMethod() throws IOException {
 		System.out.println("Enter the name of the class containing the method: ");
-		String className = scanner.next();
+		String className = getReaderValue();
 		System.out.print("Enter the current name of the method: ");
-		String oldMethodName = scanner.next();
+		String oldMethodName = getReaderValue();
 		System.out.print("Enter the new name of the method: ");
-		String newMethodName = scanner.next();
+		String newMethodName = getReaderValue();
 		boolean success = umlDiagram.renameMethod(className, oldMethodName, newMethodName);
 		if (success) {
 			System.out.println("Method " + oldMethodName + " renamed to " + newMethodName + " in class " + className
@@ -399,14 +533,14 @@ public class UMLCli {
 /**************************************************************************************************************************************/
 
 	// Method to add a relationship to a class
-	protected static void addRelationship() {
+	protected static void addRelationship() throws IOException {
 		System.out.println("Enter the name of the source class: ");
-		String sourceClass = scanner.next();
+		String sourceClass = getReaderValue();
 		System.out.println("Enter the name of the destination class: ");
-		String destinationClass = scanner.next();
+		String destinationClass = getReaderValue();
 		System.out.println(
 				"Choose a relationship type (Enter a number): \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
-		int type = scanner.nextInt();
+		int type = Integer.parseInt(getReaderValue());
 
 		boolean success = umlDiagram.addRelationship(sourceClass, destinationClass, type);
 		if (success) {
@@ -417,11 +551,11 @@ public class UMLCli {
 	}
 
 	// Method to delete a relationship between classes
-	protected static void deleteRelationship() {
+	protected static void deleteRelationship() throws IOException {
 		System.out.println("Enter the name of the first class in the relationship: ");
-		String class1 = scanner.next();
+		String class1 = getReaderValue();
 		System.out.print("Enter the name of the second class in the relationship: ");
-		String class2 = scanner.next();
+		String class2 = getReaderValue();
 
 		boolean success = umlDiagram.deleteRelationship(class1, class2);
 		if (success) {
@@ -432,14 +566,14 @@ public class UMLCli {
 	}
 
 	// Method to change the type of an existing relationship
-	protected static void changeType() {
+	protected static void changeType() throws IOException {
 		System.out.println("Enter the name of the first class in the relationship: ");
-		String class1 = scanner.next();
+		String class1 = getReaderValue();
 		System.out.print("Enter the name of the second class in the relationship: ");
-		String class2 = scanner.next();
+		String class2 = getReaderValue();
 		System.out.println(
 				"Enter the number for the relationship type: \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
-		int type = scanner.nextInt();
+		int type = Integer.parseInt(getReaderValue());
 
 		if (type < 1 || type > 4) {
 			System.out.println("Invalid number chosen. ");
@@ -461,9 +595,9 @@ public class UMLCli {
 
 	
 	// Method to save the UML diagram to a JSON file
-	protected static void saveDiagram() {
+	protected static void saveDiagram() throws IOException {
 		System.out.print("Enter the file path to save the diagram (JSON format): ");
-		String filePath = scanner.next().trim();
+		String filePath = getReaderValue().trim();
 		try (FileWriter writer = new FileWriter(filePath)) {
 			JsonObject jsonDiagram = new JsonObject();
 
@@ -520,9 +654,9 @@ public class UMLCli {
 
 	
 	// Method to load a UML diagram from a JSON file
-	protected static void loadDiagram() {
+	protected static void loadDiagram() throws IOException {
         System.out.print("Enter the file path to load the diagram (JSON format): ");
-        String filePath = scanner.next().trim();
+        String filePath = getReaderValue().trim();
         try (FileReader reader = new FileReader(filePath)) {
             JsonObject jsonDiagram = gson.fromJson(reader, JsonObject.class);
 
@@ -599,9 +733,9 @@ public class UMLCli {
 
 	}
 
-	protected static void listClassContents() {
+	protected static void listClassContents() throws IOException {
 	    System.out.print("Enter the name of the class to list its contents: ");
-	    String className = scanner.next();
+	    String className = getReaderValue();
 	    UMLClass umlClass = umlDiagram.getClassNameMapToName().get(className);
 
 	    if (umlClass != null) {
@@ -688,9 +822,9 @@ public class UMLCli {
 	}
 
 	// Method to handle exit from the UML CLI
-	protected static void exit() {
+	protected static void exit() throws IOException {
 		System.out.print("Do you want to save the diagram before exiting? (yes/no): ");
-		String saveChoice = scanner.next().trim().toLowerCase();
+		String saveChoice = getReaderValue().trim().toLowerCase();
 		if (saveChoice.equals("yes")) {
 			saveDiagram();
 			System.out.println("Diagram saved.");

@@ -1,5 +1,7 @@
 package com.classuml.Controller;
 
+import java.io.IOException;
+
 /**
  * The {@code UMLEditor} class serves as the entry point to the UML diagram editor application.
  * It decides between launching the application in GUI (Graphical User Interface) mode or CLI
@@ -31,7 +33,12 @@ public class UMLEditor {
         }
 
         if (cliMode) {
-        	UMLCli.launch();
+            try {
+        	    UMLCli.launch();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
             // Launch CLI mode
   
         } else {
