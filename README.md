@@ -16,6 +16,7 @@ Save and load to standar JSON format.
 - Memento is implemented in our redo/undo.
 - Abstract is implemented in our tab completion.
 - Oberserver is implemented in our gui to notify the diagram when methods are called.
+- MVC is implemented throughout our project.
 
 # 1.Requirements: 
 
