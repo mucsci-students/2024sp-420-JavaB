@@ -30,6 +30,7 @@ Save and load to standar JSON format.
 - Make sure you run all of the following commands from the java2 directory
 - mvn clean install
 - mvn clean package spring-boot:repackage
+# Slashes are backwards on linux machines
 - To run the gui use java -jar .\target\java2-1.0-SNAPSHOT.jar
 - To run the cli use java -jar .\target\java2-1.0-SNAPSHOT.jar cli
 - To run the tests use mvn clean test
