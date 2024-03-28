@@ -1,5 +1,7 @@
 package com.classuml.Controller;
 
+import java.awt.Toolkit;
+import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -74,8 +76,9 @@ public class UMLGui extends JFrame implements ActionListener {
      * for navigation. It also calls methods to update the diagram view and populate
      * class components based on the current state of the diagram.
      */
-	public void initializeGUI() {        
-	    setSize(800, 1000);
+	public void initializeGUI() {   
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    setSize(screenSize);
 	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
@@ -90,7 +93,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	    
 	    // Now it's safe to call updateDiagramView
 	    updateDiagramView();
-	    populateClassComponents();
+	    //populateClassComponents();
 	    
 	    // Maximize the window
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -262,7 +265,7 @@ public class UMLGui extends JFrame implements ActionListener {
 			break;
 		}
 		updateDiagramView();
-		populateClassComponents();
+		//populateClassComponents();
 	}
 
 
@@ -1445,38 +1448,39 @@ public class UMLGui extends JFrame implements ActionListener {
      * to other classes.
      */
 	private void populateClassComponents() {
-	    ArrayList<UMLClass> classes = diagram.getClasses();
-	    ArrayList<Relationship> relationships = diagram.getRelationships();
-	    classPanelContainer.removeAll(); // Clear existing components.
+	    // ArrayList<UMLClass> classes = diagram.getClasses();
+	    // ArrayList<Relationship> relationships = diagram.getRelationships();
+	    // //classPanelContainer.removeAll(); // Clear existing components.
 	    
-	    for (UMLClass umlClass : classes) {
-	        List<String> fieldDescriptions = umlClass.getFields().stream()
-	            .map(Field::toString)
-	            .collect(Collectors.toList());
+	    // for (UMLClass umlClass : classes) {
+	    //     List<String> fieldDescriptions = umlClass.getFields().stream()
+	    //         .map(Field::toString)
+	    //         .collect(Collectors.toList());
 
-	        List<String> relationshipDescriptions = relationships.stream()
-	            .filter(r -> r.getSource().equals(umlClass.getName()) || r.getDestination().equals(umlClass.getName()))
-	            .map(Relationship::toString)
-	            .collect(Collectors.toList());
+	    //     List<String> relationshipDescriptions = relationships.stream()
+	    //         .filter(r -> r.getSource().equals(umlClass.getName()) || r.getDestination().equals(umlClass.getName()))
+	    //         .map(Relationship::toString)
+	    //         .collect(Collectors.toList());
 
-	        // Use the Method's toString method which should now include parameters.
-	        List<String> methodDescriptions = umlClass.getMethods().stream()
-	            .map(Method::toString)
-	            .collect(Collectors.toList());
+	    //     // Use the Method's toString method which should now include parameters.
+	    //     List<String> methodDescriptions = umlClass.getMethods().stream()
+	    //         .map(Method::toString)
+	    //         .collect(Collectors.toList());
 
-	        guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions, umlClass);
-	        classPanelContainer.add(classComp);
-			// Create a Point from the JSON
-			Point position = umlClass.getPosition();
-			int x = position.x;
-			int y = position.y;
+	    //     guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions, umlClass);
+	    //     classPanelContainer.add(classComp);
+		// 	// Create a Point from the JSON
+		// 	Point position = umlClass.getPosition();
+		// 	int x = position.x;
+		// 	int y = position.y;
 		
-			// Set the position
-			classComp.setPosition(x,y);
+		// 	// Set the position
+		// 	//classComp.setPosition(x,y);
 		
-			classPanelContainer.add(classComp);
-	    }
+		// 	classPanelContainer.add(classComp);
+	    // }
 
+		classPanelContainer.getComponents();
 	    classPanelContainer.revalidate();
 	    classPanelContainer.repaint();
 	}
