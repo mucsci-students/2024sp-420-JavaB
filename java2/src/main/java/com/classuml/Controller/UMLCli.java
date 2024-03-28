@@ -342,7 +342,8 @@ public class UMLCli {
 		}
 		else
 		{
-			System.out.println("Parameters failed to be replaced, class or method may not exist.");
+			System.out.println("Parameters failed to be completely replaced, class or method may not exist, or duplicate names might've been listed.");
+			umlDiagram.clearParameters(className, methodName);
 		}
 	}
 	
