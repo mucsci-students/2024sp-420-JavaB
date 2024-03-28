@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Memento.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java</a> &gt; <a href="index.source.html" class="el_package">com.classuml.Model</a> &gt; <span class="el_source">Memento.java</span></div><h1>Memento.java</h1><pre class="source lang-java linenums">package com.classuml.Model;
+import java.util.ArrayDeque;
+
+public class Memento 
+{
+<span class="fc" id="L6">    private ArrayDeque&lt;UMLDiagram&gt; statesUndo = new ArrayDeque&lt;UMLDiagram&gt;();</span>
+<span class="fc" id="L7">    private ArrayDeque&lt;UMLDiagram&gt; statesRedo = new ArrayDeque&lt;UMLDiagram&gt;();</span>
+    public Memento()
+<span class="fc" id="L9">    {</span>
+<span class="fc" id="L10">    }</span>
+    //Deep copy constructor.
+    public Memento(ArrayDeque&lt;UMLDiagram&gt; statesUndo2, ArrayDeque&lt;UMLDiagram&gt; statesRedo2)
+<span class="fc" id="L13">    {</span>
+<span class="fc bfc" id="L14" title="All 2 branches covered.">        for(UMLDiagram umlUndo: statesUndo2)</span>
+        {
+<span class="fc" id="L16">            UMLDiagram undoList = new UMLDiagram(umlUndo);</span>
+<span class="fc" id="L17">            this.statesUndo.add(undoList);</span>
+<span class="fc" id="L18">        }</span>
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">        for(UMLDiagram umlRedo: statesRedo2)</span>
+        {
+<span class="nc" id="L21">            UMLDiagram redoList = new UMLDiagram(umlRedo);</span>
+<span class="nc" id="L22">            this.statesRedo.add(redoList);</span>
+<span class="nc" id="L23">        }</span>
+        
+<span class="fc" id="L25">    }</span>
+    //Returns undo deque.
+    public ArrayDeque&lt;UMLDiagram&gt; getUndo()
+    {
+<span class="fc" id="L29">        return statesUndo;</span>
+    }
+    //Returns redo deque.
+    public ArrayDeque&lt;UMLDiagram&gt; getRedo()
+    {
+<span class="fc" id="L34">        return statesRedo;</span>
+    } 
+    //Saves the passed in state.
+    public boolean saveState(UMLDiagram curState)
+    {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if(curState != null)</span>
+        {
+<span class="fc" id="L41">            statesUndo.push(curState);</span>
+<span class="fc" id="L42">            return true;</span>
+        }  
+<span class="nc" id="L44">        return false;</span>
+    }
+    //Returns undo diagram.
+    public UMLDiagram undoState()
+    {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if(statesUndo.isEmpty())</span>
+<span class="nc" id="L50">            return null;</span>
+<span class="nc" id="L51">        UMLDiagram state2 = new UMLDiagram(statesUndo.pop());</span>
+<span class="nc" id="L52">        return state2;</span>
+    }
+    //Returns redo diagram.
+    public UMLDiagram redo()
+    {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if(statesRedo.isEmpty())</span>
+<span class="nc" id="L58">            return null;</span>
+<span class="nc" id="L59">        UMLDiagram state3 = new UMLDiagram(statesRedo.pop());</span>
+<span class="nc" id="L60">        return state3;</span>
+    }
+    //Pops top of undo, used if command called failed but state was saved.
+    public void popUndo()
+    {
+<span class="fc" id="L65">        statesUndo.pop();</span>
+<span class="fc" id="L66">    }</span>
+    //Pushes passed in diagram onto statesRedo.
+    public void pushRedo(UMLDiagram curState)
+    {
+<span class="nc" id="L70">        statesRedo.push(curState);</span>
+<span class="nc" id="L71">    }</span>
+    //Clears both states.
+    public void clearStates()
+    {
+<span class="nc" id="L75">        statesUndo.clear();</span>
+<span class="nc" id="L76">        statesRedo.clear();</span>
+<span class="nc" id="L77">    }</span>
+    //Clears redo when new command is issues after undoing.
+    public void clearRedo()
+    {
+<span class="fc" id="L81">        statesRedo.clear();</span>
+<span class="fc" id="L82">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

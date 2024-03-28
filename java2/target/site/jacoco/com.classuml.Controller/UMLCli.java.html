@@ -1,0 +1,835 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UMLCli.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java</a> &gt; <a href="index.source.html" class="el_package">com.classuml.Controller</a> &gt; <span class="el_source">UMLCli.java</span></div><h1>UMLCli.java</h1><pre class="source lang-java linenums">package com.classuml.Controller;
+ 
+import jline.TerminalFactory;
+import jline.console.ConsoleReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import com.classuml.Model.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+<span class="nc" id="L19">public class UMLCli {</span>
+	// Scanner object for user input
+	//private static final Scanner scanner = new Scanner(System.in);
+	private static ConsoleReader creader;
+	// Gson object for JSON serialization and de-serialization
+<span class="nc" id="L24">	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();</span>
+	// UMLDiagram object to store the UML diagram
+<span class="nc" id="L26">	private static final UMLDiagram umlDiagram = new UMLDiagram();</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   MENU DISPLAY   **/
+/**************************************************************************************************************************************/
+
+	// Main method
+	public static void launch() throws IOException {
+<span class="nc" id="L35">		creader = setConsoleReader();</span>
+<span class="nc" id="L36">		System.out.println(&quot;Welcome to NRDS UML Editor!&quot;);</span>
+
+<span class="nc" id="L38">		boolean exit = false; </span>
+
+		// Display menu and get user choice
+<span class="nc" id="L41">		displayMenu();</span>
+
+		// Loop until the user chooses to exit
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		while (!exit) {</span>
+
+<span class="nc" id="L46">			String choice = getUserChoice();</span>
+
+			// Perform actions based on user choice
+<span class="nc bnc" id="L49" title="All 25 branches missed.">			switch (choice) {</span>
+            case &quot;menu&quot;:
+<span class="nc" id="L51">                displayMenu();</span>
+<span class="nc" id="L52">                break;</span>
+            case &quot;addclass&quot;:
+            case &quot;ac&quot;:
+<span class="nc" id="L55">                createClass();</span>
+<span class="nc" id="L56">                break;</span>
+            case &quot;deleteclass&quot;:
+            case &quot;dc&quot;:
+<span class="nc" id="L59">                deleteClass();</span>
+<span class="nc" id="L60">                break;</span>
+            case &quot;renameclass&quot;:
+            case &quot;rc&quot;:
+<span class="nc" id="L63">                renameClass();</span>
+<span class="nc" id="L64">                break;</span>
+            case &quot;addparameter&quot;:
+            case &quot;ap&quot;:
+<span class="nc" id="L67">                addParameter();</span>
+<span class="nc" id="L68">                break;</span>
+            case &quot;deleteparameter&quot;:
+            case &quot;dp&quot;:
+<span class="nc" id="L71">                deleteParameter();</span>
+<span class="nc" id="L72">                break;</span>
+            case &quot;renameparameter&quot;:
+            case &quot;rp&quot;:
+<span class="nc" id="L75">                renameParameter();</span>
+<span class="nc" id="L76">                break;</span>
+			case &quot;replaceparams&quot;:
+<span class="nc" id="L78">				replaceParams();</span>
+<span class="nc" id="L79">				break;</span>
+            case &quot;addfield&quot;:
+            case &quot;af&quot;:
+<span class="nc" id="L82">            	addField();</span>
+<span class="nc" id="L83">            	break;</span>
+            case &quot;renamefield&quot;:
+            case &quot;rf&quot;:
+<span class="nc" id="L86">            	renameField();</span>
+<span class="nc" id="L87">            	break;</span>
+            case &quot;deletefield&quot;:
+            case &quot;df&quot;:
+<span class="nc" id="L90">            	deleteField();</span>
+<span class="nc" id="L91">            	break;</span>
+            case &quot;addmethod&quot;:
+            case &quot;am&quot;:
+<span class="nc" id="L94">                addMethod();</span>
+<span class="nc" id="L95">                break;</span>
+            case &quot;deletemethod&quot;:
+            case &quot;dm&quot;:
+<span class="nc" id="L98">                deleteMethod();</span>
+<span class="nc" id="L99">                break;</span>
+            case &quot;renamemethod&quot;:
+            case &quot;rm&quot;:
+<span class="nc" id="L102">                renameMethod();</span>
+<span class="nc" id="L103">                break;</span>
+            case &quot;addrelationship&quot;:
+            case &quot;ar&quot;:
+<span class="nc" id="L106">                addRelationship();</span>
+<span class="nc" id="L107">                break;</span>
+            case &quot;deleterelationship&quot;:
+            case &quot;dr&quot;:
+<span class="nc" id="L110">                deleteRelationship();</span>
+<span class="nc" id="L111">                break;</span>
+            case &quot;changetype&quot;:
+            case &quot;ct&quot;:
+<span class="nc" id="L114">                changeType();</span>
+<span class="nc" id="L115">                break;</span>
+            case &quot;listclasses&quot;:
+            case &quot;lcs&quot;:
+<span class="nc" id="L118">                listClasses();</span>
+<span class="nc" id="L119">                break;</span>
+            case &quot;listclass&quot;:
+            case &quot;lc&quot;:
+<span class="nc" id="L122">                listClassContents();</span>
+<span class="nc" id="L123">                break;</span>
+            case &quot;listrelationships&quot;:
+            case &quot;lr&quot;:
+<span class="nc" id="L126">                listRelationships();</span>
+<span class="nc" id="L127">                break;</span>
+            case &quot;save&quot;:
+            case &quot;s&quot;:
+<span class="nc" id="L130">                saveDiagram();</span>
+<span class="nc" id="L131">                break;</span>
+            case &quot;load&quot;:
+            case &quot;lo&quot;:
+<span class="nc" id="L134">                loadDiagram();</span>
+<span class="nc" id="L135">                break;</span>
+            case &quot;help&quot;:
+            case &quot;h&quot;:
+<span class="nc" id="L138">                help();</span>
+<span class="nc" id="L139">                break;</span>
+            case &quot;exit&quot;:
+<span class="nc" id="L141">                exit();</span>
+<span class="nc" id="L142">                break;</span>
+            default:
+<span class="nc" id="L144">                System.out.println(&quot;Invalid choice. Please enter a valid command.&quot;);</span>
+                break;
+            }
+<span class="nc" id="L147">		}</span>
+		// Close scanner
+		//scanner.close();
+<span class="nc" id="L150">	}</span>
+
+	private static ConsoleReader setConsoleReader() throws IOException {
+<span class="nc" id="L153">		ConsoleReader creader = new ConsoleReader();</span>
+<span class="nc" id="L154">		creader.setPrompt(&quot;&gt; &quot;);</span>
+<span class="nc" id="L155">		return creader;</span>
+	}
+
+	// Display the menu
+	// Display the menu
+    protected static void displayMenu() {
+<span class="nc" id="L161">    	System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L162">        System.out.println(&quot;\n		Menu:&quot;);</span>
+<span class="nc" id="L163">        System.out.println(&quot;AddClass (ac) - Creates a new class.&quot;);</span>
+<span class="nc" id="L164">        System.out.println(&quot;DeleteClass (dc)- Deletes a class.&quot;);</span>
+<span class="nc" id="L165">        System.out.println(&quot;RenameClass (rc)- Renames a class.&quot;);</span>
+<span class="nc" id="L166">        System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L167">        System.out.println(&quot;AddParameter (ap)- Add a Parameter to a class.&quot;);</span>
+<span class="nc" id="L168">        System.out.println(&quot;DeleteParameter (dp)- Delete a parameter from a class.&quot;);</span>
+<span class="nc" id="L169">        System.out.println(&quot;RenameParameter (rp)- Rename a parameter in a class.&quot;);</span>
+<span class="nc" id="L170">		System.out.println(&quot;ReplaceParams - Replaces params of a method with a new list of parameters.&quot;);</span>
+<span class="nc" id="L171">        System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L172">        System.out.println(&quot;AddField (af)- Add a Field to a class.&quot;);</span>
+<span class="nc" id="L173">        System.out.println(&quot;DeleteField (df)- Delete a Field from a class.&quot;);</span>
+<span class="nc" id="L174">        System.out.println(&quot;RenameField (rf)- Rename a Field in a class.&quot;);</span>
+<span class="nc" id="L175">        System.out.println(&quot;ChangeFieldType (cft)- Change the type of a Field in a class.&quot;);</span>
+<span class="nc" id="L176">        System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L177">        System.out.println(&quot;AddMethod (am)- Add a method to a class.&quot;);</span>
+<span class="nc" id="L178">        System.out.println(&quot;DeleteMethod (dm)- Delete a method from a class.&quot;);</span>
+<span class="nc" id="L179">        System.out.println(&quot;RenameMethod (rm)- Rename a method in a class.&quot;);</span>
+<span class="nc" id="L180">        System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L181">        System.out.println(&quot;AddRelationship (ar)- Add a relationship between classes.&quot;);</span>
+<span class="nc" id="L182">        System.out.println(&quot;DeleteRelationship (dr)- Delete a relationship between classes.&quot;);</span>
+<span class="nc" id="L183">        System.out.println(&quot;ChangeType (ct)- Change the relationship type between classes. &quot;);</span>
+<span class="nc" id="L184">        System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L185">        System.out.println(&quot;ListClasses (lcs)- List all classes.&quot;);</span>
+<span class="nc" id="L186">        System.out.println(&quot;ListClass (lc)- List contents of a specified class.&quot;);</span>
+<span class="nc" id="L187">        System.out.println(&quot;ListRelationships (lr)- List all relationships.&quot;);</span>
+<span class="nc" id="L188">        System.out.println(&quot;Save (s)- Save diagram to JSON file.&quot;);</span>
+<span class="nc" id="L189">        System.out.println(&quot;Load (lo)- Load diagram from JSON file.&quot;);</span>
+<span class="nc" id="L190">        System.out.println(&quot;Menu (m)- Display main menu.&quot;);</span>
+<span class="nc" id="L191">        System.out.println(&quot;Help (h)- Help.&quot;);</span>
+<span class="nc" id="L192">        System.out.println(&quot;Exit - Exit.&quot;);</span>
+<span class="nc" id="L193">        System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L194">        System.out.println(&quot;  &quot;);</span>
+<span class="nc" id="L195">        System.out.print(&quot;Please enter your choice: &quot;);</span>
+<span class="nc" id="L196">    }</span>
+
+
+	// Get user choice
+	private static String getUserChoice() throws IOException {
+		//return creader.readLine().toLowerCase().trim();
+<span class="nc" id="L202">		return creader.readLine().toLowerCase().trim();</span>
+	}
+
+/**************************************************************************************************************************************/
+    /**   CLASSES   **/
+/**
+ * @throws IOException ************************************************************************************************************************************/
+
+	// Method to create a new class
+	protected static void createClass() throws IOException {
+<span class="nc" id="L212">		System.out.println(&quot;Enter the name of the class: &quot;);</span>
+		//String className = creader.readLine();
+<span class="nc" id="L214">		String className = creader.readLine();</span>
+<span class="nc" id="L215">		boolean success = umlDiagram.addClass(className);</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L217">			System.out.println(&quot;Class &quot; + className + &quot; created successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L219">			System.out.println(&quot;Failed to create class &quot; + className + &quot;. Class may already exist.&quot;);</span>
+		}
+<span class="nc" id="L221">	}</span>
+
+	// Method to delete a class
+	protected static void deleteClass() throws IOException {
+<span class="nc" id="L225">		System.out.println(&quot;Enter the name of the class to delete: &quot;);</span>
+		//String className = creader.readLine();
+<span class="nc" id="L227">		String className = creader.readLine();</span>
+<span class="nc" id="L228">		boolean success = umlDiagram.deleteClass(className);</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L230">			System.out.println(&quot;Class &quot; + className + &quot; deleted successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L232">			System.out.println(&quot;Failed to delete class &quot; + className + &quot;. Class may not exist.&quot;);</span>
+		}
+<span class="nc" id="L234">	}</span>
+
+	// Method to rename a class
+	protected static void renameClass() throws IOException {
+<span class="nc" id="L238">		System.out.println(&quot;Enter the current name of the class: &quot;);</span>
+<span class="nc" id="L239">		String oldName = creader.readLine();</span>
+<span class="nc" id="L240">		System.out.print(&quot;Enter the new name of the class: &quot;);</span>
+<span class="nc" id="L241">		String newName = creader.readLine();</span>
+<span class="nc" id="L242">		boolean success = umlDiagram.renameClass(oldName, newName);</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L244">			System.out.println(&quot;Class &quot; + oldName + &quot; renamed to &quot; + newName + &quot; successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L246">			System.out.println(</span>
+					&quot;Failed to rename class &quot; + oldName + &quot;. Class may not exist or new name may already be in use.&quot;);
+		}
+<span class="nc" id="L249">	}</span>
+	
+/**************************************************************************************************************************************/
+    /**   PARAMETERS   **/
+/**
+ * @throws IOException ************************************************************************************************************************************/
+
+	// Method to add a parameter to a class
+    protected static void addParameter() throws IOException {
+<span class="nc" id="L258">        System.out.println(&quot;Enter the name of the class to add parameter to: &quot;);</span>
+<span class="nc" id="L259">        String className = creader.readLine();</span>
+<span class="nc" id="L260">        System.out.print(&quot;Enter the name of the method to add a parameter: &quot;);</span>
+<span class="nc" id="L261">        String methodName = creader.readLine();</span>
+<span class="nc" id="L262">        System.out.print(&quot;Enter the parameter name: &quot;);</span>
+<span class="nc" id="L263">        String paramName = creader.readLine();</span>
+<span class="nc" id="L264">        System.out.print(&quot;Enter the name of parameter type: &quot;);</span>
+<span class="nc" id="L265">        String typeName = creader.readLine();</span>
+<span class="nc" id="L266">        boolean success = umlDiagram.addParameter(className, methodName, paramName, typeName);</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">        if (success) {</span>
+<span class="nc" id="L268">            System.out.println(&quot;Parameter &quot; + paramName + &quot; added to class &quot; + className + &quot; successfully.&quot;);</span>
+        } else {
+<span class="nc" id="L270">            System.out.println(&quot;Failed to add parameter to class &quot; + className + &quot;. Class or method may not exist.&quot;);</span>
+        }
+<span class="nc" id="L272">    }</span>
+
+    // Method to delete a parameter from a class
+    protected static void deleteParameter() throws IOException {
+<span class="nc" id="L276">        System.out.println(&quot;Enter the name of the class to delete parameter from: &quot;);</span>
+<span class="nc" id="L277">        String className = creader.readLine();</span>
+<span class="nc" id="L278">        System.out.println(&quot;Enter the name of the method to to delete parameter from: &quot;);</span>
+<span class="nc" id="L279">        String methodName = creader.readLine();</span>
+<span class="nc" id="L280">        System.out.print(&quot;Enter the name of the parameter to delete: &quot;);</span>
+<span class="nc" id="L281">        String paramName = creader.readLine();</span>
+<span class="nc" id="L282">        boolean success = umlDiagram.deleteParameter(className, methodName, paramName);</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">        if (success) {</span>
+<span class="nc" id="L284">            System.out.println(&quot;Parameter &quot; + paramName + &quot; deleted from class &quot; + className + &quot; successfully.&quot;);</span>
+        } else {
+<span class="nc" id="L286">            System.out.println(&quot;Failed to delete parameter from class &quot; + className + &quot;. Class or method may not exist.&quot;);</span>
+        }
+<span class="nc" id="L288">    }</span>
+
+    // Method to rename a parameter in a class
+    protected static void renameParameter() throws IOException {
+<span class="nc" id="L292">        System.out.println(&quot;Enter the name of the class containing the parameter: &quot;);</span>
+<span class="nc" id="L293">        String className = creader.readLine();</span>
+<span class="nc" id="L294">        System.out.println(&quot;Enter the name of the method to to delete parameter from: &quot;);</span>
+<span class="nc" id="L295">        String methodName = creader.readLine();</span>
+<span class="nc" id="L296">        System.out.print(&quot;Enter the current name of the parameter: &quot;);</span>
+<span class="nc" id="L297">        String oldParamName = creader.readLine();</span>
+<span class="nc" id="L298">        System.out.print(&quot;Enter the new name of the parameter: &quot;);</span>
+<span class="nc" id="L299">        String newParamName = creader.readLine();</span>
+<span class="nc" id="L300">        boolean success = umlDiagram.renameParameter(className, methodName, oldParamName, newParamName);</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">        if (success) {</span>
+<span class="nc" id="L302">            System.out.println(&quot;Parameter &quot; + oldParamName + &quot; renamed to &quot; + newParamName + &quot; in class &quot; + className + &quot; successfully.&quot;);</span>
+        } else {
+<span class="nc" id="L304">            System.out.println(&quot;Failed to rename Parameter in class &quot; + className + &quot;. Class or Parameter may not exist, or new name may already be in use.&quot;);</span>
+        }
+<span class="nc" id="L306">    }</span>
+	protected static void replaceParams() throws IOException {
+<span class="nc" id="L308">		System.out.println(&quot;Enter the name of the class containing the parameters to be replaced: &quot;);</span>
+<span class="nc" id="L309">        String className = creader.readLine();</span>
+<span class="nc" id="L310">        System.out.println(&quot;Enter the name of the method to to replace parameters in: &quot;);</span>
+<span class="nc" id="L311">        String methodName = creader.readLine();</span>
+<span class="nc" id="L312">		System.out.println(&quot;Please type the name and type of the first param in the format: name type&quot;);</span>
+<span class="nc" id="L313">		String paramList = creader.readLine();</span>
+<span class="nc" id="L314">		boolean done = false;</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">		while(!done)</span>
+		{
+<span class="nc" id="L317">			System.out.println(&quot;Please type the next name and type, or type 'done' to stop.&quot;);</span>
+<span class="nc" id="L318">			String nextLine = creader.readLine();</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">			if(nextLine.equals(&quot;done&quot;))</span>
+			{
+<span class="nc" id="L321">				done = true;</span>
+			}
+			else
+			{
+<span class="nc" id="L325">				paramList = paramList.concat(&quot;\n&quot;);</span>
+<span class="nc" id="L326">				paramList = paramList.concat(nextLine);</span>
+			}
+<span class="nc" id="L328">		}</span>
+<span class="nc" id="L329">		String[] paramsSep = paramList.split(&quot;\n&quot;);</span>
+<span class="nc" id="L330">		String[] paramNames = new String[paramsSep.length];</span>
+<span class="nc" id="L331">		String[] paramTypes = new String[paramsSep.length];</span>
+<span class="nc" id="L332">		int i = 0;</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">		for (String param : paramsSep) {</span>
+<span class="nc" id="L334">			String[] paramSplit = param.split(&quot; &quot;);</span>
+<span class="nc" id="L335">			paramNames[i] = paramSplit[0];</span>
+<span class="nc" id="L336">			paramTypes[i] = paramSplit[1];</span>
+<span class="nc" id="L337">			i++;			</span>
+		}
+<span class="nc bnc" id="L339" title="All 2 branches missed.">		if(umlDiagram.replaceParameters(className, methodName, paramNames, paramTypes))</span>
+		{
+<span class="nc" id="L341">			System.out.println(&quot;Parameters were successfully replaced!&quot;);</span>
+		}
+		else
+		{
+<span class="nc" id="L345">			System.out.println(&quot;Parameters failed to be completely replaced, class or method may not exist, or duplicate names might've been listed.&quot;);</span>
+<span class="nc" id="L346">			umlDiagram.clearParameters(className, methodName);</span>
+		}
+<span class="nc" id="L348">	}</span>
+	
+    
+/**************************************************************************************************************************************/
+    /**   FIELDS   **/
+/**
+ * @throws IOException ************************************************************************************************************************************/
+
+
+	// Method to add an attribute to a class
+	protected static void addField() throws IOException {
+<span class="nc" id="L359">		System.out.println(&quot;Enter the name of the class to add field to: &quot;);</span>
+<span class="nc" id="L360">		String className = creader.readLine();</span>
+<span class="nc" id="L361">		System.out.print(&quot;Enter the name of the field: &quot;);</span>
+<span class="nc" id="L362">		String fieldName = creader.readLine();</span>
+<span class="nc" id="L363">		System.out.print(&quot;Enter the type of the field: &quot;);</span>
+<span class="nc" id="L364">		String fieldType = creader.readLine();</span>
+<span class="nc" id="L365">		boolean success = umlDiagram.addField(className, fieldName, fieldType);</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L367">			System.out.println(&quot;Field &quot; + fieldName + &quot; added to class &quot; + className + &quot; successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L369">			System.out.println(&quot;Failed to add field to class &quot; + className + &quot;. Class may not exist.&quot;);</span>
+		}
+<span class="nc" id="L371">	}</span>
+
+	// Method to delete an attribute from a class
+	protected static void deleteField() throws IOException {
+<span class="nc" id="L375">		System.out.println(&quot;Enter the name of the class to delete field from: &quot;);</span>
+<span class="nc" id="L376">		String className = creader.readLine();</span>
+<span class="nc" id="L377">		System.out.print(&quot;Enter the name of the field to delete: &quot;);</span>
+<span class="nc" id="L378">		String fieldName = creader.readLine();</span>
+<span class="nc" id="L379">		boolean success = umlDiagram.deleteField(className, fieldName);</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L381">			System.out.println(&quot;Field &quot; + fieldName + &quot; deleted from class &quot; + className + &quot; successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L383">			System.out.println(</span>
+					&quot;Failed to delete field from class &quot; + className + &quot;. Class or field may not exist.&quot;);
+		}
+<span class="nc" id="L386">	}</span>
+
+	// Method to rename an attribute in a class
+	protected static void renameField() throws IOException {
+<span class="nc" id="L390">		System.out.println(&quot;Enter the name of the class containing the field: &quot;);</span>
+<span class="nc" id="L391">		String className = creader.readLine();</span>
+<span class="nc" id="L392">		System.out.print(&quot;Enter the current name of the field: &quot;);</span>
+<span class="nc" id="L393">		String oldFieldName = creader.readLine();</span>
+<span class="nc" id="L394">		System.out.print(&quot;Enter the new name of the field: &quot;);</span>
+<span class="nc" id="L395">		String newFieldName = creader.readLine();</span>
+<span class="nc" id="L396">		boolean success = umlDiagram.renameField(className, oldFieldName, newFieldName);</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L398">			System.out.println(&quot;Field &quot; + oldFieldName + &quot; renamed to &quot; + newFieldName + &quot; in class &quot;</span>
+					+ className + &quot; successfully.&quot;);
+		} else {
+<span class="nc" id="L401">			System.out.println(&quot;Failed to rename field in class &quot; + className</span>
+					+ &quot;. Class or field may not exist, or new name may already be in use.&quot;);
+		}
+<span class="nc" id="L404">	}</span>
+	
+	
+/**************************************************************************************************************************************/
+    /**   METHODS   **/
+/**
+ * @throws IOException ************************************************************************************************************************************/
+
+
+	// Method to add a method to a class
+	protected static void addMethod() throws IOException {
+<span class="nc" id="L415">		System.out.println(&quot;Enter the name of the class to add method to: &quot;);</span>
+<span class="nc" id="L416">		String className = creader.readLine();</span>
+<span class="nc" id="L417">		System.out.print(&quot;Enter the name of the method: &quot;);</span>
+<span class="nc" id="L418">		String methodName = creader.readLine();</span>
+<span class="nc" id="L419">		System.out.print(&quot;Enter the return type of the method: &quot;);</span>
+<span class="nc" id="L420">		String returnType = creader.readLine();</span>
+<span class="nc" id="L421">		boolean success = umlDiagram.addMethod(className, methodName, returnType);</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L423">			System.out.println(&quot;Method &quot; + methodName + &quot; added to class &quot; + className + &quot; successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L425">			System.out.println(&quot;Failed to add method to class &quot; + className + &quot;. Class may not exist.&quot;);</span>
+		}
+<span class="nc" id="L427">	}</span>
+
+	// Method to delete a method from a class
+	protected static void deleteMethod() throws IOException {
+<span class="nc" id="L431">		System.out.println(&quot;Enter the name of the class to delete method from: &quot;);</span>
+<span class="nc" id="L432">		String className = creader.readLine();</span>
+<span class="nc" id="L433">		System.out.print(&quot;Enter the name of the method to delete: &quot;);</span>
+<span class="nc" id="L434">		String methodName = creader.readLine();</span>
+<span class="nc" id="L435">		boolean success = umlDiagram.deleteMethod(className, methodName);</span>
+<span class="nc bnc" id="L436" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L437">			System.out.println(&quot;Method &quot; + methodName + &quot; deleted from class &quot; + className + &quot; successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L439">			System.out.println(&quot;Failed to delete method from class &quot; + className + &quot;. Class or method may not exist.&quot;);</span>
+		}
+<span class="nc" id="L441">	}</span>
+
+	// Method to rename a method in a class
+	protected static void renameMethod() throws IOException {
+<span class="nc" id="L445">		System.out.println(&quot;Enter the name of the class containing the method: &quot;);</span>
+<span class="nc" id="L446">		String className = creader.readLine();</span>
+<span class="nc" id="L447">		System.out.print(&quot;Enter the current name of the method: &quot;);</span>
+<span class="nc" id="L448">		String oldMethodName = creader.readLine();</span>
+<span class="nc" id="L449">		System.out.print(&quot;Enter the new name of the method: &quot;);</span>
+<span class="nc" id="L450">		String newMethodName = creader.readLine();</span>
+<span class="nc" id="L451">		boolean success = umlDiagram.renameMethod(className, oldMethodName, newMethodName);</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L453">			System.out.println(&quot;Method &quot; + oldMethodName + &quot; renamed to &quot; + newMethodName + &quot; in class &quot; + className</span>
+					+ &quot; successfully.&quot;);
+		} else {
+<span class="nc" id="L456">			System.out.println(&quot;Failed to rename method in class &quot; + className</span>
+					+ &quot;. Class or method may not exist, or new name may already be in use.&quot;);
+		}
+<span class="nc" id="L459">	} </span>
+
+/**************************************************************************************************************************************/
+    /**   RELATIONSHIPS   **/
+/**
+ * @throws IOException ************************************************************************************************************************************/
+
+	// Method to add a relationship to a class
+	protected static void addRelationship() throws IOException {
+<span class="nc" id="L468">		System.out.println(&quot;Enter the name of the source class: &quot;);</span>
+<span class="nc" id="L469">		String sourceClass = creader.readLine();</span>
+<span class="nc" id="L470">		System.out.println(&quot;Enter the name of the destination class: &quot;);</span>
+<span class="nc" id="L471">		String destinationClass = creader.readLine();</span>
+<span class="nc" id="L472">		System.out.println(</span>
+				&quot;Choose a relationship type (Enter a number): \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n&quot;);
+		//int type = Integer.getInteger(creader.readLine());
+<span class="nc" id="L475">		int type = Integer.getInteger(creader.readLine());</span>
+
+<span class="nc" id="L477">		boolean success = umlDiagram.addRelationship(sourceClass, destinationClass, type);</span>
+<span class="nc bnc" id="L478" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L479">			System.out.println(&quot;Relationship added successfully.&quot;);</span>
+		} else {
+<span class="nc" id="L481">			System.out.println(&quot;Failed to add relationship.&quot;);</span>
+		}
+<span class="nc" id="L483">	}</span>
+
+	// Method to delete a relationship between classes
+	protected static void deleteRelationship() throws IOException {
+<span class="nc" id="L487">		System.out.println(&quot;Enter the name of the first class in the relationship: &quot;);</span>
+<span class="nc" id="L488">		String class1 = creader.readLine();</span>
+<span class="nc" id="L489">		System.out.print(&quot;Enter the name of the second class in the relationship: &quot;);</span>
+<span class="nc" id="L490">		String class2 = creader.readLine();</span>
+
+<span class="nc" id="L492">		boolean success = umlDiagram.deleteRelationship(class1, class2);</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">		if (success) {</span>
+<span class="nc" id="L494">			System.out.println(&quot;Relationship deleted successfully between &quot; + class1 + &quot; and &quot; + class2 + &quot;.&quot;);</span>
+		} else {
+<span class="nc" id="L496">			System.out.println(&quot;Failed to delete relationship between &quot; + class1 + &quot; and &quot; + class2 + &quot;.&quot;);</span>
+		}
+<span class="nc" id="L498">	}</span>
+
+	// Method to change the type of an existing relationship
+	protected static void changeType() throws IOException {
+<span class="nc" id="L502">		System.out.println(&quot;Enter the name of the first class in the relationship: &quot;);</span>
+<span class="nc" id="L503">		String class1 = creader.readLine();</span>
+<span class="nc" id="L504">		System.out.print(&quot;Enter the name of the second class in the relationship: &quot;);</span>
+<span class="nc" id="L505">		String class2 = creader.readLine();</span>
+<span class="nc" id="L506">		System.out.println(</span>
+				&quot;Enter the number for the relationship type: \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n&quot;);
+<span class="nc" id="L508">		int type = Integer.getInteger(creader.readLine());</span>
+
+<span class="nc bnc" id="L510" title="All 4 branches missed.">		if (type &lt; 1 || type &gt; 4) {</span>
+<span class="nc" id="L511">			System.out.println(&quot;Invalid number chosen. &quot;);</span>
+		} else {
+<span class="nc" id="L513">			boolean success = umlDiagram.changeRelType(class1, class2, type);</span>
+
+<span class="nc bnc" id="L515" title="All 2 branches missed.">			if (success) {</span>
+<span class="nc" id="L516">				System.out.println(&quot;Relationship type changed succesfully.&quot;);</span>
+			} else {
+<span class="nc" id="L518">				System.out.println(&quot;Failed to change type. Relationship has to exist.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L522">	}</span>
+
+/**************************************************************************************************************************************/
+    /**   SAVE DIAGRAM   **/
+/**
+ * @throws IOException ************************************************************************************************************************************/
+
+	
+	// Method to save the UML diagram to a JSON file
+	protected static void saveDiagram() throws IOException {
+<span class="nc" id="L532">		System.out.print(&quot;Enter the file path to save the diagram (JSON format): &quot;);</span>
+<span class="nc" id="L533">		String filePath = creader.readLine().trim();</span>
+<span class="nc" id="L534">		try (FileWriter writer = new FileWriter(filePath)) {</span>
+<span class="nc" id="L535">			JsonObject jsonDiagram = new JsonObject();</span>
+
+			// Convert classes to JSON array
+<span class="nc" id="L538">			JsonArray jsonClasses = new JsonArray();</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">			for (UMLClass umlClass : umlDiagram.getClasses()) {</span>
+<span class="nc" id="L540">				JsonObject jsonClass = new JsonObject();</span>
+<span class="nc" id="L541">				jsonClass.addProperty(&quot;name&quot;, umlClass.getName());</span>
+
+<span class="nc" id="L543">				JsonArray jsonFields = new JsonArray();</span>
+<span class="nc bnc" id="L544" title="All 2 branches missed.">				for (Field field : umlClass.getFields()) {</span>
+<span class="nc" id="L545">					JsonObject jsonField = new JsonObject();</span>
+<span class="nc" id="L546">					jsonField.addProperty(&quot;name&quot;, field.getName());</span>
+<span class="nc" id="L547">					jsonField.addProperty(&quot;type&quot;, field.getType());</span>
+<span class="nc" id="L548">					jsonFields.add(jsonField);</span>
+<span class="nc" id="L549">				}</span>
+<span class="nc" id="L550">				jsonClass.add(&quot;attributes&quot;, jsonFields);</span>
+
+<span class="nc" id="L552">				JsonArray jsonMethods = new JsonArray();</span>
+<span class="nc bnc" id="L553" title="All 2 branches missed.">				for (Method method : umlClass.getMethods()) {</span>
+<span class="nc" id="L554">					JsonObject jsonMethod = new JsonObject();</span>
+<span class="nc" id="L555">					jsonMethod.addProperty(&quot;name&quot;, method.getName());</span>
+<span class="nc" id="L556">					jsonMethod.addProperty(&quot;returnType&quot;, method.getType());</span>
+<span class="nc" id="L557">					jsonMethods.add(jsonMethod);</span>
+<span class="nc" id="L558">				}</span>
+<span class="nc" id="L559">				jsonClass.add(&quot;methods&quot;, jsonMethods);</span>
+
+<span class="nc" id="L561">				jsonClasses.add(jsonClass);</span>
+<span class="nc" id="L562">			}</span>
+<span class="nc" id="L563">			jsonDiagram.add(&quot;classes&quot;, jsonClasses);</span>
+
+			// Convert relationships to JSON array
+<span class="nc" id="L566">			JsonArray jsonRelationships = new JsonArray();</span>
+<span class="nc bnc" id="L567" title="All 2 branches missed.">			for (Relationship relationship : umlDiagram.getRelationships()) {</span>
+<span class="nc" id="L568">				JsonObject jsonRelationship = new JsonObject();</span>
+<span class="nc" id="L569">				jsonRelationship.addProperty(&quot;source&quot;, relationship.getSource());</span>
+<span class="nc" id="L570">				jsonRelationship.addProperty(&quot;destination&quot;, relationship.getDestination());</span>
+<span class="nc" id="L571">				jsonRelationship.addProperty(&quot;type&quot;, relationship.getType());</span>
+<span class="nc" id="L572">				jsonRelationships.add(jsonRelationship);</span>
+<span class="nc" id="L573">			}</span>
+<span class="nc" id="L574">			jsonDiagram.add(&quot;relationships&quot;, jsonRelationships);</span>
+
+<span class="nc" id="L576">			gson.toJson(jsonDiagram, writer);</span>
+<span class="nc" id="L577">			System.out.println(&quot;Diagram saved successfully to &quot; + filePath + &quot;.&quot;);</span>
+<span class="nc" id="L578">		} catch (IOException e) {</span>
+<span class="nc" id="L579">			System.out.println(&quot;Failed to save diagram to &quot; + filePath + &quot;: &quot; + e.getMessage());</span>
+<span class="nc" id="L580">		}</span>
+<span class="nc" id="L581">	}</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   LOAD DIAGRAM   **/
+/**
+ * @throws IOException ************************************************************************************************************************************/
+
+	
+	// Method to load a UML diagram from a JSON file
+	protected static void loadDiagram() throws IOException {
+<span class="nc" id="L592">        System.out.print(&quot;Enter the file path to load the diagram (JSON format): &quot;);</span>
+<span class="nc" id="L593">        String filePath = creader.readLine().trim();</span>
+<span class="nc" id="L594">        try (FileReader reader = new FileReader(filePath)) {</span>
+<span class="nc" id="L595">            JsonObject jsonDiagram = gson.fromJson(reader, JsonObject.class);</span>
+
+            // Clear existing diagram
+<span class="nc" id="L598">            umlDiagram.clear();</span>
+
+            // Load classes
+<span class="nc" id="L601">            JsonArray jsonClasses = jsonDiagram.getAsJsonArray(&quot;classes&quot;);</span>
+<span class="nc bnc" id="L602" title="All 2 branches missed.">            for (JsonElement element : jsonClasses) {</span>
+<span class="nc" id="L603">                JsonObject jsonClass = element.getAsJsonObject();</span>
+<span class="nc" id="L604">                String className = jsonClass.get(&quot;name&quot;).getAsString();</span>
+<span class="nc" id="L605">                umlDiagram.addClass(className);</span>
+
+                // Load attributes
+<span class="nc" id="L608">                JsonArray jsonAttributes = jsonClass.getAsJsonArray(&quot;attributes&quot;);</span>
+<span class="nc bnc" id="L609" title="All 2 branches missed.">                for (JsonElement attrElement : jsonAttributes) {</span>
+<span class="nc" id="L610">                    JsonObject jsonAttribute = attrElement.getAsJsonObject();</span>
+<span class="nc" id="L611">                    String attributeName = jsonAttribute.get(&quot;name&quot;).getAsString();</span>
+<span class="nc" id="L612">                    String attributeType = jsonAttribute.get(&quot;type&quot;).getAsString();</span>
+<span class="nc" id="L613">                    umlDiagram.addField(className, attributeName, attributeType);</span>
+<span class="nc" id="L614">                }</span>
+
+                // Load methods
+<span class="nc" id="L617">                JsonArray jsonMethods = jsonClass.getAsJsonArray(&quot;methods&quot;);</span>
+<span class="nc bnc" id="L618" title="All 2 branches missed.">                for (JsonElement methodElement : jsonMethods) {</span>
+<span class="nc" id="L619">                    JsonObject jsonMethod = methodElement.getAsJsonObject();</span>
+<span class="nc" id="L620">                    String methodName = jsonMethod.get(&quot;name&quot;).getAsString();</span>
+<span class="nc" id="L621">                    String returnType = jsonMethod.get(&quot;returnType&quot;).getAsString();</span>
+<span class="nc" id="L622">                    umlDiagram.addMethod(className, methodName, returnType);</span>
+<span class="nc" id="L623">                }</span>
+<span class="nc" id="L624">            }</span>
+
+            // Load relationships
+<span class="nc" id="L627">            JsonArray jsonRelationships = jsonDiagram.getAsJsonArray(&quot;relationships&quot;);</span>
+<span class="nc bnc" id="L628" title="All 2 branches missed.">            for (JsonElement element : jsonRelationships) {</span>
+<span class="nc" id="L629">                JsonObject jsonRelationship = element.getAsJsonObject();</span>
+<span class="nc" id="L630">                String source = jsonRelationship.get(&quot;source&quot;).getAsString();</span>
+<span class="nc" id="L631">                String destination = jsonRelationship.get(&quot;destination&quot;).getAsString();</span>
+<span class="nc" id="L632">                String tempType = jsonRelationship.get(&quot;type&quot;).getAsString();</span>
+<span class="nc" id="L633">                int type = Integer.parseInt(tempType);</span>
+<span class="nc bnc" id="L634" title="All 2 branches missed.">                if (tempType.equals(&quot;Aggregation&quot;)) {</span>
+<span class="nc" id="L635">                	type = 1;</span>
+                }
+<span class="nc bnc" id="L637" title="All 2 branches missed.">                else if (tempType.equals(&quot;Composition&quot;)){</span>
+<span class="nc" id="L638">                	type = 2;</span>
+                }
+<span class="nc bnc" id="L640" title="All 2 branches missed.">                else if (tempType.equals(&quot;Inheritance&quot;)) {</span>
+<span class="nc" id="L641">                	type = 3;</span>
+                }
+<span class="nc bnc" id="L643" title="All 2 branches missed.">                else if (tempType.equals(&quot;Realization&quot;)) {</span>
+<span class="nc" id="L644">                	type = 4;</span>
+                }
+                
+<span class="nc" id="L647">                umlDiagram.addRelationship(source, destination, type);</span>
+<span class="nc" id="L648">            }</span>
+
+<span class="nc" id="L650">            System.out.println(&quot;Diagram loaded successfully from &quot; + filePath + &quot;.&quot;);</span>
+<span class="nc" id="L651">        } catch (IOException e) {</span>
+<span class="nc" id="L652">            System.out.println(&quot;Failed to load diagram from &quot; + filePath + &quot;: &quot; + e.getMessage());</span>
+<span class="nc" id="L653">        }</span>
+<span class="nc" id="L654">    }</span>
+
+/**************************************************************************************************************************************/
+    /**   INTERFACES   **/
+/**************************************************************************************************************************************/
+
+	// Method to list all classes in the UML diagram
+	protected static void listClasses() {
+<span class="nc" id="L662">		ArrayList&lt;UMLClass&gt; classes = umlDiagram.getClasses();</span>
+<span class="nc" id="L663">		System.out.println(&quot;Classes:&quot;);</span>
+<span class="nc bnc" id="L664" title="All 2 branches missed.">		for (UMLClass umlClass : classes) {</span>
+<span class="nc" id="L665">			System.out.println(&quot;- &quot; + umlClass.getName());</span>
+<span class="nc" id="L666">		}</span>
+
+<span class="nc" id="L668">	}</span>
+
+	protected static void listClassContents() throws IOException {
+<span class="nc" id="L671">	    System.out.print(&quot;Enter the name of the class to list its contents: &quot;);</span>
+<span class="nc" id="L672">	    String className = creader.readLine();</span>
+<span class="nc" id="L673">	    UMLClass umlClass = umlDiagram.getClassNameMapToName().get(className);</span>
+
+<span class="nc bnc" id="L675" title="All 2 branches missed.">	    if (umlClass != null) {</span>
+<span class="nc" id="L676">	        System.out.println(&quot;Fields of class &quot; + className + &quot;:&quot;);</span>
+<span class="nc bnc" id="L677" title="All 2 branches missed.">	        for (Field field : umlClass.getFields()) {</span>
+<span class="nc" id="L678">	            System.out.println(&quot;  &quot; + field.getName() + &quot;: &quot; + field.getType());</span>
+<span class="nc" id="L679">	        }</span>
+<span class="nc" id="L680">	        System.out.println(&quot;Methods of class &quot; + className + &quot;:&quot;);</span>
+<span class="nc bnc" id="L681" title="All 2 branches missed.">	        for (Method method : umlClass.getMethods()) {</span>
+<span class="nc" id="L682">	            System.out.print(&quot;  &quot; + method.getName() + &quot;(&quot;);</span>
+	            // Print method parameters
+<span class="nc" id="L684">	            List&lt;Parameter&gt; params = method.getParameters();</span>
+<span class="nc bnc" id="L685" title="All 2 branches missed.">	            for (int i = 0; i &lt; params.size(); i++) {</span>
+<span class="nc" id="L686">	                Parameter param = params.get(i);</span>
+<span class="nc" id="L687">	                System.out.print(param.getName() + &quot;: &quot; + param.getType());</span>
+<span class="nc bnc" id="L688" title="All 2 branches missed.">	                if (i &lt; params.size() - 1) {</span>
+<span class="nc" id="L689">	                    System.out.print(&quot;, &quot;);</span>
+	                }
+	            }
+<span class="nc" id="L692">	            System.out.println(&quot;): &quot; + method.getReturnType());</span>
+<span class="nc" id="L693">	        }</span>
+	    } else {
+<span class="nc" id="L695">	        System.out.println(&quot;Class &quot; + className + &quot; does not exist.&quot;);</span>
+	    }
+<span class="nc" id="L697">	}</span>
+
+	// Method to list all relationships in the UML diagram
+	protected static void listRelationships() {
+<span class="nc" id="L701">		ArrayList&lt;Relationship&gt; relationships = umlDiagram.getRelationships();</span>
+<span class="nc" id="L702">		System.out.println(&quot;Relationships:&quot;);</span>
+<span class="nc bnc" id="L703" title="All 2 branches missed.">		for (Relationship relationship : relationships) {</span>
+<span class="nc" id="L704">			System.out.println(&quot;  &quot; + relationship.getSource() + &quot; --&gt; &quot; + relationship.getDestination());</span>
+<span class="nc" id="L705">		}</span>
+<span class="nc" id="L706">	}</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   HELP   **/
+/**************************************************************************************************************************************/
+
+	// Method to display help information about the commands supported by the UML
+	// CLI
+	protected static void help() {
+<span class="nc" id="L716">		System.out.println(&quot;Help:&quot;);</span>
+<span class="nc" id="L717">		System.out.println(&quot;This UML Diagram Editor CLI supports the following commands along with their arguments:\n&quot;);</span>
+<span class="nc" id="L718">		System.out.println(&quot;1. AddClass - Create a new class&quot;);</span>
+<span class="nc" id="L719">		System.out.println(&quot;   Arguments: Name of the class\n&quot;);</span>
+<span class="nc" id="L720">		System.out.println(&quot;2. DeleteClass - Delete a class&quot;);</span>
+<span class="nc" id="L721">		System.out.println(&quot;   Arguments: Name of the class to delete\n&quot;);</span>
+<span class="nc" id="L722">		System.out.println(&quot;3. RenameClass - Rename a class&quot;);</span>
+<span class="nc" id="L723">		System.out.println(&quot;   Arguments: Current name of the class, New name for the class\n&quot;);</span>
+<span class="nc" id="L724">		System.out.println(&quot;4. AddField - Add an fieldto a class&quot;);</span>
+<span class="nc" id="L725">		System.out.println(&quot;   Arguments: Name of the class, Name of the field, Type of the field\n&quot;);</span>
+<span class="nc" id="L726">		System.out.println(&quot;5. DeleteField - Delete an field from a class&quot;);</span>
+<span class="nc" id="L727">		System.out.println(&quot;   Arguments: Name of the class, Name of the field to delete\n&quot;);</span>
+<span class="nc" id="L728">		System.out.println(&quot;6. RenameField - Rename an field in a class&quot;);</span>
+<span class="nc" id="L729">		System.out.println(</span>
+				&quot;   Arguments: Name of the class, Current name of the field, New name for the field\n&quot;);
+<span class="nc" id="L731">		System.out.println(&quot;7. AddMethod - Add a method to a class&quot;);</span>
+<span class="nc" id="L732">		System.out.println(&quot;   Arguments: Name of the class, Name of the method, Return type of the method\n&quot;);</span>
+<span class="nc" id="L733">		System.out.println(&quot;8. RemoveMethod - Delete a method from a class&quot;);</span>
+<span class="nc" id="L734">		System.out.println(&quot;   Arguments: Name of the class, Name of the method to delete\n&quot;);</span>
+<span class="nc" id="L735">		System.out.println(&quot;9. ChangeMethod - Rename a method in a class&quot;);</span>
+<span class="nc" id="L736">		System.out.println(&quot;   Arguments: Name of the class, Current name of the method, New name for the method\n&quot;);</span>
+<span class="nc" id="L737">		System.out.println(&quot;10. AddRelationship - Add a relationship between classes&quot;);</span>
+<span class="nc" id="L738">		System.out.println(&quot;    Arguments: Name of the first class, Name of the second class, Type of relationship\n&quot;);</span>
+<span class="nc" id="L739">		System.out.println(&quot;11. DeleteRelationship - Delete a relationship between classes&quot;);</span>
+<span class="nc" id="L740">		System.out.println(&quot;    Arguments: Name of the first class, Name of the second class\n&quot;);</span>
+<span class="nc" id="L741">		System.out.println(&quot;12. ChangeType - Delete a relationship between classes&quot;);</span>
+<span class="nc" id="L742">		System.out.println(</span>
+				&quot;    Arguments: Name of the first class, Name of the second class, New selection for attribute\n&quot;);
+<span class="nc" id="L744">		System.out.println(&quot;13. ListClasses - List all classes\n&quot;);</span>
+<span class="nc" id="L745">		System.out.println(&quot;14. ListRelationships - List all relationships\n&quot;);</span>
+<span class="nc" id="L746">		System.out.println(&quot;15. ListClass - List contents of a specified class&quot;);</span>
+<span class="nc" id="L747">		System.out.println(&quot;    Arguments: Name of the class to list its contents\n&quot;);</span>
+<span class="nc" id="L748">		System.out.println(&quot;16. Save - Save diagram to JSON file&quot;);</span>
+<span class="nc" id="L749">		System.out.println(&quot;    Arguments: File path to save the diagram (JSON format)\n&quot;);</span>
+<span class="nc" id="L750">		System.out.println(&quot;17. Load - Load diagram from JSON file&quot;);</span>
+<span class="nc" id="L751">		System.out.println(&quot;    Arguments: File path to load the diagram (JSON format)\n&quot;);</span>
+<span class="nc" id="L752">		System.out.println(&quot;18. Menu - Displays Main menu\n&quot;);</span>
+<span class="nc" id="L753">		System.out.println(&quot;19. Help - Displays detailed information of program\n&quot;);</span>
+<span class="nc" id="L754">		System.out.println(&quot;20. Exit - Exits program\n&quot;);</span>
+
+<span class="nc" id="L756">	}</span>
+
+	// Method to handle exit from the UML CLI
+	protected static void exit() throws IOException {
+<span class="nc" id="L760">		System.out.print(&quot;Do you want to save the diagram before exiting? (yes/no): &quot;);</span>
+<span class="nc" id="L761">		String saveChoice = creader.readLine().trim().toLowerCase();</span>
+<span class="nc bnc" id="L762" title="All 2 branches missed.">		if (saveChoice.equals(&quot;yes&quot;)) {</span>
+<span class="nc" id="L763">			saveDiagram();</span>
+<span class="nc" id="L764">			System.out.println(&quot;Diagram saved.&quot;);</span>
+<span class="nc" id="L765">			System.exit(1);</span>
+		} else {
+<span class="nc" id="L767">			System.out.println(&quot;Exited without Saving.&quot;);</span>
+<span class="nc" id="L768">			System.exit(1);</span>
+		}
+		
+
+<span class="nc" id="L772">	}</span>
+	
+	/**
+	 * Provides a help string containing usage information for all commands supported by the UML Diagram Editor CLI.
+	 * This includes commands for creating, deleting, and modifying classes, fields, methods, and relationships,
+	 * as well as saving and loading the UML diagram from a JSON file.
+	 *
+	 * @return A multiline {@link String} detailing each command, its purpose, and its required arguments. Commands
+	 *         include operations for managing classes (AddClass, DeleteClass, RenameClass), managing fields within a
+	 *         class (AddField, DeleteField, RenameField), managing methods within a class (AddMethod, RemoveMethod,
+	 *         ChangeMethod), managing relationships between classes (AddRelationship, DeleteRelationship, ChangeType),
+	 *         and utilities for listing diagram components, saving, loading, displaying help, and exiting the program.
+	 */
+	public static String helperMethodForHelp() {
+<span class="nc" id="L786">	    return &quot;&quot;&quot;</span>
+	            Help Information:
+	            This UML Diagram Editor CLI supports the following commands along with their arguments:
+
+	            AddClass -            Create a new class
+	            Arguments:            Name of the class
+	            DeleteClass -         Delete a class
+	            Arguments:            Name of the class to delete
+	            RenameClass -         Rename a class
+	            Arguments:            Current name of the class, New name for the class
+
+	            AddField -            Add a field to a class
+	            Arguments:            Name of the class, Name of the field, Type of the field
+	            DeleteField -         Delete a field from a class
+	            Arguments:            Name of the class, Name of the field to delete
+	            RenameField -         Rename a field in a class
+	            Arguments:            Name of the class, Current name of the field, New name for the field
+
+	            AddMethod -           Add a method to a class
+	            Arguments:            Name of the class, Name of the method, Return type of the method
+	            RemoveMethod -        Delete a method from a class
+	            Arguments:            Name of the class, Name of the method to delete
+	            ChangeMethod -        Rename a method in a class
+	            Arguments:            Name of the class, Current name of the method, New name for the method
+
+	            AddRelationship -     Add a relationship between classes
+	            Arguments:            Name of the first class, Name of the second class, Type of relationship
+	            DeleteRelationship -  Delete a relationship between classes
+	            Arguments:            Name of the first class, Name of the second class
+	            ChangeType -          Change the type of a relationship between classes
+	            Arguments:            Name of the first class, Name of the second class, New type of relationship
+
+	            ListClasses -         List all classes
+	            ListRelationships -   List all relationships
+	            ListClass -           List contents of a specified class
+	            Arguments:            Name of the class to list its contents
+
+	            Save -                Save diagram to JSON file
+	            Arguments:            File path to save the diagram (JSON format)
+	            Load -                Load diagram from JSON file
+	            Arguments:            File path to load the diagram (JSON format)
+
+	            Menu -                Displays the main menu
+	            Help -                Displays detailed information of program
+
+	            Exit -                Exits the program
+	            &quot;&quot;&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

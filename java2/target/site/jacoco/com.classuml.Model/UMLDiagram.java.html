@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UMLDiagram.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java</a> &gt; <a href="index.source.html" class="el_package">com.classuml.Model</a> &gt; <span class="el_source">UMLDiagram.java</span></div><h1>UMLDiagram.java</h1><pre class="source lang-java linenums">package com.classuml.Model;
+
+import com.classuml.Controller.UMLCli;
+import com.classuml.Controller.UMLGui;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.awt.Point;
+
+
+public class UMLDiagram implements UMLStructure {
+
+	// Maps class names to UMLClass objects
+<span class="pc" id="L22">	private Map&lt;String, UMLClass&gt; classNameMapToName = new HashMap&lt;&gt;();</span>
+	// Maps relationship IDs to Relationships
+<span class="pc" id="L24">	private Map&lt;String, Relationship&gt; classMapToRelation = new HashMap&lt;&gt;();</span>
+<span class="pc" id="L25">	private transient Memento memento = new Memento();</span>
+
+	private transient UMLGui gui;
+
+<span class="nc" id="L29">	public UMLDiagram(UMLGui gui) {</span>
+<span class="nc" id="L30">		this.gui = gui;</span>
+<span class="nc" id="L31">	}</span>
+	public UMLDiagram(UMLDiagram diagram2)
+<span class="fc" id="L33">	{</span>
+<span class="fc" id="L34">		this.gui = diagram2.getGui();</span>
+<span class="fc" id="L35">		setClassNameMap(diagram2.getClassNameMapToName());</span>
+<span class="fc" id="L36">		setClassMap(diagram2.getClassMapToRelation());</span>
+<span class="fc" id="L37">		setMemento(diagram2.getMemento());</span>
+<span class="fc" id="L38">	}</span>
+	public Memento getMemento() {
+<span class="fc" id="L40">		return memento;</span>
+	}
+	public UMLGui getGui() {
+<span class="fc" id="L43">		return gui;</span>
+	}
+	public void setGui(UMLGui gui) {
+<span class="fc" id="L46">	    this.gui = gui;</span>
+<span class="fc" id="L47">	}</span>
+
+ 
+<span class="fc" id="L50">	public UMLDiagram() {</span>
+<span class="fc" id="L51">		classNameMapToName = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L52">	}</span>
+
+	public void setClassNameMap(Map&lt;String, UMLClass&gt; classNameMap)
+	{
+<span class="fc" id="L56">		Map&lt;String, UMLClass&gt; map2 = new HashMap&lt;String, UMLClass&gt;();</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">		for(Map.Entry&lt;String, UMLClass&gt; entry: classNameMap.entrySet())</span>
+		{
+<span class="fc" id="L59">			UMLClass class2 = new UMLClass(entry.getValue());</span>
+<span class="fc" id="L60">			map2.put(entry.getKey(), class2);</span>
+<span class="fc" id="L61">		}</span>
+<span class="fc" id="L62">		classNameMapToName = map2;</span>
+<span class="fc" id="L63">	}</span>
+	public void setClassMap(Map&lt;String, Relationship&gt; classMapRel)
+	{
+<span class="fc" id="L66">		Map&lt;String, Relationship&gt; map2 = new HashMap&lt;String, Relationship&gt;();</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">		for(Map.Entry&lt;String, Relationship&gt; entry: classMapRel.entrySet())</span>
+		{
+<span class="fc" id="L69">			Relationship rel2 = new Relationship(entry.getValue().getSource(), entry.getValue().getDestination(), entry.getValue().getType());</span>
+			
+<span class="fc" id="L71">			map2.put(entry.getKey(), rel2);</span>
+<span class="fc" id="L72">		}</span>
+<span class="fc" id="L73">		classMapToRelation = map2;</span>
+
+<span class="fc" id="L75">	}</span>
+	public void setMemento(Memento memento2)
+	{
+<span class="fc" id="L78">		Memento testMem = new Memento(memento2.getUndo(), memento2.getRedo());</span>
+<span class="fc" id="L79">		this.memento = testMem;</span>
+		
+<span class="fc" id="L81">	}</span>
+
+
+
+	public ArrayList&lt;UMLClass&gt; getClasses() {
+<span class="fc" id="L86">		return new ArrayList&lt;&gt;(classNameMapToName.values());</span>
+	}
+
+	@Override
+	public ArrayList&lt;Relationship&gt; getRelationships() {
+<span class="fc" id="L91">		return new ArrayList&lt;&gt;(classMapToRelation.values());</span>
+	}
+
+	// Getters for maps
+	public Map&lt;String, UMLClass&gt; getClassNameMapToName() {
+<span class="fc" id="L96">		return classNameMapToName;</span>
+	}
+
+	public Map&lt;String, Relationship&gt; getClassMapToRelation() {
+<span class="fc" id="L100">		return classMapToRelation;</span>
+	}
+
+	
+	/****************************** CLASSES *****************************************************************/
+	
+	
+	/**
+	 * Adds a new class to the UML diagram with the specified class name.
+	 *
+	 * @param className The name of the class to add.
+	 * @return true if the class was successfully added, false if the class already
+	 *         exists.
+	 */
+	public boolean addClass(String className) {
+<span class="fc" id="L115">		memento.clearRedo();</span>
+<span class="fc" id="L116">		saveState();</span>
+<span class="pc bpc" id="L117" title="1 of 6 branches missed.">	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)) {    	</span>
+<span class="fc" id="L118">			memento.popUndo();</span>
+<span class="fc" id="L119">	        return false; // Class already exists or invalid name      </span>
+	    }
+<span class="fc" id="L121">		int x = 20;</span>
+<span class="fc" id="L122">		int y = 20;</span>
+<span class="fc" id="L123">		Point pos = new Point(x, y);</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if(!classNameMapToName.containsKey(className)) {</span>
+<span class="fc" id="L125">			classNameMapToName.put(className, new UMLClass(className, pos));</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">    	    if (this.gui != null) {</span>
+<span class="nc" id="L127">    	        this.gui.notifyClassAdded(className); // Notify GUI about the new class</span>
+    	    }
+	    }
+<span class="fc" id="L130">	    return true;</span>
+	}
+
+
+	/**
+	 * Deletes the class with the specified name from the UML diagram.
+	 *
+	 * @param className The name of the class to delete.
+	 * @return true if the class was successfully deleted, false if the class does
+	 *         not exist.
+	 */
+ 
+	public boolean deleteClass(String className) {
+<span class="fc" id="L143">		memento.clearRedo();</span>
+<span class="fc" id="L144">		saveState();</span>
+	    // Check if the class name exists in the map before attempting to remove
+<span class="fc bfc" id="L146" title="All 2 branches covered.">	    if (classNameMapToName.containsKey(className)) {</span>
+<span class="fc" id="L147">	        classNameMapToName.remove(className);</span>
+
+<span class="fc" id="L149">	        classMapToRelation.values().removeIf(relationship -&gt;</span>
+<span class="nc bnc" id="L150" title="All 4 branches missed.">	                relationship.getSource().equals(className) || relationship.getDestination().equals(className));</span>
+<span class="fc" id="L151">	        return true; // Return true to indicate successful removal</span>
+	    }
+<span class="fc" id="L153">		memento.popUndo();</span>
+<span class="fc" id="L154">	    return false; // Return false if the class name does not exist</span>
+	}
+
+
+
+	/**
+	 * Renames a class in the UML diagram from oldName to newName.
+	 *
+	 * @param oldName The current name of the class.
+	 * @param newName The new name for the class.
+	 * @return true if the class was successfully renamed, false if the oldName does
+	 *         not exist or newName is already in use.
+	 */
+ 
+	public boolean renameClass(String oldName, String newName) {
+<span class="fc" id="L169">		memento.clearRedo();</span>
+<span class="fc" id="L170">		saveState();</span>
+		
+<span class="pc bpc" id="L172" title="2 of 4 branches missed.">		    if (newName == null || newName.isEmpty()) {</span>
+<span class="nc" id="L173">				memento.popUndo();</span>
+<span class="nc" id="L174">		        return false; // New name cannot be null or empty</span>
+		    }
+<span class="fc bfc" id="L176" title="All 4 branches covered.">		if (classNameMapToName.containsKey(oldName) &amp;&amp; !classNameMapToName.containsKey(newName)) {</span>
+<span class="fc" id="L177">			UMLClass umlClass = classNameMapToName.remove(oldName);</span>
+<span class="fc" id="L178">			umlClass.setName(newName);</span>
+<span class="fc" id="L179">			classNameMapToName.put(newName, umlClass);</span>
+			// Update any relationships involving this class
+<span class="fc" id="L181">			classMapToRelation.values().forEach(relationship -&gt; {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">				if (relationship.getSource().equals(oldName)) {</span>
+<span class="nc" id="L183">					relationship.setSource(newName);</span>
+				}
+<span class="nc bnc" id="L185" title="All 2 branches missed.">				if (relationship.getDestination().equals(oldName)) {</span>
+<span class="nc" id="L186">					relationship.setDestination(newName);</span>
+				}
+				
+<span class="nc" id="L189">			});</span>
+<span class="fc" id="L190">			return true;</span>
+		}
+<span class="fc" id="L192">		memento.popUndo();</span>
+<span class="fc" id="L193">		return false;</span>
+	}
+
+	/****************************** RELATIONSHIPS *****************************************************************/
+
+	
+	// Method to add a relationship to the diagram
+	public boolean addRelationship(String class1, String class2, int type) {
+<span class="fc" id="L201">		memento.clearRedo();</span>
+<span class="fc" id="L202">		saveState();</span>
+<span class="pc bpc" id="L203" title="3 of 12 branches missed.">	    if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type &lt; 1 || type &gt; 4){</span>
+<span class="fc" id="L204">			memento.popUndo();</span>
+<span class="fc" id="L205">	        return false; // Reject if class names are null/empty or if type is out of valid range</span>
+	    }
+	    // Check if both classes exist in the diagram
+<span class="pc bpc" id="L208" title="2 of 4 branches missed.">	    if (classNameMapToName.containsKey(class1) &amp;&amp; classNameMapToName.containsKey(class2)) {</span>
+	        // Check if the relationship already exists
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">	        if (!relationshipExists(class1, class2)) {</span>
+	            // Add the relationship
+<span class="fc" id="L212">	            classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));</span>
+<span class="fc" id="L213">	            return true; // Relationship successfully added</span>
+	        }
+	    }
+<span class="nc" id="L216">		memento.popUndo();</span>
+<span class="nc" id="L217">	    return false;</span>
+	} 
+
+	/**
+	 * Deletes a relationship between two classes from the UML diagram.
+	 *
+	 * @param sourceClass      The name of the source class.
+	 * @param destinationClass The name of the destination class.
+	 * @return true if the relationship was successfully deleted, false otherwise.
+	 */
+
+	public boolean deleteRelationship(String sourceClass, String destinationClass) {
+<span class="fc" id="L229">		memento.clearRedo();</span>
+<span class="fc" id="L230">		saveState();</span>
+	    // Construct the relationship key
+<span class="fc" id="L232">	    String relationshipKey = generateRelationshipKey(sourceClass, destinationClass);</span>
+
+	    // Check if the relationship exists
+<span class="fc bfc" id="L235" title="All 2 branches covered.">	    if (classMapToRelation.containsKey(relationshipKey)) {</span>
+	        // Remove the relationship
+<span class="fc" id="L237">	        classMapToRelation.remove(relationshipKey);</span>
+<span class="fc" id="L238">	        return true; // Relationship successfully deleted</span>
+	    }
+<span class="fc" id="L240">		memento.popUndo();</span>
+<span class="fc" id="L241">	    return false; // Relationship does not exist</span>
+	}
+
+	//add comment
+	
+ 
+	public boolean changeRelType(String class1, String class2, int type){
+<span class="nc" id="L248">		memento.clearRedo();</span>
+<span class="nc" id="L249">		saveState();</span>
+<span class="nc bnc" id="L250" title="All 12 branches missed.">		if (class1 == null || class1.isEmpty() || class2 == null || class2.isEmpty() || type &lt; 1 || type &gt; 4){</span>
+<span class="nc" id="L251">			memento.popUndo();</span>
+<span class="nc" id="L252">	        return false; // Reject null or empty class names</span>
+	    }
+<span class="nc" id="L254">		String relationshipKey = generateRelationshipKey(class1, class2);</span>
+	// Check if both classes exist in the diagram
+<span class="nc bnc" id="L256" title="All 4 branches missed.">	if (classNameMapToName.containsKey(class1) &amp;&amp; classNameMapToName.containsKey(class2)) {</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">				if(classMapToRelation.containsKey(relationshipKey)){</span>
+<span class="nc" id="L258">				classMapToRelation.remove(relationshipKey);</span>
+	        // Check if the relationship already exists
+<span class="nc bnc" id="L260" title="All 2 branches missed.">	        	if (!relationshipExists(class1, class2)) {</span>
+	            // Add the relationship
+<span class="nc" id="L262">	            	classMapToRelation.put(generateRelationshipKey(class1, class2), new Relationship(class1, class2, type));</span>
+<span class="nc" id="L263">	            	return true; // Relationship successfully added</span>
+	        	}
+	    	}
+		}
+<span class="nc" id="L267">		memento.popUndo();</span>
+<span class="nc" id="L268">	    return false;</span>
+	}
+	
+	
+	// Helper method to generate a unique key for a relationship
+	private String generateRelationshipKey(String sourceClass, String destinationClass) {
+<span class="fc" id="L274">	    return sourceClass + &quot;-&quot; + destinationClass;</span>
+	}
+
+	// Helper method to check if a relationship exists between two classes
+	private boolean relationshipExists(String class1, String class2) {
+<span class="fc" id="L279">	    String key1 = generateRelationshipKey(class1, class2);</span>
+<span class="fc" id="L280">	    String key2 = generateRelationshipKey(class2, class1);</span>
+<span class="pc bpc" id="L281" title="2 of 4 branches missed.">	    return classMapToRelation.containsKey(key1) || classMapToRelation.containsKey(key2);</span>
+	}
+
+
+	
+	/****************************** FIELDS *****************************************************************/
+
+	/**
+	 * Adds an attribute to a class in the UML diagram.
+	 *
+	 * @param className     The name of the class to add the attribute to.
+	 * @param attributeName The name of the attribute.
+	 * @param attributeType The type of the attribute.
+	 * @return true if the attribute was successfully added, false if the class does
+	 *         not exist.
+	 */
+
+	public boolean addField(String className, String fieldName, String fieldType) {
+<span class="fc" id="L299">		memento.clearRedo();</span>
+<span class="fc" id="L300">		saveState();</span>
+<span class="fc" id="L301">	    UMLClass umlClass = this.getClassByName(className); // Assuming getClassByName is implemented correctly</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">	    if (umlClass != null) {</span>
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">			if(umlClass.addField(fieldName, fieldType))// Corrected to match UMLClass's method signature</span>
+<span class="fc" id="L304">				return true;</span>
+<span class="nc" id="L305">			memento.popUndo();</span>
+<span class="nc" id="L306">	        return false;</span>
+	    }
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">	    if (this.gui != null) {</span>
+<span class="nc" id="L309">	        this.gui.notifyClassAdded(className); // Notify GUI about the new class</span>
+	    }
+<span class="fc" id="L311">		memento.popUndo();</span>
+<span class="fc" id="L312">	    return false;</span>
+	}
+
+	public boolean setPosition(String className, Point position){
+<span class="nc" id="L316">		UMLClass umlClass = this.getClassByName(className);</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">		if(umlClass != null){</span>
+<span class="nc" id="L318">			umlClass.setPosition(position);</span>
+<span class="nc" id="L319">			return true;</span>
+		}
+<span class="nc bnc" id="L321" title="All 2 branches missed.">		if (this.gui != null){</span>
+<span class="nc" id="L322">			this.gui.notifyClassAdded(className);</span>
+		}
+<span class="nc" id="L324">		return false;</span>
+	}
+
+
+	/**
+	 * Deletes an attribute from a class in the UML diagram.
+	 *
+	 * @param className     The name of the class to delete the attribute from.
+	 * @param attributeName The name of the attribute to delete.
+	 * @return true if the attribute was successfully deleted, false if the class
+	 *         does not exist.
+	 */
+
+
+	public boolean deleteField(String className, String attributeName) {
+<span class="nc" id="L339">		memento.clearRedo();</span>
+<span class="nc" id="L340">		saveState();</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">		if (classNameMapToName.containsKey(className)) {</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">			if(classNameMapToName.get(className).deleteField(attributeName))</span>
+<span class="nc" id="L343">				return true;</span>
+<span class="nc" id="L344">			memento.popUndo();</span>
+<span class="nc" id="L345">			return false;</span>
+		}
+<span class="nc" id="L347">		memento.popUndo();</span>
+<span class="nc" id="L348">		return false;</span>
+	}
+
+	/**
+	 * Renames an attribute in a class in the UML diagram.
+	 *
+	 * @param className     The name of the class containing the attribute.
+	 * @param attributeName The current name of the attribute.
+	 * @param newName       The new name for the attribute.
+	 * @return true if the attribute was successfully renamed, false if the class
+	 *         does not exist or the attribute does not exist.
+	 */
+ 
+	public boolean renameField(String className, String oldAttributeName, String newAttributeName) {
+<span class="fc" id="L362">		memento.clearRedo();</span>
+<span class="fc" id="L363">		saveState();</span>
+	    // Check for null or empty new attribute name, or if the class does not exist
+<span class="pc bpc" id="L365" title="3 of 6 branches missed.">	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)) {</span>
+<span class="nc" id="L366">			memento.popUndo();</span>
+<span class="nc" id="L367">	        return false;</span>
+	    }
+
+	    // Retrieve the UMLClass instance
+<span class="fc" id="L371">	    UMLClass umlClass = classNameMapToName.get(className);</span>
+
+	    // Ensure the old attribute exists before attempting to rename
+<span class="pc bpc" id="L374" title="1 of 4 branches missed.">	    if (umlClass != null &amp;&amp; umlClass.containsField(oldAttributeName)) {</span>
+	        // Delegate the renaming to the UMLClass instance
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">			if(umlClass.renameField(oldAttributeName, newAttributeName))</span>
+<span class="fc" id="L377">				return true;</span>
+<span class="nc" id="L378">			memento.popUndo();</span>
+<span class="nc" id="L379">	        return false;</span>
+	    }
+	    // Return false if the class does not exist or the field does not exist in the class
+<span class="fc" id="L382">		memento.popUndo();</span>
+<span class="fc" id="L383">	    return false;</span>
+	}
+
+	
+	/****************************** METHODS *****************************************************************/
+
+
+	/**
+	 * Adds a method to a class in the UML diagram.
+	 *
+	 * @param className  The name of the class to add the method to.
+	 * @param methodName The name of the method.
+	 * @param methodType The return type of the method.
+	 * @return true if the method was successfully added, false if the class does
+	 *         not exist.
+	 */
+ 
+	public boolean addMethod(String className, String methodName, String methodType) {
+<span class="fc" id="L401">		memento.clearRedo();</span>
+<span class="fc" id="L402">		saveState();</span>
+<span class="fc bfc" id="L403" title="All 2 branches covered.">		if (classNameMapToName.containsKey(className)) {</span>
+<span class="pc bpc" id="L404" title="1 of 2 branches missed.">			if(classNameMapToName.get(className).addMethod(methodName, methodType))</span>
+<span class="fc" id="L405">				return true;</span>
+<span class="nc" id="L406">			memento.popUndo();</span>
+<span class="nc" id="L407">			return false;</span>
+		}
+<span class="pc bpc" id="L409" title="1 of 2 branches missed.">	    if (this.gui != null) {</span>
+<span class="nc" id="L410">	        this.gui.notifyClassAdded(className); // Notify GUI about the new class</span>
+	    }
+<span class="fc" id="L412">		memento.popUndo();</span>
+<span class="fc" id="L413">		return false;</span>
+	}
+
+	// Method to delete a method from a class in the UML diagram
+
+	public boolean deleteMethod(String className, String methodName) {
+<span class="fc" id="L419">		memento.clearRedo();</span>
+<span class="fc" id="L420">		saveState();</span>
+<span class="pc bpc" id="L421" title="1 of 2 branches missed.">		if (classNameMapToName.containsKey(className)) {</span>
+<span class="fc bfc" id="L422" title="All 2 branches covered.">			if(classNameMapToName.get(className).deleteMethod(methodName))</span>
+<span class="fc" id="L423">				return true;</span>
+<span class="fc" id="L424">			memento.popUndo();</span>
+<span class="fc" id="L425">			return false;</span>
+		}
+<span class="nc" id="L427">		memento.popUndo();</span>
+<span class="nc" id="L428">		return false;</span>
+	}
+
+	// Method to rename a method in a class in the UML diagram
+ 
+	public boolean renameMethod(String className, String originalName, String newName) {
+<span class="fc" id="L434">		memento.clearRedo();</span>
+<span class="fc" id="L435">		saveState();</span>
+<span class="pc bpc" id="L436" title="3 of 6 branches missed.">	    if (classNameMapToName.containsKey(className) &amp;&amp; originalName != null &amp;&amp; newName != null) {</span>
+<span class="fc bfc" id="L437" title="All 2 branches covered.">			if(classNameMapToName.get(className).renameMethod(originalName, newName))</span>
+<span class="fc" id="L438">				return true;</span>
+<span class="fc" id="L439">			memento.popUndo();</span>
+<span class="fc" id="L440">	        return false;</span>
+	    }
+<span class="nc" id="L442">		memento.popUndo();</span>
+<span class="nc" id="L443">	    return false;</span>
+	}
+	
+	/****************************** PARAMETERS *****************************************************************/
+
+	/**
+	 * Adds a parameter to a method in the class.
+	 *
+	 * This method adds a new parameter with the specified name and type to the method
+	 * with the given name. If the method does not exist or if either the method name,
+	 * parameter name, or parameter type is null or an empty string, the addition fails.
+	 *
+	 * @param methodName the name of the method to which the parameter will be added
+	 * @param paramName the name of the new parameter
+	 * @param parameterType 
+	 * @return true if the parameter is successfully added, false otherwise
+	 */
+	public boolean addParameter(String className, String methodName, String parameterName, String parameterType) {
+<span class="nc" id="L461">		memento.clearRedo();</span>
+<span class="nc" id="L462">		saveState();</span>
+<span class="nc" id="L463">	    UMLClass targetClass = classNameMapToName.get(className);</span>
+<span class="nc bnc" id="L464" title="All 2 branches missed.">	    if (targetClass == null) {</span>
+<span class="nc" id="L465">			memento.popUndo();</span>
+<span class="nc" id="L466">	        return false; // Class not found</span>
+	    }
+	    // Delegate the task to add the parameter to the specific method of the UMLClass
+<span class="nc bnc" id="L469" title="All 2 branches missed.">		if(targetClass.addParameter(methodName, parameterName, parameterType))</span>
+<span class="nc" id="L470">			return true;</span>
+<span class="nc" id="L471">		memento.popUndo();</span>
+<span class="nc" id="L472">	    return false;</span>
+	}
+
+	/**
+	 * Renames a parameter of a method in the class.
+	 *
+	 * This method renames a parameter from its old name to a new name in the method
+	 * with the specified name. If the method does not exist or if either the method name,
+	 * old parameter name, or new parameter name is null or an empty string, the renaming fails.
+	 *
+	 * @param className 
+	 * @param methodName the name of the method containing the parameter to be renamed
+	 * @param oldParameterName the current name of the parameter to be renamed
+	 * @param newParameterName the new name for the parameter
+	 * @return true if the parameter is successfully renamed, false otherwise
+	 */
+	// In UMLDiagram class
+	public boolean renameParameter(String className, String methodName, String oldParameterName, String newParameterName) {
+<span class="nc" id="L490">		memento.clearRedo();</span>
+<span class="nc" id="L491">		saveState();</span>
+<span class="nc" id="L492">	    UMLClass umlClass = getClassByName(className);</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">	    if (umlClass != null) {</span>
+<span class="nc" id="L494">	        Method method = umlClass.getMethodByName(methodName);</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">	        if (method != null) {</span>
+<span class="nc bnc" id="L496" title="All 2 branches missed.">				if(method.renameParameter(oldParameterName, newParameterName))</span>
+<span class="nc" id="L497">					return true;</span>
+<span class="nc" id="L498">				memento.popUndo();</span>
+<span class="nc" id="L499">	            return false;</span>
+	        }
+	    }
+<span class="nc" id="L502">		memento.popUndo();</span>
+<span class="nc" id="L503">	    return false; // Class or method not found</span>
+	}
+
+
+	
+	/**
+	 * Deletes a parameter from a method in the class.
+	 *
+	 * This method removes the parameter with the specified name from the method
+	 * with the given name. If the method does not exist or if either the method name
+	 * or parameter name is null or an empty string, the deletion fails.
+	 *
+	 * @param methodName the name of the method from which the parameter will be deleted
+	 * @return true if the parameter is successfully deleted, false otherwise
+	 */
+	public boolean deleteParameter(String className, String methodName, String parameterName) {
+<span class="nc" id="L519">		memento.clearRedo();</span>
+<span class="nc" id="L520">		saveState();</span>
+<span class="nc" id="L521">	    UMLClass umlClass = getClassByName(className);</span>
+<span class="nc bnc" id="L522" title="All 2 branches missed.">	    if (umlClass != null) {</span>
+<span class="nc bnc" id="L523" title="All 2 branches missed.">			if(umlClass.deleteParameter(methodName, parameterName))</span>
+<span class="nc" id="L524">				return true;</span>
+<span class="nc" id="L525">			memento.popUndo();</span>
+<span class="nc" id="L526">	        return false;</span>
+	    }
+<span class="nc" id="L528">		memento.popUndo();</span>
+<span class="nc" id="L529">	    return false;</span>
+	}
+	public boolean replaceParameters(String className, String methodName, String[] parameterNames, String[] parameterTypes)
+	{
+<span class="nc" id="L533">		memento.clearRedo();</span>
+<span class="nc" id="L534">		saveState();</span>
+<span class="nc" id="L535">		clearParameters(className, methodName);</span>
+<span class="nc" id="L536">		int i = 0;</span>
+<span class="nc" id="L537">		boolean success = true;</span>
+		
+<span class="nc bnc" id="L539" title="All 2 branches missed.">		for (String paramName : parameterNames) {</span>
+<span class="nc" id="L540">			success = addParameter(className, methodName, paramName, parameterTypes[i]);</span>
+<span class="nc" id="L541">			i++;</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">			if(!success)</span>
+			{
+<span class="nc" id="L544">				memento.popUndo();</span>
+<span class="nc" id="L545">				return false;</span>
+			}
+		}
+<span class="nc" id="L548">		return true;</span>
+	}
+	public boolean clearParameters(String className, String methodName)
+	{
+<span class="nc" id="L552">		memento.clearRedo();</span>
+<span class="nc" id="L553">		saveState();</span>
+<span class="nc" id="L554">		UMLClass umlClass = getClassByName(className);</span>
+		
+<span class="nc bnc" id="L556" title="All 2 branches missed.">	    if (umlClass != null) {</span>
+<span class="nc bnc" id="L557" title="All 2 branches missed.">			if(umlClass.removeAllPar(methodName))</span>
+<span class="nc" id="L558">				return true;</span>
+<span class="nc" id="L559">			memento.popUndo();</span>
+<span class="nc" id="L560">	        return false;</span>
+	    }
+<span class="nc" id="L562">		memento.popUndo();</span>
+<span class="nc" id="L563">	    return false;</span>
+
+	}
+
+	
+	
+
+	/****************************** SAVE &amp; LOAD *****************************************************************/
+	/**
+	 * Undos to previous state.
+	 * @return Returns true if worked, false if nothing to undo.
+	 */
+	public boolean undo()
+	{
+<span class="nc" id="L577">		UMLDiagram state = new UMLDiagram();</span>
+<span class="nc" id="L578">		state.setGui(this.gui);</span>
+<span class="nc" id="L579">		state.setClassNameMap(this.classNameMapToName);</span>
+<span class="nc" id="L580">		state.setClassMap(this.classMapToRelation);</span>
+<span class="nc" id="L581">		state.setMemento(this.memento);</span>
+<span class="nc" id="L582">		UMLDiagram  undo = memento.undoState();</span>
+<span class="nc bnc" id="L583" title="All 2 branches missed.">		if(undo==null)</span>
+<span class="nc" id="L584">			return false;</span>
+<span class="nc" id="L585">		setGui(undo.getGui());</span>
+<span class="nc" id="L586">		setClassNameMap(undo.getClassNameMapToName());</span>
+<span class="nc" id="L587">		setClassMap(undo.getClassMapToRelation());</span>
+<span class="nc" id="L588">		setMemento(undo.getMemento());</span>
+<span class="nc" id="L589">		memento.pushRedo(state);</span>
+<span class="nc" id="L590">		return true;</span>
+	}
+	/**
+	 * Redos to state ontop of redo deque.
+	 * @return boolean, returns true if it worked, if nothing in it false.
+	 */
+	public boolean redo()
+	{
+		
+<span class="nc" id="L599">		UMLDiagram  redo = memento.redo();</span>
+<span class="nc bnc" id="L600" title="All 2 branches missed.">		if(redo==null)</span>
+		{
+<span class="nc" id="L602">			return false;</span>
+		}
+<span class="nc" id="L604">		saveState();</span>
+<span class="nc" id="L605">		setGui(redo.getGui());</span>
+<span class="nc" id="L606">		setClassNameMap(redo.getClassNameMapToName());</span>
+<span class="nc" id="L607">		setClassMap(redo.getClassMapToRelation());</span>
+<span class="nc" id="L608">		setMemento(redo.getMemento());</span>
+		
+<span class="nc" id="L610">		return true;</span>
+	}
+	/**
+	 * Saves current state into undo deque.
+	 * @return boolean, will always return true.
+	 */
+	public boolean saveState()
+	{
+<span class="fc" id="L618">		UMLDiagram state = new UMLDiagram();</span>
+<span class="fc" id="L619">		state.setGui(this.gui);</span>
+<span class="fc" id="L620">		state.setClassNameMap(this.classNameMapToName);</span>
+<span class="fc" id="L621">		state.setClassMap(this.classMapToRelation);</span>
+<span class="fc" id="L622">		state.setMemento(this.memento);</span>
+<span class="fc" id="L623">		memento.saveState(state);</span>
+<span class="fc" id="L624">		return true;</span>
+	}
+	public boolean clearState()
+	{
+<span class="nc" id="L628">		memento.clearStates();</span>
+<span class="nc" id="L629">		return false;</span>
+	}
+	/**
+	 * Saves the UML diagram as a JSON file.
+	 *
+	 * @param fileName The name of the JSON file to save.
+	 * @return true if the diagram was successfully saved, false if an error
+	 *         occurred during the process.
+	 * @throws IOException if an I/O error occurs while writing to the file.
+	 */
+ 
+	public boolean saveToJSON(String fileName) throws IOException {
+<span class="fc" id="L641">		Gson gson = new GsonBuilder().setPrettyPrinting().create();</span>
+<span class="fc" id="L642">		try (FileWriter writer = new FileWriter(fileName)) {</span>
+<span class="fc" id="L643">			gson.toJson(this, writer);</span>
+<span class="fc" id="L644">			return true;</span>
+<span class="nc" id="L645">		} catch (IOException e) {</span>
+<span class="nc" id="L646">			e.printStackTrace();</span>
+<span class="nc" id="L647">			return false;</span>
+		}
+	}
+
+	/**
+	 * Loads a UML diagram from a JSON file.
+	 *
+	 * @param fileName The name of the JSON file to load.
+	 * @return true if the diagram was successfully loaded, false if an error
+	 *         occurred during the process.
+	 */
+
+	public boolean loadFromJSON(String fileName) {
+<span class="fc" id="L660">		Gson gson = new Gson();</span>
+<span class="fc" id="L661">		try (FileReader reader = new FileReader(fileName)) {</span>
+<span class="fc" id="L662">			gson.fromJson(reader, UMLDiagram.class);</span>
+<span class="fc" id="L663">			return true; // Loading successful</span>
+<span class="nc" id="L664">		} catch (IOException | JsonSyntaxException e) {</span>
+<span class="nc" id="L665">			e.printStackTrace();</span>
+<span class="nc" id="L666">			return false; // Loading failed</span>
+		}
+	}
+	/**
+     * Clears all classes and relationships from the UML diagram.
+     */
+
+	public void clear() {
+<span class="fc" id="L674">		memento.clearRedo();</span>
+<span class="fc" id="L675">		saveState();</span>
+<span class="fc" id="L676">		classNameMapToName.clear();</span>
+<span class="fc" id="L677">		classMapToRelation.clear();</span>
+<span class="fc" id="L678">	}</span>
+	 /**
+     * Checks if a class exists in the UML diagram.
+     *
+     * @param className The name of the class to check.
+     * @return true if the class exists in the diagram, false otherwise.
+     */
+ 
+	public boolean hasClass(String className) {
+<span class="fc" id="L687">		return classNameMapToName.containsKey(className);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L692">	    StringBuilder sb = new StringBuilder();</span>
+
+<span class="nc" id="L694">	    List&lt;UMLClass&gt; classes = this.getClasses();</span>
+<span class="nc bnc" id="L695" title="All 2 branches missed.">	    for (UMLClass umlClass : classes) {</span>
+	        // Append class name
+<span class="nc" id="L697">	        sb.append(umlClass.getName()).append(&quot;\n&quot;);</span>
+
+	        // Append fields
+<span class="nc bnc" id="L700" title="All 2 branches missed.">	        for (Field field : umlClass.getFields()) {</span>
+<span class="nc" id="L701">	            sb.append(field.getName()).append(&quot; : &quot;).append(field.getType()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L702">	        }</span>
+
+	        // Append methods
+<span class="nc bnc" id="L705" title="All 2 branches missed.">	        for (Method method : umlClass.getMethods()) {</span>
+<span class="nc" id="L706">	            sb.append(method.getName()).append(&quot;(&quot;);</span>
+	            // Append parameters
+<span class="nc" id="L708">	            List&lt;Parameter&gt; params = method.getParameters();</span>
+<span class="nc bnc" id="L709" title="All 2 branches missed.">	            for (int i = 0; i &lt; params.size(); i++) {</span>
+<span class="nc" id="L710">	                Parameter param = params.get(i);</span>
+<span class="nc" id="L711">	                sb.append(param.getName()).append(&quot; : &quot;).append(param.getType());</span>
+<span class="nc bnc" id="L712" title="All 2 branches missed.">	                if (i &lt; params.size() - 1) {</span>
+<span class="nc" id="L713">	                    sb.append(&quot;, &quot;);</span>
+	                }
+	            }
+<span class="nc" id="L716">	            sb.append(&quot;) : &quot;).append(method.getReturnType()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L717">	        }</span>
+
+<span class="nc" id="L719">	        sb.append(&quot;\n&quot;); // Add an empty line between classes</span>
+<span class="nc" id="L720">	    }</span>
+
+	    // Append relationships
+<span class="nc" id="L723">	    List&lt;Relationship&gt; relationships = this.getRelationships();</span>
+<span class="nc bnc" id="L724" title="All 2 branches missed.">	    for (Relationship relationship : relationships) {</span>
+<span class="nc" id="L725">	        sb.append(relationship.getSource()).append(&quot; &quot;)</span>
+<span class="nc" id="L726">	          .append(Relationship.getTypeAsString(relationship.getType()))</span>
+<span class="nc" id="L727">	          .append(&quot; &quot;).append(relationship.getDestination()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L728">	    }</span>
+
+<span class="nc" id="L730">	    return sb.toString();</span>
+	}
+
+
+	public List&lt;Relationship&gt; getRelationshipsForClass(String className) {
+<span class="nc" id="L735">	    List&lt;Relationship&gt; relevantRelationships = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L736" title="All 2 branches missed.">	    for (Relationship relationship : classMapToRelation.values()) {</span>
+<span class="nc bnc" id="L737" title="All 4 branches missed.">	        if (relationship.getSource().equals(className) || relationship.getDestination().equals(className)) {</span>
+<span class="nc" id="L738">	            relevantRelationships.add(relationship);</span>
+	        }
+<span class="nc" id="L740">	    }</span>
+<span class="nc" id="L741">	    return relevantRelationships;</span>
+	}
+
+	// Method to get help information from UMLCli
+    public String helperMethodForHelp() {
+<span class="nc" id="L746">        return UMLCli.helperMethodForHelp();</span>
+    }
+	
+	
+	public UMLClass getClassByName(String className) {
+	    // Assuming classNameMapToName is a Map&lt;String, UMLClass&gt;
+<span class="fc" id="L752">	    return this.classNameMapToName.get(className);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

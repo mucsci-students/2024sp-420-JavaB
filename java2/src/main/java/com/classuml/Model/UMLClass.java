@@ -13,7 +13,7 @@ public class UMLClass {
 	private String className;
 	private ArrayList<Field> fields;
 	private ArrayList<Method> methods;
-	private ArrayList<Parameter> parameters;
+	private ArrayList<Parameter> parameters;	
 	private Point position;
 
 	
