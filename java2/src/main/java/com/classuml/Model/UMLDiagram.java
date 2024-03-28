@@ -528,6 +528,41 @@ public class UMLDiagram implements UMLStructure {
 		memento.popUndo();
 	    return false;
 	}
+	public boolean replaceParameters(String className, String methodName, String[] parameterNames, String[] parameterTypes)
+	{
+		memento.clearRedo();
+		saveState();
+		clearParameters(className, methodName);
+		int i = 0;
+		boolean success = true;
+		
+		for (String paramName : parameterNames) {
+			success = addParameter(className, methodName, paramName, parameterTypes[i]);
+			i++;
+			if(!success)
+			{
+				memento.popUndo();
+				return false;
+			}
+		}
+		return true;
+	}
+	public boolean clearParameters(String className, String methodName)
+	{
+		memento.clearRedo();
+		saveState();
+		UMLClass umlClass = getClassByName(className);
+		
+	    if (umlClass != null) {
+			if(umlClass.removeAllPar(methodName))
+				return true;
+			memento.popUndo();
+	        return false;
+	    }
+		memento.popUndo();
+	    return false;
+
+	}
 
 	
 	

@@ -74,6 +74,9 @@ public class UMLCli {
             case "rp":
                 renameParameter();
                 break;
+			case "replaceparams":
+				replaceParams();
+				break;
             case "addfield":
             case "af":
             	addField();
@@ -164,6 +167,7 @@ public class UMLCli {
         System.out.println("AddParameter (ap)- Add a Parameter to a class.");
         System.out.println("DeleteParameter (dp)- Delete a parameter from a class.");
         System.out.println("RenameParameter (rp)- Rename a parameter in a class.");
+		System.out.println("ReplaceParams - Replaces params of a method with a new list of parameters.");
         System.out.println("  ");
         System.out.println("AddField (af)- Add a Field to a class.");
         System.out.println("DeleteField (df)- Delete a Field from a class.");
@@ -300,6 +304,48 @@ public class UMLCli {
             System.out.println("Failed to rename Parameter in class " + className + ". Class or Parameter may not exist, or new name may already be in use.");
         }
     }
+	protected static void replaceParams() throws IOException {
+		System.out.println("Enter the name of the class containing the parameters to be replaced: ");
+        String className = creader.readLine();
+        System.out.println("Enter the name of the method to to replace parameters in: ");
+        String methodName = creader.readLine();
+		System.out.println("Please type the name and type of the first param in the format: name type");
+		String paramList = creader.readLine();
+		boolean done = false;
+		while(!done)
+		{
+			System.out.println("Please type the next name and type, or type 'done' to stop.");
+			String nextLine = creader.readLine();
+			if(nextLine.equals("done"))
+			{
+				done = true;
+			}
+			else
+			{
+				paramList = paramList.concat("\n");
+				paramList = paramList.concat(nextLine);
+			}
+		}
+		String[] paramsSep = paramList.split("\n");
+		String[] paramNames = new String[paramsSep.length];
+		String[] paramTypes = new String[paramsSep.length];
+		int i = 0;
+		for (String param : paramsSep) {
+			String[] paramSplit = param.split(" ");
+			paramNames[i] = paramSplit[0];
+			paramTypes[i] = paramSplit[1];
+			i++;			
+		}
+		if(umlDiagram.replaceParameters(className, methodName, paramNames, paramTypes))
+		{
+			System.out.println("Parameters were successfully replaced!");
+		}
+		else
+		{
+			System.out.println("Parameters failed to be replaced, class or method may not exist.");
+		}
+	}
+	
     
 /**************************************************************************************************************************************/
     /**   FIELDS   **/
