@@ -13,7 +13,7 @@ public class UMLClass {
 	private String className;
 	private ArrayList<Field> fields;
 	private ArrayList<Method> methods;
-	private ArrayList<Parameter> parameters;
+	private ArrayList<Parameter> parameters;	
 	private Point position;
 
 	
@@ -551,26 +551,6 @@ public class UMLClass {
 	}
 
 	/**
-	 * Replaces the parameter list of a method in the class with a new list.
-	 *
-	 * This method replaces the parameter list of the method with the specified name
-	 * with a new list of parameters. If the method does not exist or if the method name
-	 * is null or an empty string, the operation fails.
-	 *
-	 * @param methodName the name of the method whose parameter list will be replaced
-	 * @param newParameterList the new list of parameters to replace the existing ones
-	 * @return true if the parameter list is successfully replaced, false otherwise
-	 */
-	public boolean replaceParameterList(String methodName, ArrayList<Parameter> newParameterList){
-		for(Method method : methods){
-			if(method.getName().equals(methodName)){
-				method.replaceParameterList(newParameterList);
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * Retrieves a string representation of all methods in the class.
 	 *
 	 * @return a string containing information about all methods in the class
@@ -626,11 +606,5 @@ public class UMLClass {
 	    }
 
 	    return sb.toString();
-	}
-
-
-	public List<String> getImplementedInterfaces() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

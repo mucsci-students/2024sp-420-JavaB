@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FieldAndMethodLayOut.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java</a> &gt; <a href="index.source.html" class="el_package">com.classuml.Model</a> &gt; <span class="el_source">FieldAndMethodLayOut.java</span></div><h1>FieldAndMethodLayOut.java</h1><pre class="source lang-java linenums">package com.classuml.Model;
+
+
+import java.util.Objects;
+/**
+ *  Class that help to structure the lay out of attribute name and method name
+ *  with their type and visibility.
+ */
+public class FieldAndMethodLayOut {
+    /**
+     * Attributes and methods has visibility,name and type.
+     *  
+     */
+    protected String name;
+    private  String type;
+   
+
+    /**
+     * Constructor to initializes attribute and methods with their parameter.
+     * @param name The name of the object.
+     * @param type Type of the object.
+     */
+<span class="fc" id="L23">    public FieldAndMethodLayOut(String name, String  type){</span>
+<span class="fc" id="L24">        this.name = name;</span>
+<span class="fc" id="L25">        this.type = type;</span>
+       
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Get the name of the object.
+     * @return Then of the object.
+     */
+    public String getName(){
+<span class="fc" id="L34">        return name;</span>
+    }
+
+    /**
+     * Get the data type of the object.
+     * @return the type of the object.
+     */
+    public String getType(){
+<span class="fc" id="L42">        return type;</span>
+    }
+
+    /**
+     * Set the object name with new name.
+     * @param newName New name for object.
+     */
+    public void setName(String newName) {
+<span class="fc" id="L50">        this.name = newName;</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Set a new type for the object.
+     * @param newType New type name for the object be set.
+     */
+    public void setType(String newType) {
+<span class="nc" id="L58">        this.type = newType;</span>
+<span class="nc" id="L59">    }</span>
+
+
+    /**
+     * This method will check whether the instance of another object can not have same name
+     * this one.
+     * @param obj Object name.
+     * @return true if their same name otherwise false.
+     */
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if(obj instanceof FieldAndMethodLayOut){</span>
+<span class="fc" id="L70">        	FieldAndMethodLayOut check = (FieldAndMethodLayOut) obj;</span>
+<span class="fc" id="L71">            return Objects.equals(this.name, check.name);</span>
+        }
+<span class="nc" id="L73">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

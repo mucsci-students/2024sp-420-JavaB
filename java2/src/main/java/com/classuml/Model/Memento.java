@@ -1,6 +1,5 @@
 package com.classuml.Model;
 import java.util.ArrayDeque;
-import java.util.Deque;
 
 public class Memento 
 {

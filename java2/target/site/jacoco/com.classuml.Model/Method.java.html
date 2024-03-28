@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Method.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java</a> &gt; <a href="index.source.html" class="el_package">com.classuml.Model</a> &gt; <span class="el_source">Method.java</span></div><h1>Method.java</h1><pre class="source lang-java linenums">package com.classuml.Model;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Represents a method in a UML diagram.
+ */
+public class Method extends FieldAndMethodLayOut {
+
+	private String returnType;
+<span class="fc" id="L13">	private List&lt;Parameter&gt; parameters = new ArrayList&lt;&gt;();</span>
+
+	/**
+	 * Initializes a method with a specific name and type.
+	 *
+	 * @param name Name of the method.
+	 * @param type Type of the method.
+	 */
+	public Method(String name, String type) {
+<span class="fc" id="L22">		super(name, type);</span>
+<span class="fc" id="L23">		this.returnType = type;</span>
+<span class="fc" id="L24">	}</span>
+
+	public String getReturnType() {
+<span class="fc" id="L27">		return this.returnType; // Assuming 'returnType' is a field in your Method class holding the method's</span>
+								// return type
+	}
+
+	// Returns the parameters of the method
+	public List&lt;Parameter&gt; getParameters() {
+<span class="nc" id="L33">		return new ArrayList&lt;&gt;(parameters); // Return a copy of the parameters list</span>
+	}
+	
+	
+	/**
+	 * A string representation of the method.
+	 *
+	 * @return A string representation of the method.
+	 */
+	@Override
+	public String toString() {
+		// Join parameter strings, each on a new line, with an indent
+<span class="nc" id="L45">		String parametersString = parameters.stream().map(Parameter::toString)</span>
+<span class="nc" id="L46">				.collect(Collectors.joining(&quot;,\n    &quot;, &quot;\n    &quot;, &quot;&quot;));</span>
+
+<span class="nc" id="L48">		return &quot;\n&quot; + &quot;    Name: &quot; + name + &quot;,\n&quot; + &quot;    Type: &quot; + returnType + &quot;,&quot;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">				+ (parameters.isEmpty() ? &quot;&quot; : &quot;    \nParam: &quot; + parametersString + &quot;\n&quot;);</span>
+	}
+	// Deletes all parameters from the method
+	public boolean deleteAllParameters() {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		if (!parameters.isEmpty()) {</span>
+<span class="nc" id="L54">			parameters.clear();</span>
+<span class="nc" id="L55">			return true;</span>
+		}
+<span class="nc" id="L57">		return false;</span>
+	}
+
+	// Changes the type of an existing parameter
+	public boolean changeParameterType(String parameterName, String newParamType) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">		for (Parameter param : parameters) {</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">			if (param.getName().equals(parameterName)) {</span>
+<span class="nc" id="L64">				param.setType(newParamType);</span>
+<span class="nc" id="L65">				return true;</span>
+			}
+<span class="nc" id="L67">		}</span>
+<span class="nc" id="L68">		return false; </span>
+	}
+	
+
+	// Adds a parameter to the method
+	public boolean addParameter(String paramName, String paramType) {
+	    // Validate parameter name and type are not null or empty
+<span class="nc bnc" id="L75" title="All 8 branches missed.">	    if (paramName == null || paramName.trim().isEmpty() || paramType == null || paramType.trim().isEmpty()) {</span>
+<span class="nc" id="L76">	        return false;</span>
+	    }
+	    // Check if parameter with same name already exists
+<span class="nc bnc" id="L79" title="All 2 branches missed.">	    if (parameters.stream().anyMatch(param -&gt; param.getName().equals(paramName))) {</span>
+<span class="nc" id="L80">	        return false; // Parameter already exists</span>
+	    }
+<span class="nc" id="L82">	    parameters.add(new Parameter(paramName, paramType));</span>
+<span class="nc" id="L83">	    return true;</span>
+	}
+
+	// Renames an existing parameter
+	public boolean renameParameter(String oldParameterName, String newParameterName) {
+<span class="nc bnc" id="L88" title="All 4 branches missed.">	    if (newParameterName == null || newParameterName.trim().isEmpty() ||</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">	        parameters.stream().anyMatch(param -&gt; param.getName().equals(newParameterName))) {</span>
+<span class="nc" id="L90">	        return false; // New parameter name is invalid or already exists</span>
+	    }
+<span class="nc bnc" id="L92" title="All 2 branches missed.">	    for (Parameter param : parameters) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">	        if (param.getName().equals(oldParameterName)) {</span>
+<span class="nc" id="L94">	            param.setName(newParameterName);</span>
+<span class="nc" id="L95">	            return true; // Parameter renamed successfully</span>
+	        }
+<span class="nc" id="L97">	    }</span>
+<span class="nc" id="L98">	    return false; // Old parameter name does not exist</span>
+	}
+
+
+	// Deletes a parameter from the method
+	public boolean deleteParameter(String parameterName) {
+	    // Assuming Parameter has a properly overridden equals() method if needed
+<span class="nc" id="L105">	    return parameters.removeIf(param -&gt; param.getName().equals(parameterName));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

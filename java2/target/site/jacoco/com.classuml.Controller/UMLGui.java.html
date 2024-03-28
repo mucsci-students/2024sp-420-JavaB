@@ -1,0 +1,1510 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UMLGui.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java</a> &gt; <a href="index.source.html" class="el_package">com.classuml.Controller</a> &gt; <span class="el_source">UMLGui.java</span></div><h1>UMLGui.java</h1><pre class="source lang-java linenums">package com.classuml.Controller;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.BoxLayout;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.classuml.Model.*;
+import com.classuml.View.guiView;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+
+import java.awt.Point;
+
+
+// Assuming UMLDiagram and related classes are in the Model package
+
+/**
+ * Represents the main window of a UML diagram editor, providing a graphical user interface
+ * for creating and manipulating UML diagrams. It supports actions such as adding, renaming,
+ * and deleting classes, fields, methods, and relationships, as well as saving and loading diagrams.
+ */
+public class UMLGui extends JFrame implements ActionListener {
+	private static final long serialVersionUID = 1L;
+<span class="nc" id="L51">	private static UMLDiagram diagram = new UMLDiagram();</span>
+	private JPanel classPanelContainer;
+	private JScrollPane scrollPane;
+	
+	
+    /**
+     * Constructs the UMLGui frame and initializes the GUI components, including
+     * setting up the menu bar, class panel container, and scroll pane. It also
+     * maximizes the window and sets the diagram GUI linkage.
+     */
+	public UMLGui() {
+<span class="nc" id="L62">		super(&quot;UML Diagram Editor&quot;);</span>
+<span class="nc" id="L63">		initializeGUI();</span>
+<span class="nc" id="L64">		diagram.setGui(this);</span>
+<span class="nc" id="L65">	}  </span>
+
+/**************************************************************************************************************************************/
+    /**   GUI FRAME SET-UPS   **/
+/**************************************************************************************************************************************/
+
+    /** 
+     * Initializes the graphical user interface components and layout. It sets up
+     * the menu bar, class panel container for displaying classes, and a scroll pane
+     * for navigation. It also calls methods to update the diagram view and populate
+     * class components based on the current state of the diagram.
+     */
+	public void initializeGUI() {        
+<span class="nc" id="L78">	    setSize(800, 1000);</span>
+<span class="nc" id="L79">	    setLocationRelativeTo(null);</span>
+<span class="nc" id="L80">	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="nc" id="L81">	    setLayout(new BorderLayout());</span>
+
+	    // Initialize and set up the menu bar
+<span class="nc" id="L84">	    setJMenuBar(createMenuBar());	   </span>
+
+<span class="nc" id="L86">	    classPanelContainer = new JPanel();</span>
+<span class="nc" id="L87">	    classPanelContainer.setLayout(new BoxLayout(classPanelContainer, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L88">	    scrollPane = new JScrollPane(classPanelContainer);</span>
+<span class="nc" id="L89">	    add(scrollPane, BorderLayout.CENTER);</span>
+	    
+	    // Now it's safe to call updateDiagramView
+<span class="nc" id="L92">	    updateDiagramView();</span>
+<span class="nc" id="L93">	    populateClassComponents();</span>
+	    
+	    // Maximize the window
+<span class="nc" id="L96">	    setExtendedState(JFrame.MAXIMIZED_BOTH);</span>
+
+<span class="nc" id="L98">	}</span>
+
+/**************************************************************************************************************************************/
+    /**   MENUBARS   **/
+/**************************************************************************************************************************************/
+
+	
+    /**
+     * Creates the menu bar with all the menus and menu items including file,
+     * class, attribute, relationship, and interface management options. Each
+     * menu item is associated with an action command to be handled by the action
+     * listener.
+     * @return the fully constructed JMenuBar for the frame.
+     */
+	private JMenuBar createMenuBar() {
+<span class="nc" id="L113">		JMenuBar menuBar = new JMenuBar();</span>
+
+		// File Menu
+<span class="nc" id="L116">		JMenu fileMenu = new JMenu(&quot;File&quot;);</span>
+<span class="nc" id="L117">		addMenuItem(fileMenu, &quot;Save&quot;, &quot;save&quot;);</span>
+<span class="nc" id="L118">		addMenuItem(fileMenu, &quot;Load&quot;, &quot;load&quot;);</span>
+<span class="nc" id="L119">		addMenuItem(fileMenu, &quot;Help&quot;, &quot;help&quot;);</span>
+
+		// Class Menu
+<span class="nc" id="L122">		JMenu classMenu = new JMenu(&quot;Class&quot;);</span>
+<span class="nc" id="L123">		addMenuItem(classMenu, &quot;Add Class&quot;, &quot;addClass&quot;);</span>
+<span class="nc" id="L124">		addMenuItem(classMenu, &quot;Rename Class&quot;, &quot;renameClass&quot;);</span>
+<span class="nc" id="L125">		addMenuItem(classMenu, &quot;Delete Class&quot;, &quot;deleteClass&quot;);</span>
+
+		// Attribute Menu
+<span class="nc" id="L128">		JMenu attributeMenu = new JMenu(&quot;Attribute&quot;);</span>
+<span class="nc" id="L129">		addMenuItem(attributeMenu, &quot;Add Field&quot;, &quot;addField&quot;);</span>
+<span class="nc" id="L130">		addMenuItem(attributeMenu, &quot;Rename Field&quot;, &quot;renameField&quot;);</span>
+<span class="nc" id="L131">		addMenuItem(attributeMenu, &quot;Delete Field&quot;, &quot;deleteField&quot;);</span>
+		
+<span class="nc" id="L133">		addMenuItem(attributeMenu, &quot;Add Method&quot;, &quot;addMethod&quot;);		</span>
+<span class="nc" id="L134">		addMenuItem(attributeMenu, &quot;Rename Method&quot;, &quot;renameMethod&quot;);</span>
+<span class="nc" id="L135">		addMenuItem(attributeMenu, &quot;Delete Method&quot;, &quot;deleteMethod&quot;);</span>
+		
+<span class="nc" id="L137">		addMenuItem(attributeMenu, &quot;Add Parameter&quot;, &quot;addParameter&quot;);</span>
+<span class="nc" id="L138">		addMenuItem(attributeMenu, &quot;Rename Parameter&quot;, &quot;renameParameter&quot;);</span>
+<span class="nc" id="L139">		addMenuItem(attributeMenu, &quot;Delete Parameter&quot;, &quot;deleteParameter&quot;);</span>
+
+
+
+		// Relationship Menu
+<span class="nc" id="L144">		JMenu relationshipMenu = new JMenu(&quot;Relationship&quot;);</span>
+<span class="nc" id="L145">		addMenuItem(relationshipMenu, &quot;Add Relationship&quot;, &quot;addRelationship&quot;);</span>
+<span class="nc" id="L146">		addMenuItem(relationshipMenu, &quot;Delete Relationship&quot;, &quot;deleteRelationship&quot;);</span>
+<span class="nc" id="L147">		addMenuItem(relationshipMenu, &quot;Change Type&quot;, &quot;changeType&quot;);</span>
+
+		// Interface Menu
+<span class="nc" id="L150">		JMenu interfaceMenu = new JMenu(&quot;Interface&quot;);</span>
+<span class="nc" id="L151">		addMenuItem(interfaceMenu, &quot;List Class&quot;, &quot;listClass&quot;);</span>
+<span class="nc" id="L152">		addMenuItem(interfaceMenu, &quot;List Relationships&quot;, &quot;listRelationships&quot;);</span>
+<span class="nc" id="L153">		addMenuItem(interfaceMenu, &quot;List Classes&quot;, &quot;listClasses&quot;);</span>
+
+		// Adding menus to menu bar
+<span class="nc" id="L156">		menuBar.add(fileMenu);</span>
+<span class="nc" id="L157">		menuBar.add(classMenu);</span>
+<span class="nc" id="L158">		menuBar.add(attributeMenu);</span>
+<span class="nc" id="L159">		menuBar.add(relationshipMenu);</span>
+<span class="nc" id="L160">		menuBar.add(interfaceMenu);</span>
+
+<span class="nc" id="L162">		return menuBar;</span>
+	}
+
+    /**
+     * Adds a menu item to a specified menu with the given title and action command.
+     * The menu item is configured to listen for actions which are handled by the
+     * UMLGui action listener.
+     * @param menu The menu to which the menu item will be added.
+     * @param title The text of the menu item.
+     * @param actionCommand The command that identifies the action associated with the menu item.
+     */
+	private void addMenuItem(JMenu menu, String title, String actionCommand) {
+<span class="nc" id="L174">		JMenuItem menuItem = new JMenuItem(title);</span>
+<span class="nc" id="L175">		menuItem.setActionCommand(actionCommand);</span>
+<span class="nc" id="L176">		menuItem.addActionListener(this);</span>
+<span class="nc" id="L177">		menu.add(menuItem);</span>
+<span class="nc" id="L178">	}</span>
+
+    /**
+     * Updates the display of the UML diagram to reflect the current state. This
+     * method can be called after any modification to the diagram to refresh the
+     * visual representation shown in the GUI.
+     */
+	private void updateDiagramView() {
+<span class="nc" id="L186">		scrollPane.setToolTipText(diagram.toString());</span>
+<span class="nc" id="L187">	}</span>
+
+    /**
+     * Handles action events generated by menu item selections. Based on the action
+     * command of the event, this method delegates to specific methods for handling
+     * each possible action, such as adding or deleting classes, fields, and methods,
+     * as well as saving and loading diagrams.
+     * @param e The action event triggered by selecting a menu item.
+     */
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// Simplified switch structure for brevity
+<span class="nc bnc" id="L199" title="All 22 branches missed.">		switch (e.getActionCommand()) {</span>
+		case &quot;addClass&quot;:
+<span class="nc" id="L201">			addClass();</span>
+<span class="nc" id="L202">			break;</span>
+		case &quot;renameClass&quot;:
+<span class="nc" id="L204">			renameClass();</span>
+<span class="nc" id="L205">			break;</span>
+		case &quot;deleteClass&quot;:
+<span class="nc" id="L207">			deleteClass();</span>
+<span class="nc" id="L208">			break;</span>
+		case &quot;addField&quot;:
+<span class="nc" id="L210">			addField();</span>
+<span class="nc" id="L211">			break;</span>
+		case &quot;renameField&quot;:
+<span class="nc" id="L213">			renameField();</span>
+<span class="nc" id="L214">			break;</span>
+		case &quot;deleteField&quot;:
+<span class="nc" id="L216">			deleteField();</span>
+<span class="nc" id="L217">			break;</span>
+		case &quot;addMethod&quot;:
+<span class="nc" id="L219">			addMethod();</span>
+<span class="nc" id="L220">			break;</span>
+		case &quot;renameMethod&quot;:
+<span class="nc" id="L222">			renameMethod();</span>
+<span class="nc" id="L223">			break;</span>
+		case &quot;deleteMethod&quot;:
+<span class="nc" id="L225">			deleteMethod();</span>
+<span class="nc" id="L226">			break;</span>
+		case &quot;addParameter&quot;:
+<span class="nc" id="L228">			addParameter();</span>
+<span class="nc" id="L229">			break;</span>
+		case &quot;renameParameter&quot;:
+<span class="nc" id="L231">			renameParameter();</span>
+<span class="nc" id="L232">			break;</span>
+		case &quot;deleteParameter&quot;:
+<span class="nc" id="L234">			deleteParameter();</span>
+<span class="nc" id="L235">			break;</span>
+		case &quot;addRelationship&quot;:
+<span class="nc" id="L237">			addRelationship();</span>
+<span class="nc" id="L238">			break;</span>
+		case &quot;deleteRelationship&quot;:
+<span class="nc" id="L240">			deleteRelationship();</span>
+<span class="nc" id="L241">			break;</span>
+		case &quot;changeType&quot;:
+<span class="nc" id="L243">			changeType();</span>
+<span class="nc" id="L244">			break;</span>
+		case &quot;listClass&quot;:
+<span class="nc" id="L246">			listClass();</span>
+<span class="nc" id="L247">			break;</span>
+		case &quot;listClasses&quot;:
+<span class="nc" id="L249">			listClasses();</span>
+<span class="nc" id="L250">			break;</span>
+		case &quot;listRelationships&quot;:
+<span class="nc" id="L252">			listRelationships();</span>
+<span class="nc" id="L253">			break;</span>
+		case &quot;save&quot;:
+<span class="nc" id="L255">			saveDiagram();</span>
+<span class="nc" id="L256">			break;</span>
+		case &quot;load&quot;:
+<span class="nc" id="L258">			loadDiagram();</span>
+<span class="nc" id="L259">			break;</span>
+		case &quot;help&quot;:
+<span class="nc" id="L261">			showHelp();</span>
+			break;
+		}
+<span class="nc" id="L264">		updateDiagramView();</span>
+<span class="nc" id="L265">		populateClassComponents();</span>
+<span class="nc" id="L266">	}</span>
+
+
+/**************************************************************************************************************************************/
+    /**   CLASSES   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * Adds a new class to the UML diagram.
+     * Prompts the user to enter the name of the class to add.
+     * Updates the diagram view and displays a confirmation message if the class is added successfully,
+     * otherwise shows an error message.
+     */
+	private void addClass() {
+		// Prompt the user for the class name using JOptionPane for graphical input
+		// dialog
+<span class="nc" id="L282">		String className = JOptionPane.showInputDialog(this, &quot;Enter class name:&quot;, &quot;Add Class&quot;,</span>
+				JOptionPane.PLAIN_MESSAGE);
+
+		// Check if the user provided a class name and didn't cancel the dialog
+<span class="nc bnc" id="L286" title="All 4 branches missed.">		if (className != null &amp;&amp; !className.trim().isEmpty()) {</span>
+			try {
+				// Attempt to add the class to the diagram. Assuming diagram.addClass throws
+				// IllegalArgumentException if class exists
+<span class="nc" id="L290">				boolean added = diagram.addClass(className);</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">				if (added) {</span>
+					// Update the diagram view to reflect the new class
+<span class="nc" id="L293">					updateDiagramView();</span>
+
+					// Display a confirmation message
+<span class="nc" id="L296">					JOptionPane.showMessageDialog(this, &quot;Class '&quot; + className + &quot;' added successfully.&quot;, &quot;Class Added&quot;,</span>
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					// Class already exists
+<span class="nc" id="L300">					JOptionPane.showMessageDialog(this, &quot;Class '&quot; + className + &quot;' already exists.&quot;,</span>
+							&quot;Error Adding Class&quot;, JOptionPane.ERROR_MESSAGE);
+				}
+<span class="nc" id="L303">			} catch (Exception ex) {</span>
+				// Handle any other unexpected exceptions
+<span class="nc" id="L305">				JOptionPane.showMessageDialog(this, &quot;An error occurred while adding the class: &quot; + ex.getMessage(),</span>
+						&quot;Error&quot;, JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L307">			}</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">		} else if (className != null) {</span>
+			// Handle the case where the user entered a blank name
+<span class="nc" id="L310">			JOptionPane.showMessageDialog(this, &quot;Class name cannot be blank.&quot;, &quot;Invalid Class Name&quot;,</span>
+					JOptionPane.WARNING_MESSAGE);
+		}
+		// If className is null, the user cancelled the dialog, so do nothing
+<span class="nc" id="L314">	}</span>
+
+    /**
+     * Notifies the user interface that a new class has been added to the diagram.
+     * Updates the class panel container with the new class information including fields, methods, and relationships.
+     * @param className The name of the class that has been added.
+     */
+	public void notifyClassAdded(String className) {
+<span class="nc" id="L322">	    UMLClass newClass = diagram.getClassByName(className);</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">	    if (newClass != null) {</span>
+<span class="nc" id="L324">	        List&lt;String&gt; fieldDescriptions = newClass.getFields().stream()</span>
+<span class="nc" id="L325">	                .map(Field::toString)</span>
+<span class="nc" id="L326">	                .collect(Collectors.toList());</span>
+
+	        // Using Method's toString method directly
+<span class="nc" id="L329">	        List&lt;String&gt; methodDescriptions = newClass.getMethods().stream()</span>
+<span class="nc" id="L330">	                .map(Method::toString)</span>
+<span class="nc" id="L331">	                .collect(Collectors.toList());</span>
+
+<span class="nc" id="L333">	        List&lt;String&gt; relationshipDescriptions = diagram.getRelationshipsForClass(className).stream()</span>
+<span class="nc" id="L334">	                .map(Relationship::toString)</span>
+<span class="nc" id="L335">	                .collect(Collectors.toList());</span>
+<span class="nc" id="L336">			UMLClass guiClass = new UMLClass(className);</span>
+<span class="nc" id="L337">	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, relationshipDescriptions, guiClass);</span>
+<span class="nc" id="L338">	        classPanelContainer.add(classComp);</span>
+<span class="nc" id="L339">	        classPanelContainer.revalidate();</span>
+<span class="nc" id="L340">	        classPanelContainer.repaint();</span>
+	    }
+<span class="nc" id="L342">	}</span>
+
+    /**
+     * Renames an existing class in the UML diagram.
+     * Prompts the user for the current class name and the new class name.
+     * Updates the diagram view and displays a success message if the class is renamed successfully,
+     * otherwise shows an error message.
+     */
+	private void renameClass() {
+<span class="nc" id="L351">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L352">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+<span class="nc" id="L353">		JTextField newName = new JTextField();</span>
+		
+<span class="nc" id="L355">		JPanel cName = new JPanel();</span>
+<span class="nc" id="L356">		cName.setLayout(new BoxLayout(cName, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L358">		cName.add(new JLabel(&quot;Select a class: &quot;));</span>
+<span class="nc" id="L359">		cName.add(namesBox);</span>
+<span class="nc" id="L360">		cName.add(new JLabel(&quot;Enter the new class name: &quot;));</span>
+<span class="nc" id="L361">		cName.add(newName);</span>
+		
+<span class="nc" id="L363">		int entered = -1;</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L365">			entered = JOptionPane.showConfirmDialog(this, cName, &quot;Rename Class&quot;,</span>
+				JOptionPane.OK_CANCEL_OPTION);
+		}else{
+<span class="nc" id="L368">			JOptionPane.showMessageDialog(this,&quot;There are no classes to select, please load or add classes&quot;);</span>
+		}
+<span class="nc bnc" id="L370" title="All 6 branches missed.">		if (namesBox.getSelectedItem() != null &amp;&amp; newName != null &amp;&amp; entered == 0) {</span>
+				try {
+<span class="nc" id="L372">					boolean renamed = diagram.renameClass(namesBox.getSelectedItem().toString(), newName.getText());</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">					if (renamed) {</span>
+<span class="nc" id="L374">						updateDiagramView();</span>
+<span class="nc" id="L375">						JOptionPane.showMessageDialog(this, &quot;Class renamed successfully.&quot;, &quot;Class Renamed&quot;,</span>
+								JOptionPane.INFORMATION_MESSAGE);
+					} else {
+<span class="nc" id="L378">						JOptionPane.showMessageDialog(this,</span>
+								&quot;Failed to rename class. Class may not exist or new name may already be in use.&quot;,
+								&quot;Error Renaming Class&quot;, JOptionPane.ERROR_MESSAGE);
+					}
+<span class="nc" id="L382">				} catch (Exception ex) {</span>
+<span class="nc" id="L383">					JOptionPane.showMessageDialog(this,</span>
+<span class="nc" id="L384">							&quot;An error occurred while renaming the class: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L386">				}</span>
+		}
+<span class="nc" id="L388">	}</span>
+
+    /**
+     * Deletes an existing class from the UML diagram.
+     * Prompts the user for the name of the class to delete and confirms the action.
+     * Updates the diagram view and displays a success message if the class is deleted successfully,
+     * otherwise shows an error message.
+     */
+	private void deleteClass() {
+<span class="nc" id="L397">		String[] classNames = getClassNames();</span>
+
+<span class="nc" id="L399">		Object className = JOptionPane.showInputDialog(this, &quot;Please select the class to delete: &quot;, &quot;Delete Class&quot;,</span>
+				JOptionPane.PLAIN_MESSAGE,null, classNames, classNames[0]);
+<span class="nc bnc" id="L401" title="All 2 branches missed.">		if (className != null) {</span>
+<span class="nc" id="L402">			int confirmation = JOptionPane.showConfirmDialog(this,</span>
+					&quot;Are you sure you want to delete '&quot; + (String)className + &quot;'?&quot;, &quot;Delete Class&quot;, JOptionPane.YES_NO_OPTION);
+<span class="nc bnc" id="L404" title="All 2 branches missed.">			if (confirmation == JOptionPane.YES_OPTION) {</span>
+<span class="nc" id="L405">				boolean deleted = diagram.deleteClass((String)className);</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">				if (deleted) {</span>
+<span class="nc" id="L407">					updateDiagramView();</span>
+<span class="nc" id="L408">					JOptionPane.showMessageDialog(this, &quot;Class deleted successfully.&quot;, &quot;Class Deleted&quot;,</span>
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+<span class="nc" id="L411">					JOptionPane.showMessageDialog(this, &quot;Failed to delete class. Class may not exist.&quot;,</span>
+							&quot;Error Deleting Class&quot;, JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+<span class="nc" id="L416">	}</span>
+
+	private String[] getClassNames(){
+<span class="nc" id="L419">		String[] classNames = new String[diagram.getClasses().size()];</span>
+<span class="nc" id="L420">		int index = 0;</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">		for(UMLClass classes: diagram.getClasses()){</span>
+<span class="nc" id="L422">			classNames[index] = classes.getName();</span>
+<span class="nc" id="L423">			index++;</span>
+<span class="nc" id="L424">		}</span>
+<span class="nc" id="L425">		return classNames;</span>
+	}
+
+	private String[] returnTypes(){
+<span class="nc" id="L429">		return new String[] {&quot;null&quot;, &quot;int&quot;, &quot;double&quot;, &quot;boolean&quot;, &quot;string&quot;, &quot;object&quot;};</span>
+	}
+
+	private String[] attributeTypes(){
+<span class="nc" id="L433">		return new String[] {&quot;int&quot;, &quot;double&quot;, &quot;boolean&quot;, &quot;string&quot;};</span>
+	}
+
+/**************************************************************************************************************************************/
+    /**   FIELDS   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * Adds a new field to a specified class.
+     * Prompts the user for the class name, field name, and field type.
+     * Updates the diagram view and displays a success message if the field is added successfully,
+     * otherwise shows an error message.
+     */
+	private void addField() {
+<span class="nc" id="L447">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L448">		JComboBox&lt;String&gt;namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+<span class="nc" id="L449">		JTextField fieldName = new JTextField();</span>
+<span class="nc" id="L450">		JComboBox&lt;String&gt; fieldType = new JComboBox&lt;String&gt;(attributeTypes());</span>
+
+<span class="nc" id="L452">		JPanel oPanel = new JPanel();</span>
+<span class="nc" id="L453">		oPanel.setLayout(new BoxLayout(oPanel, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L455">		oPanel.add(new JLabel(&quot;Select a class: &quot;));</span>
+<span class="nc" id="L456">		oPanel.add(namesBox);</span>
+<span class="nc" id="L457">		oPanel.add(new JLabel(&quot;Enter the field name: &quot;));</span>
+<span class="nc" id="L458">		oPanel.add(fieldName);</span>
+<span class="nc" id="L459">		oPanel.add(new JLabel(&quot;Select the field type: &quot;));</span>
+<span class="nc" id="L460">		oPanel.add(fieldType);</span>
+
+<span class="nc" id="L462">		int entered = -1;</span>
+
+<span class="nc bnc" id="L464" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L465">			entered = JOptionPane.showConfirmDialog(this, oPanel, &quot;Add Field&quot;,</span>
+				JOptionPane.OK_CANCEL_OPTION);
+		}else{
+<span class="nc" id="L468">			JOptionPane.showMessageDialog(this, &quot;there are no classes to add fields to&quot;);</span>
+		}
+
+<span class="nc bnc" id="L471" title="All 8 branches missed.">		if (namesBox.getSelectedItem() != null &amp;&amp; fieldName != null &amp;&amp; fieldType != null &amp;&amp; entered == 0) {</span>
+			try {
+<span class="nc" id="L473">				boolean added = diagram.addField(namesBox.getSelectedItem().toString(), fieldName.getText(), fieldType.getSelectedItem().toString());</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">				if (added) {</span>
+<span class="nc" id="L475">					updateDiagramView();</span>
+<span class="nc" id="L476">					JOptionPane.showMessageDialog(this, &quot;Field added successfully.&quot;, &quot;Field Added&quot;,</span>
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+<span class="nc" id="L479">					JOptionPane.showMessageDialog(this, &quot;Failed to add field.&quot;, &quot;Error Adding Field&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+				}
+<span class="nc" id="L482">			} catch (Exception ex) {</span>
+<span class="nc" id="L483">				JOptionPane.showMessageDialog(this, &quot;An error occurred: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+						JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L485">			}</span>
+		}
+<span class="nc" id="L487">	}</span>
+
+    /**
+     * Renames an existing field within a specified class.
+     * Prompts the user for the class name, existing field name, and new field name.
+     * Updates the diagram view and displays a success message if the field is renamed successfully,
+     * otherwise shows an error message.
+     */
+	private void renameField() {
+<span class="nc" id="L496">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L497">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames); </span>
+<span class="nc" id="L498">		JTextField newName = new JTextField();</span>
+		
+<span class="nc" id="L500">		JPanel rPanel = new JPanel();</span>
+<span class="nc" id="L501">		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L503">		rPanel.add(new JLabel(&quot;Select the class: &quot;));</span>
+<span class="nc" id="L504">		rPanel.add(namesBox);</span>
+		
+<span class="nc" id="L506">		int entered = -1;</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">		if(classNames.length == 0){</span>
+<span class="nc" id="L508">			JOptionPane.showMessageDialog(this, &quot;There are no classes&quot;);</span>
+		}else{
+<span class="nc" id="L510">			entered = JOptionPane.showConfirmDialog(this, rPanel,</span>
+				&quot;Rename Field&quot;, JOptionPane.OK_CANCEL_OPTION);
+		}
+		
+<span class="nc" id="L514">		rPanel = new JPanel();</span>
+<span class="nc" id="L515">		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L517">		String[] fieldNames = getClassFields(namesBox.getSelectedItem().toString());</span>
+<span class="nc" id="L518">		JComboBox&lt;String&gt; fieldsBox = new JComboBox&lt;String&gt;(fieldNames);</span>
+<span class="nc" id="L519">		rPanel.add(new JLabel(&quot;Select the field: &quot;));</span>
+<span class="nc" id="L520">		rPanel.add(fieldsBox);</span>
+<span class="nc" id="L521">		rPanel.add(new JLabel(&quot;Enter the new field name: &quot;));</span>
+<span class="nc" id="L522">		rPanel.add(newName);</span>
+		
+<span class="nc" id="L524">		entered = -1;</span>
+<span class="nc bnc" id="L525" title="All 2 branches missed.">		if(classNames.length == 0){</span>
+<span class="nc" id="L526">			JOptionPane.showMessageDialog(this, &quot;There are no fields in this class&quot;);</span>
+		}else{
+<span class="nc" id="L528">			entered = JOptionPane.showConfirmDialog(this, rPanel,</span>
+				&quot;Rename Field&quot;, JOptionPane.OK_CANCEL_OPTION);
+		}
+		
+<span class="nc bnc" id="L532" title="All 8 branches missed.">		if (namesBox.getSelectedItem() != null &amp;&amp; fieldsBox.getSelectedItem() != null &amp;&amp; newName != null &amp;&amp; entered == 0) {</span>
+			try {
+<span class="nc" id="L534">				boolean renamed = diagram.renameField(namesBox.getSelectedItem().toString(), fieldsBox.getSelectedItem().toString(), newName.getText());</span>
+<span class="nc bnc" id="L535" title="All 2 branches missed.">				if (renamed) {</span>
+<span class="nc" id="L536">					updateDiagramView();</span>
+<span class="nc" id="L537">					JOptionPane.showMessageDialog(this,</span>
+<span class="nc" id="L538">							&quot;Field '&quot; + fieldsBox.getSelectedItem().toString() + &quot;' renamed to '&quot; + newName.getText(),</span>
+							&quot;Field Renamed&quot;, JOptionPane.INFORMATION_MESSAGE);
+				} else {
+<span class="nc" id="L541">					JOptionPane.showMessageDialog(this, &quot;Failed to rename field.&quot;, &quot;Error Renaming Field&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+				}
+<span class="nc" id="L544">			} catch (Exception ex) {</span>
+<span class="nc" id="L545">				JOptionPane.showMessageDialog(this, &quot;An error occurred: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+						JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L547">			}</span>
+		}
+<span class="nc" id="L549">	}</span>
+
+    /**
+     * Deletes an existing field from a specified class.
+     * Prompts the user for the class name and the field name to delete.
+     * Updates the diagram view and displays a success message if the field is deleted successfully,
+     * otherwise shows an error message.
+     */
+	private void deleteField() {
+		
+<span class="nc" id="L559">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L560">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames); </span>
+		
+<span class="nc" id="L562">		JPanel dPanel = new JPanel();</span>
+<span class="nc" id="L563">		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L565">		dPanel.add(new JLabel(&quot;Select the Class: &quot;));</span>
+<span class="nc" id="L566">		dPanel.add(namesBox);</span>
+		
+<span class="nc" id="L568">		int entered = -1;</span>
+<span class="nc bnc" id="L569" title="All 2 branches missed.">		if(classNames.length == 0){</span>
+<span class="nc" id="L570">			JOptionPane.showMessageDialog(this, &quot;there are no classes&quot;);</span>
+		}else{
+<span class="nc" id="L572">			entered = JOptionPane.showConfirmDialog(this, dPanel,</span>
+				&quot;Delete Field&quot;, JOptionPane.OK_CANCEL_OPTION);
+		}
+		
+<span class="nc" id="L576">		dPanel = new JPanel();</span>
+<span class="nc" id="L577">		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L579">		String[] fieldNames = getClassFields(namesBox.getSelectedItem().toString());</span>
+<span class="nc" id="L580">		JComboBox&lt;String&gt; fieldsBox = new JComboBox&lt;String&gt;(fieldNames);</span>
+<span class="nc" id="L581">		dPanel.add(new JLabel(&quot;Select the field to delete: &quot;));</span>
+<span class="nc" id="L582">		dPanel.add(fieldsBox);</span>
+		
+<span class="nc" id="L584">		entered = -1;</span>
+<span class="nc bnc" id="L585" title="All 2 branches missed.">		if(classNames.length == 0){</span>
+<span class="nc" id="L586">			JOptionPane.showMessageDialog(this, &quot;there are no fields in this class&quot;);</span>
+		}else{
+<span class="nc" id="L588">			entered = JOptionPane.showConfirmDialog(this, dPanel,</span>
+				&quot;Delete Field&quot;, JOptionPane.OK_CANCEL_OPTION);
+		}
+
+
+<span class="nc bnc" id="L593" title="All 6 branches missed.">		if (namesBox.getSelectedItem() != null &amp;&amp; fieldsBox.getSelectedItem() != null &amp;&amp; entered == 0) {</span>
+			try {
+<span class="nc" id="L595">				boolean deleted = diagram.deleteField(namesBox.getSelectedItem().toString(), fieldsBox.getSelectedItem().toString());</span>
+<span class="nc bnc" id="L596" title="All 2 branches missed.">				if (deleted) {</span>
+<span class="nc" id="L597">					updateDiagramView();</span>
+<span class="nc" id="L598">					JOptionPane.showMessageDialog(this, &quot;Field deleted successfully.&quot;, &quot;Field Deleted&quot;,</span>
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+<span class="nc" id="L601">					JOptionPane.showMessageDialog(this, &quot;Failed to delete field.&quot;, &quot;Error Deleting Field&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+				}
+<span class="nc" id="L604">			} catch (Exception ex) {</span>
+<span class="nc" id="L605">				JOptionPane.showMessageDialog(this, &quot;An error occurred: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+						JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L607">			}</span>
+		}
+<span class="nc" id="L609">	}</span>
+
+	private String[] getClassFields(String className){
+<span class="nc" id="L612">		String[] classFields = new String[diagram.getClassByName(className).getFields().size()];</span>
+<span class="nc" id="L613">		int index = 0;</span>
+<span class="nc bnc" id="L614" title="All 2 branches missed.">		for(Field fields: diagram.getClassByName(className).getFields()){</span>
+<span class="nc" id="L615">			classFields[index] = fields.getName();</span>
+<span class="nc" id="L616">			index++;</span>
+<span class="nc" id="L617">		}</span>
+<span class="nc" id="L618">		return classFields;</span>
+	}
+
+/**************************************************************************************************************************************/
+    /**   METHODS   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * Adds a new method to a specified class.
+     * Prompts the user for the class name, method name, and return type.
+     * Updates the diagram view and displays a success message if the method is added successfully,
+     * otherwise shows an error message.
+     */
+	private void addMethod() {
+<span class="nc" id="L632">		String [] classNames = getClassNames();</span>
+<span class="nc" id="L633">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+<span class="nc" id="L634">		JTextField methName = new JTextField();</span>
+<span class="nc" id="L635">		JComboBox&lt;String&gt; methType = new JComboBox&lt;String&gt;(returnTypes());</span>
+
+<span class="nc" id="L637">		JPanel mPanel = new JPanel();</span>
+<span class="nc" id="L638">		mPanel.setLayout(new BoxLayout(mPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L640">		mPanel.add(new JLabel(&quot;Select a class: &quot;));</span>
+<span class="nc" id="L641">		mPanel.add(namesBox);</span>
+<span class="nc" id="L642">		mPanel.add(new JLabel(&quot;Enter the name: &quot;));</span>
+<span class="nc" id="L643">		mPanel.add(methName);</span>
+<span class="nc" id="L644">		mPanel.add(new JLabel(&quot;Select the return type: &quot;));</span>
+<span class="nc" id="L645">		mPanel.add(methType);</span>
+
+<span class="nc" id="L647">		int entered = -1;</span>
+<span class="nc bnc" id="L648" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L649">			entered = JOptionPane.showConfirmDialog(this, mPanel, &quot;Add Method&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L651">			JOptionPane.showMessageDialog(this, &quot;There are no classes&quot;);</span>
+		}
+
+<span class="nc bnc" id="L654" title="All 8 branches missed.">		if (namesBox.getSelectedItem() != null &amp;&amp; methName != null &amp;&amp; methType != null &amp;&amp; entered == 0) {</span>
+<span class="nc bnc" id="L655" title="All 4 branches missed.">			if (methName != null &amp;&amp; methType != null) {</span>
+					try {
+<span class="nc" id="L657">						boolean added = diagram.addMethod(namesBox.getSelectedItem().toString(), methName.getText(), methType.getSelectedItem().toString());</span>
+<span class="nc bnc" id="L658" title="All 2 branches missed.">						if (added) {</span>
+<span class="nc" id="L659">							updateDiagramView();</span>
+<span class="nc" id="L660">							JOptionPane.showMessageDialog(this, &quot;Method added successfully.&quot;, &quot;Method Added&quot;,</span>
+									JOptionPane.INFORMATION_MESSAGE);
+						} else {
+<span class="nc" id="L663">							JOptionPane.showMessageDialog(this, &quot;Failed to add method to class. Class may not exist.&quot;,</span>
+									&quot;Error Adding Method&quot;, JOptionPane.ERROR_MESSAGE);
+						}
+<span class="nc" id="L666">					} catch (Exception ex) {</span>
+<span class="nc" id="L667">						JOptionPane.showMessageDialog(this,</span>
+<span class="nc" id="L668">								&quot;An error occurred while adding the method: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+								JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L670">					}</span>
+			}
+		}
+<span class="nc" id="L673">	}</span>
+
+    /**
+     * Renames an existing method within a specified class.
+     * Prompts the user for the class name, existing method name, and new method name.
+     * Updates the diagram view and displays a success message if the method is renamed successfully,
+     * otherwise shows an error message.
+     */
+	private void renameMethod() {
+<span class="nc" id="L682">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L683">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+<span class="nc" id="L684">		JTextField newName = new JTextField();</span>
+
+<span class="nc" id="L686">		JPanel rPanel = new JPanel();</span>
+<span class="nc" id="L687">		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L689">		rPanel.add(new JLabel(&quot;Select the class: &quot;));</span>
+<span class="nc" id="L690">		rPanel.add(namesBox);</span>
+
+		
+
+<span class="nc bnc" id="L694" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L695">			JOptionPane.showConfirmDialog(this, rPanel, &quot;Rename Method&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L697">			JOptionPane.showMessageDialog(this, &quot;There are no classes&quot;);</span>
+		}
+
+<span class="nc" id="L700">		rPanel = new JPanel();</span>
+<span class="nc" id="L701">		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L703">		String[] methNames = getClassMethods(namesBox.getSelectedItem().toString());</span>
+<span class="nc" id="L704">		JComboBox&lt;String&gt; methBox = new JComboBox&lt;String&gt;(methNames);</span>
+<span class="nc" id="L705">		rPanel.add(new JLabel(&quot;Select the method: &quot;));</span>
+<span class="nc" id="L706">		rPanel.add(methBox);</span>
+<span class="nc" id="L707">		rPanel.add(new JLabel(&quot;Enter the new name: &quot;));</span>
+<span class="nc" id="L708">		rPanel.add(newName);</span>
+		
+<span class="nc" id="L710">		int entered = -1;</span>
+<span class="nc bnc" id="L711" title="All 2 branches missed.">		if(methNames.length &gt; 0){</span>
+<span class="nc" id="L712">			entered = JOptionPane.showConfirmDialog(this, rPanel, &quot;Rename Method&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L714">			JOptionPane.showMessageDialog(this, &quot;There are no methods in this class&quot;);</span>
+		}
+
+
+<span class="nc bnc" id="L718" title="All 8 branches missed.">		if (namesBox.getSelectedItem() != null &amp;&amp; methBox.getSelectedItem() != null</span>
+				&amp;&amp; newName != null &amp;&amp; entered == 0) {
+			try {
+<span class="nc" id="L721">				boolean renamed = diagram.renameMethod(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString(), newName.getText());</span>
+<span class="nc bnc" id="L722" title="All 2 branches missed.">				if (renamed) {</span>
+<span class="nc" id="L723">					updateDiagramView();</span>
+<span class="nc" id="L724">					JOptionPane.showMessageDialog(this, &quot;Method renamed successfully.&quot;, &quot;Method Renamed&quot;,</span>
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+<span class="nc" id="L727">					JOptionPane.showMessageDialog(this, &quot;Failed to rename method.&quot;, &quot;Error Renaming Method&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+				}
+<span class="nc" id="L730">			} catch (Exception ex) {</span>
+<span class="nc" id="L731">				JOptionPane.showMessageDialog(this, &quot;An error occurred: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+						JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L733">			}</span>
+		}
+<span class="nc" id="L735">	}</span>
+
+    /**
+     * Deletes an existing method from a specified class.
+     * Prompts the user for the class name and the method name to delete.
+     * Updates the diagram view and displays a success message if the method is deleted successfully,
+     * otherwise shows an error message.
+     */
+	private void deleteMethod() {
+		
+<span class="nc" id="L745">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L746">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+
+<span class="nc" id="L748">		JPanel dPanel = new JPanel();</span>
+<span class="nc" id="L749">		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L751">		dPanel.add(new JLabel(&quot;Select the class: &quot;));</span>
+<span class="nc" id="L752">		dPanel.add(namesBox);</span>
+
+<span class="nc bnc" id="L754" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L755">		JOptionPane.showConfirmDialog(this, dPanel, &quot;Delete Method&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L757">			JOptionPane.showMessageDialog(this, &quot;There are no classes&quot;);</span>
+		}
+
+<span class="nc" id="L760">		dPanel = new JPanel();</span>
+<span class="nc" id="L761">		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L763">		String[] methNames = getClassMethods(namesBox.getSelectedItem().toString());</span>
+<span class="nc" id="L764">		JComboBox&lt;String&gt; methBox = new JComboBox&lt;String&gt;(methNames);</span>
+
+<span class="nc" id="L766">		dPanel.add(new JLabel(&quot;Select a method to delete: &quot;));</span>
+<span class="nc" id="L767">		dPanel.add(methBox);</span>
+
+<span class="nc" id="L769">		int entered = -1;</span>
+<span class="nc bnc" id="L770" title="All 2 branches missed.">		if(methNames.length &gt; 0){</span>
+<span class="nc" id="L771">			entered = JOptionPane.showConfirmDialog(this, dPanel, &quot;Delete Method&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L773">			JOptionPane.showMessageDialog(this, &quot;There are no methods in this class&quot;);</span>
+		}
+
+<span class="nc bnc" id="L776" title="All 6 branches missed.">		if (namesBox.getSelectedItem() != null &amp;&amp; methBox.getSelectedItem() != null &amp;&amp; entered == 0) {</span>
+			try {
+<span class="nc" id="L778">				boolean deleted = diagram.deleteMethod(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString());</span>
+<span class="nc bnc" id="L779" title="All 2 branches missed.">				if (deleted) {</span>
+<span class="nc" id="L780">					updateDiagramView();</span>
+<span class="nc" id="L781">					JOptionPane.showMessageDialog(this, &quot;Method deleted successfully.&quot;, &quot;Method Deleted&quot;,</span>
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+<span class="nc" id="L784">					JOptionPane.showMessageDialog(this, &quot;Failed to delete method.&quot;, &quot;Error Deleting Method&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+				}
+<span class="nc" id="L787">			} catch (Exception ex) {</span>
+<span class="nc" id="L788">				JOptionPane.showMessageDialog(this, &quot;An error occurred: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+						JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L790">			}</span>
+		}
+<span class="nc" id="L792">	}</span>
+
+	private String[] getClassMethods(String className){
+<span class="nc" id="L795">		ArrayList&lt;Method&gt; meths= diagram.getClassByName(className).getMethods();</span>
+<span class="nc" id="L796">		String[] methNames = new String[meths.size()];</span>
+<span class="nc" id="L797">		int index = 0;</span>
+<span class="nc bnc" id="L798" title="All 2 branches missed.">		for(Method meth: meths){</span>
+<span class="nc" id="L799">			methNames[index] = meth.getName();</span>
+<span class="nc" id="L800">			index++;</span>
+<span class="nc" id="L801">		}</span>
+<span class="nc" id="L802">		return methNames;</span>
+	}
+
+/**************************************************************************************************************************************/
+    /**   PARAMETERS   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * Adds a new parameter to a specified method within a specified class.
+     * Prompts the user for the class name, method name, parameter name, and parameter type.
+     * Displays a success message if the parameter is added successfully, otherwise shows an error message.
+     */
+	private void addParameter() {
+	    
+<span class="nc" id="L816">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L817">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+		
+
+<span class="nc" id="L820">		JPanel pPanel = new JPanel();</span>
+<span class="nc" id="L821">		pPanel.setLayout(new BoxLayout(pPanel, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L823">		pPanel.setLayout(new BoxLayout(pPanel, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L825">		pPanel.add(new JLabel(&quot;Select a class&quot;));</span>
+<span class="nc" id="L826">		pPanel.add(namesBox);</span>
+
+<span class="nc bnc" id="L828" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L829">			JOptionPane.showConfirmDialog(this, pPanel, &quot;Add Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L831">			JOptionPane.showMessageDialog(this, &quot;There are no classes&quot;);</span>
+		}
+
+<span class="nc" id="L834">		String[] methNames = getClassMethods(namesBox.getSelectedItem().toString());</span>
+<span class="nc" id="L835">		JComboBox&lt;String&gt; methBox = new JComboBox&lt;String&gt;(methNames);</span>
+<span class="nc" id="L836">		JTextField newName = new JTextField();</span>
+<span class="nc" id="L837">		JComboBox&lt;String&gt; attType = new JComboBox&lt;String&gt;(attributeTypes()); </span>
+
+<span class="nc" id="L839">		pPanel = new JPanel();</span>
+<span class="nc" id="L840">		pPanel.setLayout(new BoxLayout(pPanel, BoxLayout.Y_AXIS));</span>
+
+<span class="nc" id="L842">		pPanel.add(new JLabel(&quot;Select a method: &quot;));</span>
+<span class="nc" id="L843">		pPanel.add(methBox);</span>
+<span class="nc" id="L844">		pPanel.add(new JLabel(&quot;Enter the name: &quot;));</span>
+<span class="nc" id="L845">		pPanel.add(newName);</span>
+<span class="nc" id="L846">		pPanel.add(new JLabel(&quot;Select the type: &quot;));</span>
+<span class="nc" id="L847">		pPanel.add(attType);</span>
+
+<span class="nc" id="L849">		int entered = -1;</span>
+<span class="nc bnc" id="L850" title="All 2 branches missed.">		if(methNames.length &gt; 0){</span>
+<span class="nc" id="L851">			entered = JOptionPane.showConfirmDialog(this, pPanel, &quot;Add Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L853">			JOptionPane.showMessageDialog(this, &quot;There are no methods in this class&quot;);</span>
+		}
+
+<span class="nc bnc" id="L856" title="All 10 branches missed.">	    if (namesBox.getSelectedItem() != null &amp;&amp; methBox.getSelectedItem() != null &amp;&amp; newName.toString() != null &amp;&amp; attType.getSelectedItem() != null &amp;&amp; entered == 0) {</span>
+	        try {
+<span class="nc" id="L858">	            boolean success = diagram.addParameter(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString(), newName.getText(), attType.getSelectedItem().toString());</span>
+<span class="nc bnc" id="L859" title="All 2 branches missed.">	            if (success) {</span>
+<span class="nc" id="L860">	                JOptionPane.showMessageDialog(this, &quot;Parameter added successfully.&quot;, &quot;Success&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L861">	                updateDiagramView();</span>
+	            } else {
+<span class="nc" id="L863">	                JOptionPane.showMessageDialog(this, &quot;Failed to add parameter. Check if class and method exist, and parameter doesn't already exist.&quot;, &quot;Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+	            }
+<span class="nc" id="L865">	        } catch (Exception ex) {</span>
+<span class="nc" id="L866">	            JOptionPane.showMessageDialog(this, &quot;An error occurred: &quot; + ex.getMessage(), &quot;Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+<span class="nc" id="L867">	        }</span>
+	    }
+<span class="nc" id="L869">	}</span>
+
+    /**
+     * Renames an existing parameter within a specified method of a specified class.
+     * Prompts the user for the class name, method name, existing parameter name, and the new parameter name.
+     * Displays a success message if the parameter is renamed successfully, otherwise shows an error message.
+     */
+	private void renameParameter() {
+	    
+<span class="nc" id="L878">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L879">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+
+<span class="nc" id="L881">		JPanel rPanel = new JPanel();</span>
+<span class="nc" id="L882">		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L884">		rPanel.add(new JLabel(&quot;Select the class&quot;));</span>
+<span class="nc" id="L885">		rPanel.add(namesBox);</span>
+
+<span class="nc bnc" id="L887" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L888">			JOptionPane.showConfirmDialog(this, rPanel, &quot;Rename Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L890">			JOptionPane.showMessageDialog(this, &quot;There are no classes&quot;);</span>
+		}
+
+<span class="nc" id="L893">		String[] methNames = getClassMethods(namesBox.getSelectedItem().toString());</span>
+<span class="nc" id="L894">		JComboBox&lt;String&gt; methBox = new JComboBox&lt;String&gt;(methNames);</span>
+<span class="nc" id="L895">		rPanel = new JPanel();</span>
+<span class="nc" id="L896">		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L898">		rPanel.add(new JLabel(&quot;Select the method&quot;));</span>
+<span class="nc" id="L899">		rPanel.add(methBox);</span>
+
+<span class="nc bnc" id="L901" title="All 2 branches missed.">		if(methNames.length &gt; 0){</span>
+<span class="nc" id="L902">			JOptionPane.showConfirmDialog(this, rPanel, &quot;Rename Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L904">			JOptionPane.showMessageDialog(this, &quot;There are no methods in this class&quot;);</span>
+		}
+
+<span class="nc" id="L907">		String[] paramNames = getMethodParams(namesBox.getSelectedItem().toString(),methBox.getSelectedItem().toString());</span>
+<span class="nc" id="L908">		JComboBox&lt;String&gt; paramBox = new JComboBox&lt;String&gt;(paramNames);</span>
+<span class="nc" id="L909">		JTextField newName = new JTextField();</span>
+<span class="nc" id="L910">		rPanel = new JPanel();</span>
+<span class="nc" id="L911">		rPanel.setLayout(new BoxLayout(rPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L913">		rPanel.add(new JLabel(&quot;Select the parameter: &quot;));</span>
+<span class="nc" id="L914">		rPanel.add(paramBox);</span>
+<span class="nc" id="L915">		rPanel.add(new JLabel(&quot;Enter the new name: &quot;));</span>
+<span class="nc" id="L916">		rPanel.add(newName);</span>
+
+<span class="nc" id="L918">		int entered = -1;</span>
+<span class="nc bnc" id="L919" title="All 2 branches missed.">		if(paramNames.length &gt; 0){</span>
+<span class="nc" id="L920">			entered = JOptionPane.showConfirmDialog(this, rPanel, &quot;Rename Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L922">			JOptionPane.showMessageDialog(this, &quot;There are no parameters in this method&quot;);</span>
+		}
+
+<span class="nc bnc" id="L925" title="All 10 branches missed.">	    if (namesBox.getSelectedItem() != null &amp;&amp; methBox.getSelectedItem() != null &amp;&amp; paramBox.getSelectedItem() != null &amp;&amp; newName != null &amp;&amp; entered == 0) {</span>
+<span class="nc" id="L926">	        boolean success = diagram.renameParameter(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString()</span>
+<span class="nc" id="L927">					, paramBox.getSelectedItem().toString(), newName.getText());</span>
+<span class="nc bnc" id="L928" title="All 2 branches missed.">	        if (success) {</span>
+<span class="nc" id="L929">	            JOptionPane.showMessageDialog(this, &quot;Parameter renamed successfully.&quot;, &quot;Success&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L930">	            updateDiagramView();</span>
+	        } else {
+<span class="nc" id="L932">	            JOptionPane.showMessageDialog(this, &quot;Failed to rename parameter. Ensure the old parameter exists and the new name is unique within its method.&quot;, &quot;Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+	        }
+	    }
+<span class="nc" id="L935">	}</span>
+	
+
+    /**
+     * Deletes an existing parameter from a specified method within a specified class.
+     * Prompts the user for the class name, method name, and the parameter name to delete.
+     * Displays a success message if the parameter is deleted successfully, otherwise shows an error message.
+     */
+	private void deleteParameter() {
+	    
+<span class="nc" id="L945">		String[] classNames = getClassNames();</span>
+<span class="nc" id="L946">		JComboBox&lt;String&gt; namesBox = new JComboBox&lt;String&gt;(classNames);</span>
+
+<span class="nc" id="L948">		JPanel dPanel = new JPanel();</span>
+<span class="nc" id="L949">		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L951">		dPanel.add(new JLabel(&quot;Select the class: &quot;));</span>
+<span class="nc" id="L952">		dPanel.add(namesBox);</span>
+
+<span class="nc bnc" id="L954" title="All 2 branches missed.">		if(classNames.length &gt; 0){</span>
+<span class="nc" id="L955">		JOptionPane.showConfirmDialog(this, dPanel, &quot;Delete Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L957">			JOptionPane.showMessageDialog(this, &quot;There are no classes&quot;);</span>
+		}
+
+<span class="nc" id="L960">		String[] methNames = getClassMethods(namesBox.getSelectedItem().toString());</span>
+<span class="nc" id="L961">		JComboBox&lt;String&gt; methBox = new JComboBox&lt;String&gt;(methNames);</span>
+
+<span class="nc" id="L963">		dPanel = new JPanel();</span>
+<span class="nc" id="L964">		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L966">		dPanel.add(new JLabel(&quot;Select the method: &quot;));</span>
+<span class="nc" id="L967">		dPanel.add(methBox);</span>
+
+<span class="nc bnc" id="L969" title="All 2 branches missed.">		if(methNames.length &gt; 0){</span>
+<span class="nc" id="L970">		JOptionPane.showConfirmDialog(this, dPanel, &quot;Delete Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L972">			JOptionPane.showMessageDialog(this, &quot;There are no methods in this class&quot;);</span>
+		}
+
+<span class="nc" id="L975">		String[] paramNames = getMethodParams(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString());</span>
+<span class="nc" id="L976">		JComboBox&lt;String&gt; paramBox = new JComboBox&lt;String&gt;(paramNames);</span>
+<span class="nc" id="L977">		dPanel = new JPanel();</span>
+<span class="nc" id="L978">		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));</span>
+		
+<span class="nc" id="L980">		dPanel.add(new JLabel(&quot;Select the parameter to delete: &quot;));</span>
+<span class="nc" id="L981">		dPanel.add(paramBox);</span>
+
+<span class="nc" id="L983">		int entered = -1;</span>
+<span class="nc bnc" id="L984" title="All 2 branches missed.">		if(paramNames.length &gt; 0){</span>
+<span class="nc" id="L985">		entered = JOptionPane.showConfirmDialog(this, dPanel, &quot;Delete Parameter&quot;, JOptionPane.OK_CANCEL_OPTION);</span>
+		}else{
+<span class="nc" id="L987">			JOptionPane.showMessageDialog(this, &quot;There are no parameters in this method&quot;);</span>
+		}
+
+<span class="nc bnc" id="L990" title="All 8 branches missed.">	    if (namesBox.getSelectedItem() != null &amp;&amp; methBox.getSelectedItem() != null &amp;&amp; paramBox.getSelectedItem() != null &amp;&amp; entered == 0) {</span>
+<span class="nc" id="L991">	        boolean success = diagram.deleteParameter(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString(), paramBox.getSelectedItem().toString());</span>
+<span class="nc bnc" id="L992" title="All 2 branches missed.">	        if (success) {</span>
+<span class="nc" id="L993">	            JOptionPane.showMessageDialog(this, &quot;Parameter deleted successfully.&quot;, &quot;Success&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L994">	            updateDiagramView();</span>
+	        } else {
+<span class="nc" id="L996">	            JOptionPane.showMessageDialog(this, &quot;Failed to delete parameter. Ensure the method and parameter exist.&quot;, &quot;Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+	        }
+	    }
+<span class="nc" id="L999">	}</span>
+
+	
+	private String[] getMethodParams(String className, String methodName){
+<span class="nc" id="L1003">		List&lt;Parameter&gt; params = diagram.getClassByName(className).getMethod(methodName).getParameters();</span>
+<span class="nc" id="L1004">		String[] paramNames = new String[params.size()];</span>
+<span class="nc" id="L1005">		int index = 0;</span>
+<span class="nc bnc" id="L1006" title="All 2 branches missed.">		for(Parameter param: params){</span>
+<span class="nc" id="L1007">			paramNames[index] = param.getName();</span>
+<span class="nc" id="L1008">			index++;</span>
+<span class="nc" id="L1009">		}</span>
+<span class="nc" id="L1010">		return paramNames;</span>
+	}
+
+/**************************************************************************************************************************************/
+    /**   RELATIONSHIPS   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * Adds a new relationship between two specified classes.
+     * Prompts the user for the source class name, destination class name, and relationship type.
+     * Updates the diagram view and displays a success message if the relationship is added successfully,
+     * otherwise shows an error message.
+     */
+	private void addRelationship() {
+<span class="nc" id="L1024">		String sourceClass = JOptionPane.showInputDialog(this, &quot;Enter the source class name:&quot;, &quot;Add Relationship&quot;,</span>
+				JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L1026">		String destinationClass = JOptionPane.showInputDialog(this, &quot;Enter the destination class name:&quot;,</span>
+				&quot;Add Relationship&quot;, JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L1028">		String typeAsString = JOptionPane.showInputDialog(this,</span>
+				&quot;Enter the new relationship type (as a number):\n&quot; 
+						+ &quot;1: Aggregation\n&quot;
+						+ &quot;2: Composition\n&quot;
+						+ &quot;3: Inheritance\n&quot;
+						+ &quot;4: Realization\n&quot;,
+						&quot;Change Relationship Type&quot;, JOptionPane.PLAIN_MESSAGE);
+
+<span class="nc bnc" id="L1036" title="All 10 branches missed.">		if (sourceClass != null &amp;&amp; !sourceClass.isEmpty() &amp;&amp; destinationClass != null &amp;&amp; !destinationClass.isEmpty()</span>
+<span class="nc bnc" id="L1037" title="All 2 branches missed.">				&amp;&amp; typeAsString != null &amp;&amp; !typeAsString.isEmpty()) {</span>
+			try {
+<span class="nc" id="L1039">				int type = Integer.parseInt(typeAsString);</span>
+<span class="nc bnc" id="L1040" title="All 4 branches missed.">				if (type &gt;= 1 &amp;&amp; type &lt;= 5) {</span>
+<span class="nc" id="L1041">					boolean added = diagram.addRelationship(sourceClass, destinationClass, type);</span>
+<span class="nc bnc" id="L1042" title="All 2 branches missed.">					if (added) {</span>
+<span class="nc" id="L1043">						updateDiagramView();</span>
+<span class="nc" id="L1044">						JOptionPane.showMessageDialog(this, &quot;Relationship added successfully.&quot;, &quot;Relationship Added&quot;,</span>
+								JOptionPane.INFORMATION_MESSAGE);
+					} else {
+<span class="nc" id="L1047">						JOptionPane.showMessageDialog(this, &quot;Failed to add relationship. Ensure both classes exist.&quot;,</span>
+								&quot;Error Adding Relationship&quot;, JOptionPane.ERROR_MESSAGE);
+					}
+<span class="nc" id="L1050">				} else {</span>
+<span class="nc" id="L1051">					JOptionPane.showMessageDialog(this,</span>
+							&quot;Invalid relationship type. Please enter a number between 1 and 5.&quot;, &quot;Invalid Type&quot;,
+							JOptionPane.WARNING_MESSAGE);
+				}
+<span class="nc" id="L1055">			} catch (NumberFormatException e) {</span>
+<span class="nc" id="L1056">				JOptionPane.showMessageDialog(this, &quot;The relationship type must be a valid number.&quot;, &quot;Invalid Type&quot;,</span>
+						JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L1058">			}</span>
+		} else {
+<span class="nc" id="L1060">			JOptionPane.showMessageDialog(this, &quot;Source class, destination class, and relationship type are required.&quot;,</span>
+					&quot;Invalid Input&quot;, JOptionPane.WARNING_MESSAGE);
+		}
+<span class="nc" id="L1063">	}</span>
+
+    /**
+     * Deletes an existing relationship between two specified classes.
+     * Prompts the user for the source and destination class names of the relationship to delete.
+     * Updates the diagram view and displays a success message if the relationship is deleted successfully,
+     * otherwise shows an error message.
+     */
+	private void deleteRelationship() {
+		// Prompt the user for the source class name of the relationship to delete
+<span class="nc" id="L1073">		String sourceClass = JOptionPane.showInputDialog(this,</span>
+				&quot;Enter the source class name of the relationship to delete:&quot;, &quot;Delete Relationship&quot;,
+				JOptionPane.PLAIN_MESSAGE);
+
+		// Prompt for the destination class name
+<span class="nc" id="L1078">		String destinationClass = JOptionPane.showInputDialog(this,</span>
+				&quot;Enter the destination class name of the relationship to delete:&quot;, &quot;Delete Relationship&quot;,
+				JOptionPane.PLAIN_MESSAGE);
+
+<span class="nc bnc" id="L1082" title="All 6 branches missed.">		if (sourceClass != null &amp;&amp; !sourceClass.trim().isEmpty() &amp;&amp; destinationClass != null</span>
+<span class="nc bnc" id="L1083" title="All 2 branches missed.">				&amp;&amp; !destinationClass.trim().isEmpty()) {</span>
+			// Confirm the deletion
+<span class="nc" id="L1085">			int confirm = JOptionPane</span>
+<span class="nc" id="L1086">					.showConfirmDialog(this,</span>
+							&quot;Are you sure you want to delete the relationship from '&quot; + sourceClass + &quot;' to '&quot;
+									+ destinationClass + &quot;'?&quot;,
+							&quot;Confirm Delete Relationship&quot;, JOptionPane.YES_NO_OPTION);
+
+<span class="nc bnc" id="L1091" title="All 2 branches missed.">			if (confirm == JOptionPane.YES_OPTION) {</span>
+				try {
+					// Attempt to delete the relationship
+<span class="nc" id="L1094">					boolean deleted = diagram.deleteRelationship(sourceClass, destinationClass); // Assuming such a</span>
+																									// method exists in
+																									// UMLDiagram
+<span class="nc bnc" id="L1097" title="All 2 branches missed.">					if (deleted) {</span>
+						// Update the diagram view to reflect the change
+<span class="nc" id="L1099">						updateDiagramView();</span>
+						// Inform the user of success
+<span class="nc" id="L1101">						JOptionPane.showMessageDialog(this, &quot;Relationship deleted successfully.&quot;,</span>
+								&quot;Relationship Deleted&quot;, JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						// Inform the user if the relationship couldn't be deleted (e.g., because it
+						// doesn't exist)
+<span class="nc" id="L1106">						JOptionPane.showMessageDialog(this, &quot;Failed to delete relationship. It may not exist.&quot;, &quot;Error&quot;,</span>
+								JOptionPane.ERROR_MESSAGE);
+					}
+<span class="nc" id="L1109">				} catch (Exception ex) {</span>
+					// Handle any other exceptions and inform the user
+<span class="nc" id="L1111">					JOptionPane.showMessageDialog(this,</span>
+<span class="nc" id="L1112">							&quot;An error occurred while deleting the relationship: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L1114">				}</span>
+			}
+		}
+<span class="nc" id="L1117">	}</span>
+
+    /**
+     * Changes the type of an existing relationship between two specified classes.
+     * Prompts the user for the source and destination class names and the new relationship type.
+     * Updates the diagram view and displays a success message if the relationship type is changed successfully,
+     * otherwise shows an error message.
+     */
+	private void changeType() {
+<span class="nc" id="L1126">		String sourceClass = JOptionPane.showInputDialog(this, &quot;Enter the source class name of the relationship:&quot;,</span>
+				&quot;Change Relationship Type&quot;, JOptionPane.PLAIN_MESSAGE);
+<span class="nc" id="L1128">		String destinationClass = JOptionPane.showInputDialog(this,</span>
+				&quot;Enter the destination class name of the relationship:&quot;, &quot;Change Relationship Type&quot;,
+				JOptionPane.PLAIN_MESSAGE);
+
+<span class="nc bnc" id="L1132" title="All 8 branches missed.">		if (sourceClass == null || destinationClass == null || sourceClass.isEmpty() || destinationClass.isEmpty()) {</span>
+<span class="nc" id="L1133">			JOptionPane.showMessageDialog(this, &quot;Source or destination class cannot be empty.&quot;, &quot;Error&quot;,</span>
+					JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L1135">			return;</span>
+		}
+
+		// Assuming a predefined set of relationship types
+<span class="nc" id="L1139">		String typeAsString = JOptionPane.showInputDialog(this,</span>
+				&quot;Enter the new relationship type (as a number):\n&quot; 
+						+ &quot;1: Aggregation\n&quot;
+						+ &quot;2: Composition\n&quot;
+						+ &quot;3: Inheritance\n&quot;
+						+ &quot;4: Realization\n&quot;,
+						&quot;Change Relationship Type&quot;, JOptionPane.PLAIN_MESSAGE);
+
+		try {
+<span class="nc" id="L1148">			int newType = Integer.parseInt(typeAsString);</span>
+<span class="nc bnc" id="L1149" title="All 4 branches missed.">			if (newType &gt;= 1 &amp;&amp; newType &lt;= 5) { // Validate the input range</span>
+<span class="nc" id="L1150">				boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, newType);</span>
+<span class="nc bnc" id="L1151" title="All 2 branches missed.">				if (typeChanged) {</span>
+<span class="nc" id="L1152">					updateDiagramView();</span>
+<span class="nc" id="L1153">					JOptionPane.showMessageDialog(this, &quot;Relationship type changed successfully.&quot;, &quot;Type Changed&quot;,</span>
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+<span class="nc" id="L1156">					JOptionPane.showMessageDialog(this, &quot;Failed to change relationship type.&quot;, &quot;Error&quot;,</span>
+							JOptionPane.ERROR_MESSAGE);
+				}
+<span class="nc" id="L1159">			} else {</span>
+<span class="nc" id="L1160">				JOptionPane.showMessageDialog(this, &quot;Invalid relationship type selected.&quot;, &quot;Error&quot;,</span>
+						JOptionPane.ERROR_MESSAGE);
+			}
+<span class="nc" id="L1163">		} catch (NumberFormatException e) {</span>
+<span class="nc" id="L1164">			JOptionPane.showMessageDialog(this, &quot;The relationship type must be a valid number between 1 and 5.&quot;,</span>
+					&quot;Invalid Input&quot;, JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L1166">		} catch (Exception ex) {</span>
+<span class="nc" id="L1167">			JOptionPane.showMessageDialog(this, &quot;An error occurred: &quot; + ex.getMessage(), &quot;Error&quot;,</span>
+					JOptionPane.ERROR_MESSAGE);
+<span class="nc" id="L1169">		}</span>
+<span class="nc" id="L1170">	}</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   INTERFACES   **/
+/**************************************************************************************************************************************/
+
+	
+    /**
+     * Lists the contents of a specified class.
+     * Prompts the user for the class name and displays its contents including fields, methods, and relationships.
+     * Shows an error message if the class is not found.
+     */
+	private void listClass() {
+<span class="nc" id="L1184">	    String className = JOptionPane.showInputDialog(this, &quot;Enter the class name to list its contents:&quot;, &quot;List Class&quot;, JOptionPane.PLAIN_MESSAGE);</span>
+<span class="nc bnc" id="L1185" title="All 4 branches missed.">	    if (className != null &amp;&amp; !className.trim().isEmpty()) {</span>
+<span class="nc" id="L1186">	        UMLClass umlClass = diagram.getClassByName(className);</span>
+<span class="nc bnc" id="L1187" title="All 2 branches missed.">	        if (umlClass != null) {</span>
+<span class="nc" id="L1188">	            JOptionPane.showMessageDialog(this, umlClass.toString(), &quot;Class Information&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+	        } else {
+<span class="nc" id="L1190">	            JOptionPane.showMessageDialog(this, &quot;Class '&quot; + className + &quot;' not found.&quot;, &quot;Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+	        }
+	    }
+<span class="nc" id="L1193">	}</span>
+
+    /**
+     * Lists all classes in the UML diagram.
+     * Displays the names of all classes currently in the diagram.
+     */
+	private void listClasses() {
+	    // Assuming diagram.getClasses() method exists and returns a list of UMLClass objects
+<span class="nc" id="L1201">	    ArrayList&lt;UMLClass&gt; classes = diagram.getClasses();</span>
+<span class="nc" id="L1202">	    StringBuilder classList = new StringBuilder(&quot;Classes:\n&quot;);</span>
+<span class="nc bnc" id="L1203" title="All 2 branches missed.">	    for (UMLClass umlClass : classes) {</span>
+<span class="nc" id="L1204">	        classList.append(umlClass.getName()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L1205">	    }</span>
+<span class="nc" id="L1206">	    JOptionPane.showMessageDialog(this, classList.toString(), &quot;List of Classes&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L1207">	}</span>
+
+    /**
+     * Lists all relationships in the UML diagram.
+     * Displays information about all relationships currently in the diagram.
+     */
+	private void listRelationships() {
+	    // Assuming diagram.getRelationships() method exists and returns a list of Relationship objects
+<span class="nc" id="L1215">	    ArrayList&lt;Relationship&gt; relationships = diagram.getRelationships();</span>
+<span class="nc" id="L1216">	    StringBuilder relationshipList = new StringBuilder(&quot;Relationships:\n&quot;);</span>
+<span class="nc bnc" id="L1217" title="All 2 branches missed.">	    for (Relationship relationship : relationships) {</span>
+<span class="nc" id="L1218">	        relationshipList.append(relationship.toString()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L1219">	    }</span>
+<span class="nc" id="L1220">	    JOptionPane.showMessageDialog(this, relationshipList.toString(), &quot;List of Relationships&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L1221">	}</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   SAVE DIAGRAM   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * Saves the current state of the UML diagram to a JSON file. This method prompts the user to choose a file
+     * location and name through a file chooser dialog. It then serializes the UML diagram data into JSON format
+     * and writes it to the selected file. The JSON structure includes details for classes, their fields, methods,
+     * parameters, and relationships among classes.
+     */
+	private static void saveDiagram() {
+<span class="nc" id="L1235">        JFileChooser fileChooser = new JFileChooser();</span>
+<span class="nc" id="L1236">        FileNameExtensionFilter filter = new FileNameExtensionFilter(&quot;JSON Files&quot;, &quot;json&quot;);</span>
+<span class="nc" id="L1237">        fileChooser.setFileFilter(filter);</span>
+<span class="nc" id="L1238">        int result = fileChooser.showSaveDialog(null);</span>
+<span class="nc bnc" id="L1239" title="All 2 branches missed.">        if (result == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L1240">            File file = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L1241">            String filePath = file.getAbsolutePath();</span>
+<span class="nc" id="L1242">            Gson gson = new GsonBuilder().setPrettyPrinting().create();</span>
+<span class="nc" id="L1243">            try (FileWriter writer = new FileWriter(filePath)) {</span>
+<span class="nc" id="L1244">                JsonObject jsonDiagram = new JsonObject();</span>
+
+                // Convert classes to JSON array
+<span class="nc" id="L1247">                JsonArray jsonClasses = new JsonArray();</span>
+<span class="nc bnc" id="L1248" title="All 2 branches missed.">                for (UMLClass umlClass : diagram.getClasses()) {</span>
+<span class="nc" id="L1249">                    JsonObject jsonClass = new JsonObject();</span>
+<span class="nc" id="L1250">                    jsonClass.addProperty(&quot;name&quot;, umlClass.getName());</span>
+
+					// Add the position property
+<span class="nc" id="L1253">					Point pos = umlClass.getPosition();</span>
+<span class="nc" id="L1254">					JsonObject position = new JsonObject();</span>
+<span class="nc" id="L1255">					position.addProperty(&quot;x&quot;, pos.x);</span>
+<span class="nc" id="L1256">					position.addProperty(&quot;y&quot;, pos.y);</span>
+<span class="nc" id="L1257">					jsonClass.add(&quot;position&quot;, position);</span>
+
+                    // Convert fields to JSON array
+<span class="nc" id="L1260">                    JsonArray jsonFields = new JsonArray();</span>
+<span class="nc bnc" id="L1261" title="All 2 branches missed.">                    for (Field attribute : umlClass.getFields()) {</span>
+<span class="nc" id="L1262">                        JsonObject jsonField = new JsonObject();</span>
+<span class="nc" id="L1263">                        jsonField.addProperty(&quot;name&quot;, attribute.getName());</span>
+<span class="nc" id="L1264">                        jsonField.addProperty(&quot;type&quot;, attribute.getType());</span>
+<span class="nc" id="L1265">                        jsonFields.add(jsonField);</span>
+<span class="nc" id="L1266">                    }</span>
+<span class="nc" id="L1267">                    jsonClass.add(&quot;fields&quot;, jsonFields);</span>
+
+                    // Convert methods to JSON array
+<span class="nc" id="L1270">                    JsonArray jsonMethods = new JsonArray();</span>
+<span class="nc bnc" id="L1271" title="All 2 branches missed.">                    for (Method method : umlClass.getMethods()) {</span>
+<span class="nc" id="L1272">                        JsonObject jsonMethod = new JsonObject();</span>
+<span class="nc" id="L1273">                        jsonMethod.addProperty(&quot;name&quot;, method.getName());</span>
+<span class="nc" id="L1274">                        jsonMethod.addProperty(&quot;return_type&quot;, method.getType());</span>
+
+                        // Convert parameters to JSON array
+<span class="nc" id="L1277">                        JsonArray jsonParams = new JsonArray();</span>
+<span class="nc bnc" id="L1278" title="All 2 branches missed.">                        for (Parameter param : method.getParameters()) {</span>
+<span class="nc" id="L1279">                            JsonObject jsonParam = new JsonObject();</span>
+<span class="nc" id="L1280">                            jsonParam.addProperty(&quot;name&quot;, param.getName());</span>
+<span class="nc" id="L1281">                            jsonParam.addProperty(&quot;type&quot;, param.getType());</span>
+<span class="nc" id="L1282">                            jsonParams.add(jsonParam);</span>
+<span class="nc" id="L1283">                        }</span>
+<span class="nc" id="L1284">                        jsonMethod.add(&quot;params&quot;, jsonParams);</span>
+
+<span class="nc" id="L1286">                        jsonMethods.add(jsonMethod);</span>
+<span class="nc" id="L1287">                    }</span>
+					
+<span class="nc" id="L1289">                    jsonClass.add(&quot;methods&quot;, jsonMethods);</span>
+
+<span class="nc" id="L1291">                    jsonClasses.add(jsonClass);</span>
+<span class="nc" id="L1292">                }</span>
+<span class="nc" id="L1293">                jsonDiagram.add(&quot;classes&quot;, jsonClasses);</span>
+
+                // Convert relationships to JSON array
+<span class="nc" id="L1296">                JsonArray jsonRelationships = new JsonArray();</span>
+<span class="nc bnc" id="L1297" title="All 2 branches missed.">                for (Relationship relationship : diagram.getRelationships()) {</span>
+<span class="nc" id="L1298">                    JsonObject jsonRelationship = new JsonObject();</span>
+<span class="nc" id="L1299">                    jsonRelationship.addProperty(&quot;source&quot;, relationship.getSource());</span>
+<span class="nc" id="L1300">                    jsonRelationship.addProperty(&quot;destination&quot;, relationship.getDestination());</span>
+<span class="nc" id="L1301">                    jsonRelationship.addProperty(&quot;type&quot;, relationship.getType());</span>
+<span class="nc" id="L1302">                    jsonRelationships.add(jsonRelationship);</span>
+<span class="nc" id="L1303">                }</span>
+<span class="nc" id="L1304">                jsonDiagram.add(&quot;relationships&quot;, jsonRelationships);</span>
+
+<span class="nc" id="L1306">                gson.toJson(jsonDiagram, writer);</span>
+<span class="nc" id="L1307">            } catch (IOException e) {</span>
+<span class="nc" id="L1308">            }</span>
+        }
+<span class="nc" id="L1310">    }</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   LOAD DIAGRAM   **/
+/**************************************************************************************************************************************/
+
+	
+    /**
+     * Loads a UML diagram from a JSON file. This method prompts the user to select a file through a file chooser
+     * dialog. It then reads the JSON data from the file, deserializes it into the UML diagram structure, and updates
+     * the current diagram state. This includes reconstructing the classes, fields, methods, parameters, and
+     * relationships as defined in the JSON file.
+     */
+	private static void loadDiagram() {
+<span class="nc" id="L1325">	    JFileChooser fileChooser = new JFileChooser();</span>
+<span class="nc" id="L1326">	    FileNameExtensionFilter filter = new FileNameExtensionFilter(&quot;JSON Files&quot;, &quot;json&quot;);</span>
+<span class="nc" id="L1327">	    fileChooser.setFileFilter(filter);</span>
+<span class="nc" id="L1328">	    int result = fileChooser.showOpenDialog(null);</span>
+<span class="nc bnc" id="L1329" title="All 2 branches missed.">	    if (result == JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L1330">	        File file = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L1331">	        String filePath = file.getAbsolutePath();</span>
+<span class="nc bnc" id="L1332" title="All 2 branches missed.">	        if (!file.canRead()) {</span>
+<span class="nc" id="L1333">	            JOptionPane.showMessageDialog(null, &quot;Cannot read the selected file.&quot;, &quot;Load Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+<span class="nc" id="L1334">	            return;</span>
+	        }
+
+<span class="nc" id="L1337">	        Gson gson = new Gson();</span>
+<span class="nc" id="L1338">	        try (FileReader reader = new FileReader(filePath)) {</span>
+<span class="nc" id="L1339">	            JsonObject jsonDiagram = gson.fromJson(reader, JsonObject.class);</span>
+<span class="nc" id="L1340">	            diagram.clear(); // Clear existing diagram first</span>
+
+	            // Load classes
+<span class="nc bnc" id="L1343" title="All 2 branches missed.">	            if (jsonDiagram.has(&quot;classes&quot;)) {</span>
+<span class="nc" id="L1344">	                JsonArray jsonClasses = jsonDiagram.getAsJsonArray(&quot;classes&quot;);</span>
+<span class="nc bnc" id="L1345" title="All 2 branches missed.">	                for (JsonElement classElement : jsonClasses) {</span>
+<span class="nc" id="L1346">	                    JsonObject jsonClass = classElement.getAsJsonObject();</span>
+<span class="nc bnc" id="L1347" title="All 2 branches missed.">	                    if (jsonClass.has(&quot;name&quot;)) {</span>
+<span class="nc" id="L1348">	                        String className = jsonClass.get(&quot;name&quot;).getAsString();</span>
+<span class="nc" id="L1349">	                        diagram.addClass(className);</span>
+
+							// Load the position
+<span class="nc" id="L1352">							JsonObject jsonPosition = jsonClass.get(&quot;position&quot;).getAsJsonObject();</span>
+<span class="nc" id="L1353">							int x = jsonPosition.get(&quot;x&quot;).getAsInt();</span>
+<span class="nc" id="L1354">    						int y = jsonPosition.get(&quot;y&quot;).getAsInt();</span>
+<span class="nc" id="L1355">							Point position = new Point(x, y);</span>
+							
+							// Create a Point object
+<span class="nc" id="L1358">							diagram.setPosition(className, position);</span>
+
+	                        // Load fields
+<span class="nc bnc" id="L1361" title="All 2 branches missed.">	                        if (jsonClass.has(&quot;fields&quot;)) {</span>
+<span class="nc" id="L1362">	                            JsonArray jsonFields = jsonClass.getAsJsonArray(&quot;fields&quot;);</span>
+<span class="nc bnc" id="L1363" title="All 2 branches missed.">	                            for (JsonElement fieldElement : jsonFields) {</span>
+<span class="nc" id="L1364">	                                JsonObject jsonField = fieldElement.getAsJsonObject();</span>
+<span class="nc" id="L1365">	                                String fieldName = jsonField.get(&quot;name&quot;).getAsString();</span>
+<span class="nc" id="L1366">	                                String fieldType = jsonField.get(&quot;type&quot;).getAsString();</span>
+<span class="nc" id="L1367">	                                diagram.addField(className, fieldName, fieldType);</span>
+<span class="nc" id="L1368">	                            }</span>
+	                        }
+
+	                        // Load methods
+<span class="nc bnc" id="L1372" title="All 2 branches missed.">	                        if (jsonClass.has(&quot;methods&quot;)) {</span>
+<span class="nc" id="L1373">	                            JsonArray jsonMethods = jsonClass.getAsJsonArray(&quot;methods&quot;);</span>
+<span class="nc bnc" id="L1374" title="All 2 branches missed.">	                            for (JsonElement methodElement : jsonMethods) {</span>
+<span class="nc" id="L1375">	                                JsonObject jsonMethod = methodElement.getAsJsonObject();</span>
+<span class="nc" id="L1376">	                                String methodName = jsonMethod.get(&quot;name&quot;).getAsString();</span>
+<span class="nc" id="L1377">	                                String returnType = jsonMethod.get(&quot;return_type&quot;).getAsString();</span>
+<span class="nc" id="L1378">	                                diagram.addMethod(className, methodName, returnType);</span>
+
+	                                // Load parameters
+<span class="nc bnc" id="L1381" title="All 2 branches missed.">	                                if (jsonMethod.has(&quot;params&quot;)) {</span>
+<span class="nc" id="L1382">	                                    JsonArray jsonParams = jsonMethod.getAsJsonArray(&quot;params&quot;);</span>
+<span class="nc bnc" id="L1383" title="All 2 branches missed.">	                                    for (JsonElement paramElement : jsonParams) {</span>
+<span class="nc" id="L1384">	                                        JsonObject jsonParam = paramElement.getAsJsonObject();</span>
+<span class="nc" id="L1385">	                                        String paramName = jsonParam.get(&quot;name&quot;).getAsString();</span>
+<span class="nc" id="L1386">	                                        String paramType = jsonParam.get(&quot;type&quot;).getAsString();</span>
+<span class="nc" id="L1387">	                                        diagram.addParameter(className, methodName, paramName, paramType);</span>
+<span class="nc" id="L1388">	                                    }</span>
+	                                }
+<span class="nc" id="L1390">	                            }</span>
+	                        }
+	                    }
+<span class="nc" id="L1393">	                }</span>
+	            }
+
+	            // Load relationships
+<span class="nc bnc" id="L1397" title="All 2 branches missed.">	            if (jsonDiagram.has(&quot;relationships&quot;)) {</span>
+<span class="nc" id="L1398">	                JsonArray jsonRelationships = jsonDiagram.getAsJsonArray(&quot;relationships&quot;);</span>
+<span class="nc bnc" id="L1399" title="All 2 branches missed.">	                for (JsonElement relationElement : jsonRelationships) {</span>
+<span class="nc" id="L1400">	                    JsonObject jsonRelationship = relationElement.getAsJsonObject();</span>
+<span class="nc" id="L1401">	                    String source = jsonRelationship.get(&quot;source&quot;).getAsString();</span>
+<span class="nc" id="L1402">	                    String destination = jsonRelationship.get(&quot;destination&quot;).getAsString();</span>
+<span class="nc" id="L1403">	                    int type = jsonRelationship.get(&quot;type&quot;).getAsInt();</span>
+<span class="nc" id="L1404">	                    diagram.addRelationship(source, destination, type);</span>
+<span class="nc" id="L1405">	                }</span>
+	            }
+
+<span class="nc" id="L1408">	        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L1409">	            JOptionPane.showMessageDialog(null, &quot;File not found: &quot; + filePath, &quot;Load Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+<span class="nc" id="L1410">	            e.printStackTrace(); // Log stack trace for debugging</span>
+<span class="nc" id="L1411">	        } catch (IOException e) {</span>
+<span class="nc" id="L1412">	            JOptionPane.showMessageDialog(null, &quot;An error occurred while reading the file.&quot;, &quot;Load Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+<span class="nc" id="L1413">	            e.printStackTrace(); // Log stack trace for debugging</span>
+<span class="nc" id="L1414">	        } catch (JsonSyntaxException e) {</span>
+<span class="nc" id="L1415">	            JOptionPane.showMessageDialog(null, &quot;An error occurred while parsing the JSON data. Please check the file format.&quot;, &quot;Load Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+<span class="nc" id="L1416">	            e.printStackTrace(); // Specifically catch JSON parsing errors</span>
+<span class="nc" id="L1417">	        } catch (Exception e) {</span>
+<span class="nc" id="L1418">	            JOptionPane.showMessageDialog(null, &quot;An unexpected error occurred.&quot;, &quot;Load Error&quot;, JOptionPane.ERROR_MESSAGE);</span>
+<span class="nc" id="L1419">	            e.printStackTrace(); // Catch-all for any other exceptions</span>
+<span class="nc" id="L1420">	        }</span>
+
+	    }
+<span class="nc" id="L1423">	}</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   HELP METHOD   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * Displays help information related to using the UML diagram editor. This method retrieves help information
+     * from the UMLDiagram instance and displays it in a dialog. The help information includes instructions on how
+     * to use the editor, add or modify diagram components, and save or load diagrams.
+     */
+	private void showHelp() {
+        // Use the helper method from UMLDiagram to get help information
+<span class="nc" id="L1437">        String helpInformation = diagram.helperMethodForHelp();</span>
+<span class="nc" id="L1438">        JOptionPane.showMessageDialog(this, helpInformation, &quot;Help&quot;, JOptionPane.INFORMATION_MESSAGE);</span>
+<span class="nc" id="L1439">    }</span>
+	
+    /**
+     * Populates the graphical user interface with components representing the classes and their relationships
+     * currently in the UML diagram. This method clears any existing components and creates new ones based on the
+     * current state of the UML diagram. Each class is represented with its name, fields, methods, and relationships
+     * to other classes.
+     */
+	private void populateClassComponents() {
+<span class="nc" id="L1448">	    ArrayList&lt;UMLClass&gt; classes = diagram.getClasses();</span>
+<span class="nc" id="L1449">	    ArrayList&lt;Relationship&gt; relationships = diagram.getRelationships();</span>
+<span class="nc" id="L1450">	    classPanelContainer.removeAll(); // Clear existing components.</span>
+	    
+<span class="nc bnc" id="L1452" title="All 2 branches missed.">	    for (UMLClass umlClass : classes) {</span>
+<span class="nc" id="L1453">	        List&lt;String&gt; fieldDescriptions = umlClass.getFields().stream()</span>
+<span class="nc" id="L1454">	            .map(Field::toString)</span>
+<span class="nc" id="L1455">	            .collect(Collectors.toList());</span>
+
+<span class="nc" id="L1457">	        List&lt;String&gt; relationshipDescriptions = relationships.stream()</span>
+<span class="nc bnc" id="L1458" title="All 4 branches missed.">	            .filter(r -&gt; r.getSource().equals(umlClass.getName()) || r.getDestination().equals(umlClass.getName()))</span>
+<span class="nc" id="L1459">	            .map(Relationship::toString)</span>
+<span class="nc" id="L1460">	            .collect(Collectors.toList());</span>
+
+	        // Use the Method's toString method which should now include parameters.
+<span class="nc" id="L1463">	        List&lt;String&gt; methodDescriptions = umlClass.getMethods().stream()</span>
+<span class="nc" id="L1464">	            .map(Method::toString)</span>
+<span class="nc" id="L1465">	            .collect(Collectors.toList());</span>
+
+<span class="nc" id="L1467">	        guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions, umlClass);</span>
+<span class="nc" id="L1468">	        classPanelContainer.add(classComp);</span>
+			// Create a Point from the JSON
+<span class="nc" id="L1470">			Point position = umlClass.getPosition();</span>
+<span class="nc" id="L1471">			int x = position.x;</span>
+<span class="nc" id="L1472">			int y = position.y;</span>
+		
+			// Set the position
+<span class="nc" id="L1475">			classComp.setPosition(x,y);</span>
+		
+<span class="nc" id="L1477">			classPanelContainer.add(classComp);</span>
+<span class="nc" id="L1478">	    }</span>
+
+<span class="nc" id="L1480">	    classPanelContainer.revalidate();</span>
+<span class="nc" id="L1481">	    classPanelContainer.repaint();</span>
+<span class="nc" id="L1482">	}</span>
+
+	
+/**************************************************************************************************************************************/
+    /**   MAIN METHOD   **/
+/**************************************************************************************************************************************/
+
+    /**
+     * The main entry point for the UML diagram editor application. This method sets up the user interface and
+     * makes the main window visible to the user. It is responsible for initializing the application and starting
+     * the event dispatch thread for Swing components.
+     * @param args Command line arguments passed to the program (not used).
+     */
+	public static void main(String[] args) throws IOException{
+<span class="nc" id="L1496">		boolean cliMode = false;</span>
+<span class="nc bnc" id="L1497" title="All 2 branches missed.">		for (String arg : args) {</span>
+<span class="nc bnc" id="L1498" title="All 2 branches missed.">            if (arg.equals(&quot;cli&quot;)) {</span>
+<span class="nc" id="L1499">                cliMode = true;</span>
+<span class="nc" id="L1500">                break;</span>
+            }
+        }
+<span class="nc bnc" id="L1503" title="All 2 branches missed.">		if (cliMode){</span>
+<span class="nc" id="L1504">			UMLCli.launch();</span>
+		}
+<span class="nc" id="L1506">		SwingUtilities.invokeLater(() -&gt; new UMLGui().setVisible(true));</span>
+<span class="nc" id="L1507">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
