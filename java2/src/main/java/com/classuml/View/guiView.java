@@ -21,7 +21,6 @@ public class guiView extends JComponent {
     private String className;
     private List<String> fields;
     private List<String> methods;
-    private UMLClass guiClass;
 
     private final int padding = 10;
     private int x = 20;
@@ -45,11 +44,10 @@ public class guiView extends JComponent {
      * @param methods       The list of method descriptions.
      * @param relationships The list of relationship descriptions.
      */
-    public guiView(String className, List<String> fields, List<String> methods, UMLClass guiClass) {
+    public guiView(String className, List<String> fields, List<String> methods) {
         this.className = className;
         this.fields = fields;
         this.methods = methods;
-        this.guiClass = guiClass;
         initComponent();
     }
 
@@ -73,18 +71,10 @@ public class guiView extends JComponent {
 
 
     /**
-     * Sets the position of the component.
-     *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
+     * Gets the position of the component.
      */
-    public void setPosition(int x, int y) {
-        this.x = x;
-        this.y = y;
-        Point pos = new Point(x, y);
-        guiClass.setPosition(pos);
-        Rectangle bounds = getBounds();
-        setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+    public Point getPosition() {
+        return new Point(x, y);
     }
 
     @Override
@@ -191,14 +181,6 @@ public class guiView extends JComponent {
     private void updatePosition(int dx, int dy) {
         this.x += dx;
         this.y += dy;
-
-        Rectangle bounds = getBounds();
-        int newX = Math.max(0, Math.min(bounds.x + x, getParent().getWidth() - bounds.width));
-        int newY = Math.max(0, Math.min(bounds.y + y, getParent().getHeight() - bounds.height));
-        Point pos = new Point(newX, newY);
-        guiClass.setPosition(pos);
-
-        setBounds(newX, newY, bounds.width, bounds.height);
     }
 
     /**
@@ -349,17 +331,5 @@ public class guiView extends JComponent {
 
     public List<String> getCMethods(){
         return methods;
-    }
-
-    public void setCName(String cName){
-        className = cName;
-    }
-
-    public void setCFields(List<String> cFields){
-        fields = cFields;
-    }
-
-    public void setCMethods(List<String> cMethods){
-        methods = cMethods;
     }
 }
