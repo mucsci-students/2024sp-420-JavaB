@@ -1,5 +1,8 @@
 package com.classuml.Controller;
 
+import java.awt.Toolkit;
+import java.awt.Dimension;
+import java.awt.Component;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -74,8 +77,9 @@ public class UMLGui extends JFrame implements ActionListener {
      * for navigation. It also calls methods to update the diagram view and populate
      * class components based on the current state of the diagram.
      */
-	public void initializeGUI() {        
-	    setSize(800, 1000);
+	public void initializeGUI() {   
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    setSize(screenSize);
 	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
@@ -90,7 +94,6 @@ public class UMLGui extends JFrame implements ActionListener {
 	    
 	    // Now it's safe to call updateDiagramView
 	    updateDiagramView();
-	    populateClassComponents();
 	    
 	    // Maximize the window
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -262,7 +265,6 @@ public class UMLGui extends JFrame implements ActionListener {
 			break;
 		}
 		updateDiagramView();
-		populateClassComponents();
 	}
 
 
@@ -290,11 +292,11 @@ public class UMLGui extends JFrame implements ActionListener {
 				boolean added = diagram.addClass(className);
 				if (added) {
 					// Update the diagram view to reflect the new class
+					guiView newClass = new guiView(className,new ArrayList<String>(),new ArrayList<String>());
+					classPanelContainer.add(newClass);
+					classPanelContainer.revalidate();
+	        		classPanelContainer.repaint();
 					updateDiagramView();
-
-					// Display a confirmation message
-					JOptionPane.showMessageDialog(this, "Class '" + className + "' added successfully.", "Class Added",
-							JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					// Class already exists
 					JOptionPane.showMessageDialog(this, "Class '" + className + "' already exists.",
@@ -311,34 +313,6 @@ public class UMLGui extends JFrame implements ActionListener {
 					JOptionPane.WARNING_MESSAGE);
 		}
 		// If className is null, the user cancelled the dialog, so do nothing
-	}
-
-    /**
-     * Notifies the user interface that a new class has been added to the diagram.
-     * Updates the class panel container with the new class information including fields, methods, and relationships.
-     * @param className The name of the class that has been added.
-     */
-	public void notifyClassAdded(String className) {
-	    UMLClass newClass = diagram.getClassByName(className);
-	    if (newClass != null) {
-	        List<String> fieldDescriptions = newClass.getFields().stream()
-	                .map(Field::toString)
-	                .collect(Collectors.toList());
-
-	        // Using Method's toString method directly
-	        List<String> methodDescriptions = newClass.getMethods().stream()
-	                .map(Method::toString)
-	                .collect(Collectors.toList());
-
-	        List<String> relationshipDescriptions = diagram.getRelationshipsForClass(className).stream()
-	                .map(Relationship::toString)
-	                .collect(Collectors.toList());
-			UMLClass guiClass = new UMLClass(className);
-	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, relationshipDescriptions, guiClass);
-	        classPanelContainer.add(classComp);
-	        classPanelContainer.revalidate();
-	        classPanelContainer.repaint();
-	    }
 	}
 
     /**
@@ -369,11 +343,12 @@ public class UMLGui extends JFrame implements ActionListener {
 		}
 		if (namesBox.getSelectedItem() != null && newName != null && entered == 0) {
 				try {
+					String origName = diagram.getClassByName(namesBox.getSelectedItem().toString()).getName();
 					boolean renamed = diagram.renameClass(namesBox.getSelectedItem().toString(), newName.getText());
+					UMLClass newObject = diagram.getClassByName(newName.getText());
 					if (renamed) {
+						changeComponent(origName, newObject);
 						updateDiagramView();
-						JOptionPane.showMessageDialog(this, "Class renamed successfully.", "Class Renamed",
-								JOptionPane.INFORMATION_MESSAGE);
 					} else {
 						JOptionPane.showMessageDialog(this,
 								"Failed to rename class. Class may not exist or new name may already be in use.",
@@ -404,6 +379,7 @@ public class UMLGui extends JFrame implements ActionListener {
 			if (confirmation == JOptionPane.YES_OPTION) {
 				boolean deleted = diagram.deleteClass((String)className);
 				if (deleted) {
+					changeComponent((String)className, null);
 					updateDiagramView();
 					JOptionPane.showMessageDialog(this, "Class deleted successfully.", "Class Deleted",
 							JOptionPane.INFORMATION_MESSAGE);
@@ -426,7 +402,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	}
 
 	private String[] returnTypes(){
-		return new String[] {"null", "int", "double", "boolean", "string", "object"};
+		return new String[] {"void", "int", "double", "boolean", "string", "object"};
 	}
 
 	private String[] attributeTypes(){
@@ -470,11 +446,11 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		if (namesBox.getSelectedItem() != null && fieldName != null && fieldType != null && entered == 0) {
 			try {
-				boolean added = diagram.addField(namesBox.getSelectedItem().toString(), fieldName.getText(), fieldType.getSelectedItem().toString());
+				String objName = namesBox.getSelectedItem().toString();
+				boolean added = diagram.addField(objName, fieldName.getText(), fieldType.getSelectedItem().toString());
 				if (added) {
+					changeComponent(namesBox.getSelectedItem().toString(), diagram.getClassByName(objName));
 					updateDiagramView();
-					JOptionPane.showMessageDialog(this, "Field added successfully.", "Field Added",
-							JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to add field.", "Error Adding Field",
 							JOptionPane.ERROR_MESSAGE);
@@ -531,12 +507,11 @@ public class UMLGui extends JFrame implements ActionListener {
 		
 		if (namesBox.getSelectedItem() != null && fieldsBox.getSelectedItem() != null && newName != null && entered == 0) {
 			try {
-				boolean renamed = diagram.renameField(namesBox.getSelectedItem().toString(), fieldsBox.getSelectedItem().toString(), newName.getText());
+				String objName = namesBox.getSelectedItem().toString();
+				boolean renamed = diagram.renameField(objName , fieldsBox.getSelectedItem().toString(), newName.getText());
 				if (renamed) {
+					changeComponent(objName, diagram.getClassByName(objName));
 					updateDiagramView();
-					JOptionPane.showMessageDialog(this,
-							"Field '" + fieldsBox.getSelectedItem().toString() + "' renamed to '" + newName.getText(),
-							"Field Renamed", JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to rename field.", "Error Renaming Field",
 							JOptionPane.ERROR_MESSAGE);
@@ -592,11 +567,11 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		if (namesBox.getSelectedItem() != null && fieldsBox.getSelectedItem() != null && entered == 0) {
 			try {
-				boolean deleted = diagram.deleteField(namesBox.getSelectedItem().toString(), fieldsBox.getSelectedItem().toString());
+				String objName = namesBox.getSelectedItem().toString();
+				boolean deleted = diagram.deleteField(objName , fieldsBox.getSelectedItem().toString());
 				if (deleted) {
+					changeComponent(objName, diagram.getClassByName(objName));
 					updateDiagramView();
-					JOptionPane.showMessageDialog(this, "Field deleted successfully.", "Field Deleted",
-							JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to delete field.", "Error Deleting Field",
 							JOptionPane.ERROR_MESSAGE);
@@ -654,11 +629,11 @@ public class UMLGui extends JFrame implements ActionListener {
 		if (namesBox.getSelectedItem() != null && methName != null && methType != null && entered == 0) {
 			if (methName != null && methType != null) {
 					try {
-						boolean added = diagram.addMethod(namesBox.getSelectedItem().toString(), methName.getText(), methType.getSelectedItem().toString());
+						String objName = namesBox.getSelectedItem().toString();
+						boolean added = diagram.addMethod(objName, methName.getText(), methType.getSelectedItem().toString());
 						if (added) {
+							changeComponent(objName, diagram.getClassByName(objName));
 							updateDiagramView();
-							JOptionPane.showMessageDialog(this, "Method added successfully.", "Method Added",
-									JOptionPane.INFORMATION_MESSAGE);
 						} else {
 							JOptionPane.showMessageDialog(this, "Failed to add method to class. Class may not exist.",
 									"Error Adding Method", JOptionPane.ERROR_MESSAGE);
@@ -718,11 +693,11 @@ public class UMLGui extends JFrame implements ActionListener {
 		if (namesBox.getSelectedItem() != null && methBox.getSelectedItem() != null
 				&& newName != null && entered == 0) {
 			try {
-				boolean renamed = diagram.renameMethod(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString(), newName.getText());
+				String objName = namesBox.getSelectedItem().toString();
+				boolean renamed = diagram.renameMethod(objName, methBox.getSelectedItem().toString(), newName.getText());
 				if (renamed) {
+					changeComponent(objName, diagram.getClassByName(objName));
 					updateDiagramView();
-					JOptionPane.showMessageDialog(this, "Method renamed successfully.", "Method Renamed",
-							JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to rename method.", "Error Renaming Method",
 							JOptionPane.ERROR_MESSAGE);
@@ -775,11 +750,11 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		if (namesBox.getSelectedItem() != null && methBox.getSelectedItem() != null && entered == 0) {
 			try {
-				boolean deleted = diagram.deleteMethod(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString());
+				String objName = namesBox.getSelectedItem().toString();
+				boolean deleted = diagram.deleteMethod(objName, methBox.getSelectedItem().toString());
 				if (deleted) {
+					changeComponent(objName, diagram.getClassByName(objName));
 					updateDiagramView();
-					JOptionPane.showMessageDialog(this, "Method deleted successfully.", "Method Deleted",
-							JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to delete method.", "Error Deleting Method",
 							JOptionPane.ERROR_MESSAGE);
@@ -855,9 +830,10 @@ public class UMLGui extends JFrame implements ActionListener {
 
 	    if (namesBox.getSelectedItem() != null && methBox.getSelectedItem() != null && newName.toString() != null && attType.getSelectedItem() != null && entered == 0) {
 	        try {
-	            boolean success = diagram.addParameter(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString(), newName.getText(), attType.getSelectedItem().toString());
+				String objName = namesBox.getSelectedItem().toString();
+	            boolean success = diagram.addParameter(objName, methBox.getSelectedItem().toString(), newName.getText(), attType.getSelectedItem().toString());
 	            if (success) {
-	                JOptionPane.showMessageDialog(this, "Parameter added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+	                changeComponent(objName, diagram.getClassByName(objName));
 	                updateDiagramView();
 	            } else {
 	                JOptionPane.showMessageDialog(this, "Failed to add parameter. Check if class and method exist, and parameter doesn't already exist.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -923,10 +899,11 @@ public class UMLGui extends JFrame implements ActionListener {
 		}
 
 	    if (namesBox.getSelectedItem() != null && methBox.getSelectedItem() != null && paramBox.getSelectedItem() != null && newName != null && entered == 0) {
-	        boolean success = diagram.renameParameter(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString()
+			String objName = namesBox.getSelectedItem().toString();
+	        boolean success = diagram.renameParameter(objName, methBox.getSelectedItem().toString()
 					, paramBox.getSelectedItem().toString(), newName.getText());
 	        if (success) {
-	            JOptionPane.showMessageDialog(this, "Parameter renamed successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+	            changeComponent(objName, diagram.getClassByName(objName));
 	            updateDiagramView();
 	        } else {
 	            JOptionPane.showMessageDialog(this, "Failed to rename parameter. Ensure the old parameter exists and the new name is unique within its method.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -988,9 +965,10 @@ public class UMLGui extends JFrame implements ActionListener {
 		}
 
 	    if (namesBox.getSelectedItem() != null && methBox.getSelectedItem() != null && paramBox.getSelectedItem() != null && entered == 0) {
-	        boolean success = diagram.deleteParameter(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString(), paramBox.getSelectedItem().toString());
+			String objName = namesBox.getSelectedItem().toString();
+	        boolean success = diagram.deleteParameter(objName, methBox.getSelectedItem().toString(), paramBox.getSelectedItem().toString());
 	        if (success) {
-	            JOptionPane.showMessageDialog(this, "Parameter deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+	            changeComponent(objName, diagram.getClassByName(objName));
 	            updateDiagramView();
 	        } else {
 	            JOptionPane.showMessageDialog(this, "Failed to delete parameter. Ensure the method and parameter exist.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -1444,38 +1422,40 @@ public class UMLGui extends JFrame implements ActionListener {
      * current state of the UML diagram. Each class is represented with its name, fields, methods, and relationships
      * to other classes.
      */
-	private void populateClassComponents() {
-	    ArrayList<UMLClass> classes = diagram.getClasses();
-	    ArrayList<Relationship> relationships = diagram.getRelationships();
-	    classPanelContainer.removeAll(); // Clear existing components.
-	    
-	    for (UMLClass umlClass : classes) {
-	        List<String> fieldDescriptions = umlClass.getFields().stream()
-	            .map(Field::toString)
-	            .collect(Collectors.toList());
+	private void changeComponent(String origName, UMLClass newObject) {
+		Component[] classObjs = classPanelContainer.getComponents();
 
-	        List<String> relationshipDescriptions = relationships.stream()
-	            .filter(r -> r.getSource().equals(umlClass.getName()) || r.getDestination().equals(umlClass.getName()))
-	            .map(Relationship::toString)
-	            .collect(Collectors.toList());
+		if(newObject != null){
+			
+			guiView point = null;
+			for(Component c : classObjs){
+				if(c instanceof guiView){
+					if(((guiView)c).getCName() == origName){
+						point = (guiView)c;
+					}
+					
+				}
+			}
+			List<String> fieldNames = new ArrayList<String>();
+			List<String> methodNames = new ArrayList<String>();
 
-	        // Use the Method's toString method which should now include parameters.
-	        List<String> methodDescriptions = umlClass.getMethods().stream()
-	            .map(Method::toString)
-	            .collect(Collectors.toList());
+			for(Field fields :newObject.getFields()){
+				fieldNames.add(fields.getName());
+			}
 
-	        guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions, umlClass);
-	        classPanelContainer.add(classComp);
-			// Create a Point from the JSON
-			Point position = umlClass.getPosition();
-			int x = position.x;
-			int y = position.y;
-		
-			// Set the position
-			classComp.setPosition(x,y);
-		
-			classPanelContainer.add(classComp);
-	    }
+			for(Method methods :newObject.getMethods()){
+				methodNames.add(methods.getName());
+			}
+			point.updateContents(newObject.getName(), fieldNames, methodNames);
+		}else{
+			for(Component toDelete: classObjs){
+				if(toDelete instanceof guiView){
+					if(((guiView)toDelete).getCName() == origName){
+						classPanelContainer.remove(toDelete);
+					}
+				}
+			}
+		}
 
 	    classPanelContainer.revalidate();
 	    classPanelContainer.repaint();

@@ -123,9 +123,6 @@ public class UMLDiagram implements UMLStructure {
 		Point pos = new Point(x, y);
 		if(!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className, pos));
-    	    if (this.gui != null) {
-    	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
-    	    }
 	    }
 	    return true;
 	}
@@ -305,9 +302,6 @@ public class UMLDiagram implements UMLStructure {
 			memento.popUndo();
 	        return false;
 	    }
-	    if (this.gui != null) {
-	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
-	    }
 		memento.popUndo();
 	    return false;
 	}
@@ -317,9 +311,6 @@ public class UMLDiagram implements UMLStructure {
 		if(umlClass != null){
 			umlClass.setPosition(position);
 			return true;
-		}
-		if (this.gui != null){
-			this.gui.notifyClassAdded(className);
 		}
 		return false;
 	}
@@ -406,9 +397,6 @@ public class UMLDiagram implements UMLStructure {
 			memento.popUndo();
 			return false;
 		}
-	    if (this.gui != null) {
-	        this.gui.notifyClassAdded(className); // Notify GUI about the new class
-	    }
 		memento.popUndo();
 		return false;
 	}
