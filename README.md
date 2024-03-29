@@ -36,5 +36,10 @@ Save and load to standar JSON format.
 - To run the tests use mvn clean test
 - Run specific tests by using "mvn test -Dtest=TestClassName#MethodName" where TestClassName is the name of the file you want to run and Methodname is the name of the test you want to run, you can also use * as the MethodName to run all tests of that class.
 
+# 3. Testing code coverage
+- In the java2 director run mvn clean jacoco:prepare-agent install jacoco:report
+- As well as mvn jacoco:report
+- Then open 2024sp-420-JavaB\java2\target\site\jacoco\index.html in your web browser to find the total test coverage.
+
 # Authors: 
    Eric Almonrode, Joshua Lease, Cullen Kurtz, Vasilis Bougiamas
