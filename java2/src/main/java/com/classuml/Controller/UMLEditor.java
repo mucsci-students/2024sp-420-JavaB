@@ -22,7 +22,7 @@ public class UMLEditor {
      * @param args The command-line arguments passed to the application. The presence of "--cli"
      *             argument switches the application to CLI mode, otherwise, GUI mode is launched.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
         // Check if the --cli argument is provided
         boolean cliMode = false;
         for (String arg : args) {

@@ -3,6 +3,8 @@ package com.classuml.Model;
 
 import java.util.*;
 
+import java.awt.Point;
+
 /**
  * Represents a UML class with its class name, fields and methods.
  */
@@ -11,7 +13,8 @@ public class UMLClass {
 	private String className;
 	private ArrayList<Field> fields;
 	private ArrayList<Method> methods;
-	private ArrayList<Parameter> parameters;
+	private ArrayList<Parameter> parameters;	
+	private Point position;
 
 	
 	/**
@@ -20,6 +23,28 @@ public class UMLClass {
 	public UMLClass() {
 		this.fields = new ArrayList<>();
 	    this.methods = new ArrayList<>();
+		this.parameters = new ArrayList<>();
+	}
+	public UMLClass(UMLClass class2)
+	{
+		className = class2.getName();
+		this.fields = new ArrayList<>();
+	    this.methods = new ArrayList<>();
+		this.parameters = new ArrayList<>();
+		for(Field field2 : class2.getFields())
+		{
+			addField(field2.getName(), field2.getType());
+		}
+		for(Method method2 : class2.getMethods())
+		{
+			addMethod(method2.getName(), method2.getReturnType());
+			for(Parameter param2 : class2.getParameters())
+			{
+				addParameter(method2.getName(),param2.getName(), param2.getType());
+			}
+	
+		}
+
 	}
 
 	/**
@@ -33,6 +58,22 @@ public class UMLClass {
 	    }
 
 	}
+	public UMLClass(String name, Point pos) {
+		this();
+	    if (name != null && !name.isEmpty()) {
+	        this.className = name;
+	    }
+		this.position = pos;
+
+	}
+
+	public void setPosition(Point position) {
+        this.position = position;
+    }
+
+    public Point getPosition() {
+        return position;
+    }
 
 	/**
 	 * Retrieves the name of the UML class.
@@ -510,26 +551,6 @@ public class UMLClass {
 	}
 
 	/**
-	 * Replaces the parameter list of a method in the class with a new list.
-	 *
-	 * This method replaces the parameter list of the method with the specified name
-	 * with a new list of parameters. If the method does not exist or if the method name
-	 * is null or an empty string, the operation fails.
-	 *
-	 * @param methodName the name of the method whose parameter list will be replaced
-	 * @param newParameterList the new list of parameters to replace the existing ones
-	 * @return true if the parameter list is successfully replaced, false otherwise
-	 */
-	public boolean replaceParameterList(String methodName, ArrayList<Parameter> newParameterList){
-		for(Method method : methods){
-			if(method.getName().equals(methodName)){
-				method.replaceParameterList(newParameterList);
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * Retrieves a string representation of all methods in the class.
 	 *
 	 * @return a string containing information about all methods in the class
@@ -585,11 +606,5 @@ public class UMLClass {
 	    }
 
 	    return sb.toString();
-	}
-
-
-	public List<String> getImplementedInterfaces() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

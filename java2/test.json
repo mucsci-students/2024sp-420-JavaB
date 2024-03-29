@@ -3,12 +3,22 @@
     "ClassA": {
       "className": "ClassA",
       "fields": [],
-      "methods": []
+      "methods": [],
+      "parameters": [],
+      "position": {
+        "x": 20,
+        "y": 20
+      }
     },
     "ClassB": {
       "className": "ClassB",
       "fields": [],
-      "methods": []
+      "methods": [],
+      "parameters": [],
+      "position": {
+        "x": 20,
+        "y": 20
+      }
     }
   },
   "classMapToRelation": {
@@ -17,7 +27,5 @@
       "destination": "ClassB",
       "relationType": 1
     }
-  },
-  "parameters": [],
-  "methods": []
+  }
 }
