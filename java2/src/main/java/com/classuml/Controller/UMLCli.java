@@ -1,28 +1,11 @@
 package com.classuml.Controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
 import jline.console.ConsoleReader;
-import jline.console.completer.ArgumentCompleter.ArgumentList;
-import jline.console.completer.ArgumentCompleter.WhitespaceArgumentDelimiter;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.IFactory;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.ParentCommand;
-import picocli.CommandLine.Spec;
-import picocli.shell.jline2.PicocliJLineCompleter;
-
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import com.classuml.Model.*;
 import com.google.gson.Gson;
@@ -48,34 +31,18 @@ public class UMLCli {
 	// Main method
 	public static void launch() throws IOException {
 
-	  reader = getConsoleReader();
-    IFactory factory = new CustomFactory(new InteractiveParameterConsumer(reader));
-            
-    // Set up the completion
-    CliCommands commands = new CliCommands(reader);
-    CommandLine cmd = new CommandLine(commands, factory);
-    reader.addCompleter(new PicocliJLineCompleter(cmd.getCommandSpec()));
+	reader = getConsoleReader();
+	reader.addCompleter(new UMLCompleter());
 
-		/**
-		// start the shell and process input until the user quits with Ctrl-D
-        String line;
-		while ((line = reader.readLine("prompt> ")) != null) {
-			ArgumentList list = new WhitespaceArgumentDelimiter()
-				.delimit(line, line.length());
-			new CommandLine(commands, factory)
-				.execute(list.getArguments());
-		}
-		*/
-    
-		System.out.println("Welcome to NRDS UML Editor!");
+	System.out.println("Welcome to NRDS UML Editor!");
 
-		boolean exit = false; 
+	boolean exit = false; 
 
-		// Display menu and get user choice
-		displayMenu();
+	// Display menu and get user choice
+	displayMenu();
 
-		// Loop until the user chooses to exit
-		while (!exit) {
+	// Loop until the user chooses to exit
+	while (!exit) {
 
     String choice = getUserChoice();
 
@@ -177,143 +144,47 @@ public class UMLCli {
       default:
         System.out.println("Invalid choice. Please enter a valid command.");
         break;
-      }
-		}
-		// Close scanner
-		//scanner.close();
+      	}
+	  }
 	}
 
-	private static ConsoleReader setConsoleReader() throws IOException {
-		ConsoleReader creader = new ConsoleReader();
-		creader.setPrompt("> ");
-		return creader;
-	}
-
-	// Display the menu
 	// Display the menu
     protected static void displayMenu() {
-    	System.out.println("  ");
-      System.out.println("\n		Menu:");
-      System.out.println("AddClass (ac) - Creates a new class.");
-      System.out.println("DeleteClass (dc)- Deletes a class.");
-      System.out.println("RenameClass (rc)- Renames a class.");
-      System.out.println("  ");
-      System.out.println("AddParameter (ap)- Add a Parameter to a class.");
-      System.out.println("DeleteParameter (dp)- Delete a parameter from a class.");
-      System.out.println("RenameParameter (rp)- Rename a parameter in a class.");
-      System.out.println("ReplaceParams - Replaces params of a method with a new list of parameters.");
-      System.out.println("  ");
-      System.out.println("AddField (af)- Add a Field to a class.");
-      System.out.println("DeleteField (df)- Delete a Field from a class.");
-      System.out.println("RenameField (rf)- Rename a Field in a class.");
-      System.out.println("ChangeFieldType (cft)- Change the type of a Field in a class.");
-      System.out.println("  ");
-      System.out.println("AddMethod (am)- Add a method to a class.");
-      System.out.println("DeleteMethod (dm)- Delete a method from a class.");
-      System.out.println("RenameMethod (rm)- Rename a method in a class.");
-      System.out.println("  ");
-      System.out.println("AddRelationship (ar)- Add a relationship between classes.");
-      System.out.println("DeleteRelationship (dr)- Delete a relationship between classes.");
-      System.out.println("ChangeType (ct)- Change the relationship type between classes. ");
-      System.out.println("  ");
-      System.out.println("ListClasses (lcs)- List all classes.");
-      System.out.println("ListClass (lc)- List contents of a specified class.");
-      System.out.println("ListRelationships (lr)- List all relationships.");
-      System.out.println("Save (s)- Save diagram to JSON file.");
-      System.out.println("Load (lo)- Load diagram from JSON file.");
-      System.out.println("Menu (m)- Display main menu.");
-      System.out.println("Help (h)- Help.");
-      System.out.println("Exit - Exit.");
-      System.out.println("  ");
-      System.out.println("  ");
-      System.out.print("Please enter your choice: ");
-    }
-
-	  /**
-    * Top-level command that just prints help.
-    */
-    @Command(name = "", description = "Example interactive shell with completion",
-      footer = {"", "Press Ctrl-C to exit."},
-      subcommands = {MyCommand.class, ClearScreen.class, ReadInteractive.class})
-    static class CliCommands implements Runnable {
-      final ConsoleReader reader;
-      final PrintWriter out;
-
-      @Spec
-      private CommandSpec spec;
-
-      CliCommands(ConsoleReader reader) {
-          this.reader = reader;
-          out = new PrintWriter(reader.getOutput());
-      }
-
-      public void run() {
-          out.println(spec.commandLine().getUsageMessage());
-      }
-    }
-
-    /**
-     * A command with some options to demonstrate completion.
-     */
-    @Command(name = "cmd", mixinStandardHelpOptions = true, version = "1.0",
-            description = "Command with some options to demonstrate TAB-completion" +
-                    " (note that enum values also get completed)")
-    static class MyCommand implements Runnable {
-        @Option(names = {"-v", "--verbose"})
-        private boolean[] verbosity = {};
-
-        @Option(names = {"-d", "--duration"})
-        private int amount;
-
-        @Option(names = {"-u", "--timeUnit"})
-        private TimeUnit unit;
-
-        @ParentCommand CliCommands parent;
-
-        public void run() {
-            if (verbosity.length > 0) {
-                parent.out.printf("Hi there. You asked for %d %s.%n", amount, unit);
-            } else {
-                parent.out.println("hi!");
-            }
-        }
-    }
-
-    /**
-     * Command that clears the screen.
-     */
-    @Command(name = "cls", aliases = "clear", mixinStandardHelpOptions = true,
-            description = "Clears the screen", version = "1.0")
-    static class ClearScreen implements Callable<Void> {
-
-        @ParentCommand CliCommands parent;
-
-        public Void call() throws IOException {
-            parent.reader.clearScreen();
-            return null;
-        }
-    }
-    
-    /**
-     * Command that optionally reads and password interactively.
-     */
-    @Command(name = "pwd", mixinStandardHelpOptions = true,
-            description = "Interactively reads a password", version = "1.0")
-    static class ReadInteractive implements Callable<Void> {
-        
-        @Option(names = {"-p"}, parameterConsumer = InteractiveParameterConsumer.class)
-        private String password;
-
-        @ParentCommand CliCommands parent;
-
-        public Void call() throws Exception {
-            if(password == null) {
-                parent.out.println("No password prompted");
-            } else {
-                parent.out.println("Password is '" + password + "'");
-            }
-            return null;
-        }
+		System.out.println("  ");
+		System.out.println("\n		Menu:");
+		System.out.println("AddClass (ac) - Creates a new class.");
+		System.out.println("DeleteClass (dc)- Deletes a class.");
+		System.out.println("RenameClass (rc)- Renames a class.");
+		System.out.println("  ");
+		System.out.println("AddParameter (ap)- Add a Parameter to a class.");
+		System.out.println("DeleteParameter (dp)- Delete a parameter from a class.");
+		System.out.println("RenameParameter (rp)- Rename a parameter in a class.");
+		System.out.println("ReplaceParams - Replaces params of a method with a new list of parameters.");
+		System.out.println("  ");
+		System.out.println("AddField (af)- Add a Field to a class.");
+		System.out.println("DeleteField (df)- Delete a Field from a class.");
+		System.out.println("RenameField (rf)- Rename a Field in a class.");
+		System.out.println("ChangeFieldType (cft)- Change the type of a Field in a class.");
+		System.out.println("  ");
+		System.out.println("AddMethod (am)- Add a method to a class.");
+		System.out.println("DeleteMethod (dm)- Delete a method from a class.");
+		System.out.println("RenameMethod (rm)- Rename a method in a class.");
+		System.out.println("  ");
+		System.out.println("AddRelationship (ar)- Add a relationship between classes.");
+		System.out.println("DeleteRelationship (dr)- Delete a relationship between classes.");
+		System.out.println("ChangeType (ct)- Change the relationship type between classes. ");
+		System.out.println("  ");
+		System.out.println("ListClasses (lcs)- List all classes.");
+		System.out.println("ListClass (lc)- List contents of a specified class.");
+		System.out.println("ListRelationships (lr)- List all relationships.");
+		System.out.println("Save (s)- Save diagram to JSON file.");
+		System.out.println("Load (lo)- Load diagram from JSON file.");
+		System.out.println("Menu (m)- Display main menu.");
+		System.out.println("Help (h)- Help.");
+		System.out.println("Exit - Exit.");
+		System.out.println("  ");
+		System.out.println("  ");
+		System.out.print("Please enter your choice: ");
     }
 
 	private static ConsoleReader getConsoleReader() throws IOException {
@@ -334,8 +205,7 @@ public class UMLCli {
 
 /**************************************************************************************************************************************/
     /**   CLASSES   **/
-/**
- * @throws IOException ************************************************************************************************************************************/
+/** @throws IOException ************************************************************************************************************************************/
 
 	// Method to create a new class
 	protected static void createClass() throws IOException {
@@ -377,9 +247,8 @@ public class UMLCli {
 	}
 	
 /**************************************************************************************************************************************/
-    /**   PARAMETERS   **/
-/**
- * @throws IOException ************************************************************************************************************************************/
+    /**   PARAMETERS   **/ 
+/** @throws IOException *************************************************************************************************************************************/
 
 	// Method to add a parameter to a class
   protected static void addParameter() throws IOException {
@@ -479,8 +348,7 @@ public class UMLCli {
     
 /**************************************************************************************************************************************/
     /**   FIELDS   **/
-/**
- * @throws IOException ************************************************************************************************************************************/
+/** @throws IOException *************************************************************************************************************************************/
 
 
 	// Method to add an attribute to a class
@@ -535,8 +403,7 @@ public class UMLCli {
 	
 /**************************************************************************************************************************************/
     /**   METHODS   **/
-/**
- * @throws IOException ************************************************************************************************************************************/
+/** @throws IOException ************************************************************************************************************************************/
 
 
 	// Method to add a method to a class
@@ -589,8 +456,7 @@ public class UMLCli {
 
 /**************************************************************************************************************************************/
     /**   RELATIONSHIPS   **/
-/**
- * @throws IOException ************************************************************************************************************************************/
+/** @throws IOException ************************************************************************************************************************************/
 
 	// Method to add a relationship to a class
 	protected static void addRelationship() throws IOException {
@@ -650,8 +516,7 @@ public class UMLCli {
 
 /**************************************************************************************************************************************/
     /**   SAVE DIAGRAM   **/
-/**
- * @throws IOException ************************************************************************************************************************************/
+/*** @throws IOException ************************************************************************************************************************************/
 
 	
 	// Method to save the UML diagram to a JSON file
@@ -713,8 +578,7 @@ public class UMLCli {
 	
 /**************************************************************************************************************************************/
     /**   LOAD DIAGRAM   **/
-/**
- * @throws IOException ************************************************************************************************************************************/
+/*** @throws IOException ************************************************************************************************************************************/
 
 	
 	// Method to load a UML diagram from a JSON file
