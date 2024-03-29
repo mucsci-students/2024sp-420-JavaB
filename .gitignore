@@ -1,0 +1,8 @@
+*.class
+*.html
+*.gif
+site
+surefire-reports
+jacoco.exec
+*.lst
+*.jar
