@@ -4,3 +4,5 @@
 site
 surefire-reports
 jacoco.exec
+*.lst
+*.jar
