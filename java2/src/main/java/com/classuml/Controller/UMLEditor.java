@@ -33,7 +33,12 @@ public class UMLEditor {
         }
 
         if (cliMode) {
-        	UMLCli.launch();
+            try {
+        	    UMLCli.launch();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
             // Launch CLI mode
   
         } else {

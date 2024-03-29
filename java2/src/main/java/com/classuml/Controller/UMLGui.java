@@ -1501,7 +1501,12 @@ public class UMLGui extends JFrame implements ActionListener {
             }
         }
 		if (cliMode){
-			UMLCli.launch();
+			try {
+				UMLCli.launch();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		SwingUtilities.invokeLater(() -> new UMLGui().setVisible(true));
 	}
