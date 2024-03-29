@@ -656,8 +656,11 @@ public class UMLCli {
 	
 	// Method to save the UML diagram to a JSON file
 	protected static void saveDiagram() throws IOException {
-		System.out.print("Enter the file path to save the diagram (JSON format): ");
+		System.out.print("Enter the file name to save the diagram (JSON format): ");
 		String filePath = getReaderValue().trim();
+		if(!filePath.contains(".json")){
+			filePath += ".json";
+		}
 		try (FileWriter writer = new FileWriter(filePath)) {
 			JsonObject jsonDiagram = new JsonObject();
 
@@ -716,8 +719,11 @@ public class UMLCli {
 	
 	// Method to load a UML diagram from a JSON file
 	protected static void loadDiagram() throws IOException {
-        System.out.print("Enter the file path to load the diagram (JSON format): ");
+        System.out.print("Enter the file name to load the diagram (JSON format): ");
         String filePath = getReaderValue().trim();
+		if (!filePath.contains(".json")){
+			filePath += ".json";
+		}
         try (FileReader reader = new FileReader(filePath)) {
             JsonObject jsonDiagram = gson.fromJson(reader, JsonObject.class);
 
