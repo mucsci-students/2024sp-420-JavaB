@@ -93,7 +93,6 @@ public class UMLGui extends JFrame implements ActionListener {
 	    
 	    // Now it's safe to call updateDiagramView
 	    updateDiagramView();
-	    //populateClassComponents();
 	    
 	    // Maximize the window
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -265,7 +264,6 @@ public class UMLGui extends JFrame implements ActionListener {
 			break;
 		}
 		updateDiagramView();
-		//populateClassComponents();
 	}
 
 
@@ -294,10 +292,6 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (added) {
 					// Update the diagram view to reflect the new class
 					updateDiagramView();
-
-					// Display a confirmation message
-					JOptionPane.showMessageDialog(this, "Class '" + className + "' added successfully.", "Class Added",
-							JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					// Class already exists
 					JOptionPane.showMessageDialog(this, "Class '" + className + "' already exists.",
@@ -333,11 +327,8 @@ public class UMLGui extends JFrame implements ActionListener {
 	                .map(Method::toString)
 	                .collect(Collectors.toList());
 
-	        List<String> relationshipDescriptions = diagram.getRelationshipsForClass(className).stream()
-	                .map(Relationship::toString)
-	                .collect(Collectors.toList());
 			UMLClass guiClass = new UMLClass(className);
-	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, relationshipDescriptions, guiClass);
+	        guiView classComp = new guiView(className, fieldDescriptions, methodDescriptions, guiClass);
 	        classPanelContainer.add(classComp);
 	        classPanelContainer.revalidate();
 	        classPanelContainer.repaint();
@@ -372,11 +363,12 @@ public class UMLGui extends JFrame implements ActionListener {
 		}
 		if (namesBox.getSelectedItem() != null && newName != null && entered == 0) {
 				try {
+					String origName = diagram.getClassByName(namesBox.getSelectedItem().toString()).getName();
 					boolean renamed = diagram.renameClass(namesBox.getSelectedItem().toString(), newName.getText());
+					UMLClass newObject = diagram.getClassByName(newName.getText());
 					if (renamed) {
+						changeComponent(origName, newObject);
 						updateDiagramView();
-						JOptionPane.showMessageDialog(this, "Class renamed successfully.", "Class Renamed",
-								JOptionPane.INFORMATION_MESSAGE);
 					} else {
 						JOptionPane.showMessageDialog(this,
 								"Failed to rename class. Class may not exist or new name may already be in use.",
@@ -1447,40 +1439,29 @@ public class UMLGui extends JFrame implements ActionListener {
      * current state of the UML diagram. Each class is represented with its name, fields, methods, and relationships
      * to other classes.
      */
-	private void populateClassComponents() {
-	    // ArrayList<UMLClass> classes = diagram.getClasses();
-	    // ArrayList<Relationship> relationships = diagram.getRelationships();
-	    // //classPanelContainer.removeAll(); // Clear existing components.
-	    
-	    // for (UMLClass umlClass : classes) {
-	    //     List<String> fieldDescriptions = umlClass.getFields().stream()
-	    //         .map(Field::toString)
-	    //         .collect(Collectors.toList());
+	private void changeComponent(String origName, UMLClass newObject) {
+		guiView[] classObjs = (guiView[]) classPanelContainer.getComponents();
+		guiView point = null;
+		for(guiView c : classObjs){
+			if(c.getCName() == origName){
+				point = c;
+			}
+		}
+		List<String> fieldNames = new ArrayList<String>();
+		List<String> methodNames = new ArrayList<String>();
 
-	    //     List<String> relationshipDescriptions = relationships.stream()
-	    //         .filter(r -> r.getSource().equals(umlClass.getName()) || r.getDestination().equals(umlClass.getName()))
-	    //         .map(Relationship::toString)
-	    //         .collect(Collectors.toList());
+		point.setCName(newObject.getName());
 
-	    //     // Use the Method's toString method which should now include parameters.
-	    //     List<String> methodDescriptions = umlClass.getMethods().stream()
-	    //         .map(Method::toString)
-	    //         .collect(Collectors.toList());
+		for(Field fields :newObject.getFields()){
+			fieldNames.add(fields.getName());
+		}
 
-	    //     guiView classComp = new guiView(umlClass.getName(), fieldDescriptions, methodDescriptions, relationshipDescriptions, umlClass);
-	    //     classPanelContainer.add(classComp);
-		// 	// Create a Point from the JSON
-		// 	Point position = umlClass.getPosition();
-		// 	int x = position.x;
-		// 	int y = position.y;
-		
-		// 	// Set the position
-		// 	//classComp.setPosition(x,y);
-		
-		// 	classPanelContainer.add(classComp);
-	    // }
+		for(Method methods :newObject.getMethods()){
+			methodNames.add(methods.getName());
+		}
+		point.setCFields(fieldNames);
+		point.setCMethods(methodNames);
 
-		classPanelContainer.getComponents();
 	    classPanelContainer.revalidate();
 	    classPanelContainer.repaint();
 	}

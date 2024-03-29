@@ -21,7 +21,6 @@ public class guiView extends JComponent {
     private String className;
     private List<String> fields;
     private List<String> methods;
-    private List<String> relationships;
     private UMLClass guiClass;
 
     private final int padding = 10;
@@ -46,11 +45,10 @@ public class guiView extends JComponent {
      * @param methods       The list of method descriptions.
      * @param relationships The list of relationship descriptions.
      */
-    public guiView(String className, List<String> fields, List<String> methods, List<String> relationships, UMLClass guiClass) {
+    public guiView(String className, List<String> fields, List<String> methods, UMLClass guiClass) {
         this.className = className;
         this.fields = fields;
         this.methods = methods;
-        this.relationships = relationships;
         this.guiClass = guiClass;
         initComponent();
     }
@@ -63,11 +61,10 @@ public class guiView extends JComponent {
      * @param methods       The new list of methods.
      * @param relationships The new list of relationships.
      */
-    public void updateContents(String className, List<String> fields, List<String> methods, List<String> relationships) {
+    public void updateContents(String className, List<String> fields, List<String> methods) {
         this.className = className;
         this.fields = fields;
         this.methods = methods;
-        this.relationships = relationships;
 
         setPreferredSize(calculatePreferredSize());
         revalidate();
@@ -81,14 +78,14 @@ public class guiView extends JComponent {
      * @param x the x-coordinate
      * @param y the y-coordinate
      */
-    // public void setPosition(int x, int y) {
-    //     this.x = x;
-    //     this.y = y;
-    //     Point pos = new Point(x, y);
-    //     guiClass.setPosition(pos);
-    //     Rectangle bounds = getBounds();
-    //     setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
-    // }
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+        Point pos = new Point(x, y);
+        guiClass.setPosition(pos);
+        Rectangle bounds = getBounds();
+        setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+    }
 
     @Override
     public Dimension getPreferredSize() {
@@ -195,13 +192,13 @@ public class guiView extends JComponent {
         this.x += dx;
         this.y += dy;
 
-        // Rectangle bounds = getBounds();
-        // int newX = Math.max(0, Math.min(bounds.x + x, getParent().getWidth() - bounds.width));
-        // int newY = Math.max(0, Math.min(bounds.y + y, getParent().getHeight() - bounds.height));
-        // Point pos = new Point(newX, newY);
-        // guiClass.setPosition(pos);
+        Rectangle bounds = getBounds();
+        int newX = Math.max(0, Math.min(bounds.x + x, getParent().getWidth() - bounds.width));
+        int newY = Math.max(0, Math.min(bounds.y + y, getParent().getHeight() - bounds.height));
+        Point pos = new Point(newX, newY);
+        guiClass.setPosition(pos);
 
-        // setBounds(newX, newY, bounds.width, bounds.height);
+        setBounds(newX, newY, bounds.width, bounds.height);
     }
 
     /**
@@ -234,7 +231,7 @@ public class guiView extends JComponent {
      * @param g The {@code Graphics} context used for drawing.
      */
     private void drawComponentContent(Graphics g) {
-        int localY = padding;
+        int localY = y;
         localY = drawItem(g, "Class: " + className, x, localY, true);
 
         //for (String field : fields) {
@@ -269,7 +266,7 @@ public class guiView extends JComponent {
      */
     private int calculateTotalHeight(FontMetrics fm) {
         int heightPerItem = fm.getHeight();
-        int totalItems =  (fm.getHeight() * fields.size()) + (fm.getHeight() * methods.size()) + (fm.getHeight() * relationships.size());
+        int totalItems =  (fm.getHeight() * fields.size()) + (fm.getHeight() * methods.size());
         return boxHeight = (heightPerItem + padding) * totalItems + padding * 2;
     }
 
@@ -340,5 +337,29 @@ public class guiView extends JComponent {
             maxWidth = Math.max(maxWidth, fm.stringWidth(prefix + item.split(",")[0].trim()));
         }
         return maxWidth;
+    }
+
+    public String getCName(){
+        return className;
+    }
+
+    public List<String> getCFields(){
+        return fields;
+    }
+
+    public List<String> getCMethods(){
+        return methods;
+    }
+
+    public void setCName(String cName){
+        className = cName;
+    }
+
+    public void setCFields(List<String> cFields){
+        fields = cFields;
+    }
+
+    public void setCMethods(List<String> cMethods){
+        methods = cMethods;
     }
 }
