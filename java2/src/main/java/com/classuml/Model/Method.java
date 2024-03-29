@@ -48,12 +48,6 @@ public class Method extends FieldAndMethodLayOut {
 		return "\n" + "    Name: " + name + ",\n" + "    Type: " + returnType + ","
 				+ (parameters.isEmpty() ? "" : "    \nParam: " + parametersString + "\n");
 	}
-
-	public void replaceParameterList(ArrayList<Parameter> newParameterList) {
-		// TODO Auto-generated method stub
-
-	}
-
 	// Deletes all parameters from the method
 	public boolean deleteAllParameters() {
 		if (!parameters.isEmpty()) {

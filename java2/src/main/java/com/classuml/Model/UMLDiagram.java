@@ -22,10 +22,6 @@ public class UMLDiagram implements UMLStructure {
 	private Map<String, UMLClass> classNameMapToName = new HashMap<>();
 	// Maps relationship IDs to Relationships
 	private Map<String, Relationship> classMapToRelation = new HashMap<>();
-	private String className;
-	private UMLDiagram diagram;
-	private List<Parameter> parameters = new ArrayList<>();
-	private ArrayList<Method> methods = new ArrayList<>();
 	private transient Memento memento = new Memento();
 
 	private transient UMLGui gui;
@@ -38,21 +34,7 @@ public class UMLDiagram implements UMLStructure {
 		this.gui = diagram2.getGui();
 		setClassNameMap(diagram2.getClassNameMapToName());
 		setClassMap(diagram2.getClassMapToRelation());
-		setParams(diagram2.getParameters());
-		setMethods(diagram2.getMethods());
 		setMemento(diagram2.getMemento());
-	}
-	public String getClassName() {
-		return className;
-	}
-	public UMLDiagram getDiagram() {
-		return diagram;
-	}
-	public List<Parameter> getParameters() {
-		return parameters;
-	}
-	public ArrayList<Method> getMethods() {
-		return methods;
 	}
 	public Memento getMemento() {
 		return memento;
@@ -91,39 +73,11 @@ public class UMLDiagram implements UMLStructure {
 		classMapToRelation = map2;
 
 	}
-	public void setParams(List<Parameter> params)
-	{
-		this.parameters.clear();
-		for(Parameter param:params)
-		{
-			Parameter param2 = new Parameter(param.getName(), param.getType());
-			parameters.add(param2);
-		}
-
-	}
-	public void setMethods(ArrayList<Method> methods2)
-	{
-		this.methods.clear();
-		for(Method method2:methods2)
-		{
-			Method method3 = new Method(method2.getName(), method2.getReturnType());
-			for(Parameter param2:method2.getParameters())
-			{
-				method3.addParameter(param2.getName(),param2.getType());
-			}
-
-			this.methods.add(method3);
-		}
-	}
 	public void setMemento(Memento memento2)
 	{
 		Memento testMem = new Memento(memento2.getUndo(), memento2.getRedo());
 		this.memento = testMem;
 		
-	}
-	public void setClassName(String classTwo)
-	{
-		this.className = classTwo;
 	}
 
 
@@ -450,6 +404,7 @@ public class UMLDiagram implements UMLStructure {
 	// Method to delete a method from a class in the UML diagram
 
 	public boolean deleteMethod(String className, String methodName) {
+		memento.clearRedo();
 		saveState();
 		if (classNameMapToName.containsKey(className)) {
 			if(classNameMapToName.get(className).deleteMethod(methodName))
@@ -464,6 +419,7 @@ public class UMLDiagram implements UMLStructure {
 	// Method to rename a method in a class in the UML diagram
  
 	public boolean renameMethod(String className, String originalName, String newName) {
+		memento.clearRedo();
 		saveState();
 	    if (classNameMapToName.containsKey(className) && originalName != null && newName != null) {
 			if(classNameMapToName.get(className).renameMethod(originalName, newName))
@@ -560,85 +516,45 @@ public class UMLDiagram implements UMLStructure {
 		memento.popUndo();
 	    return false;
 	}
-
-	
-	
-	/**
-	 * Changes the type of a parameter in a method in the class.
-	 *
-	 * This method changes the type of the parameter with the specified name to the
-	 * new type in the method with the given name. If the method does not exist or
-	 * if either the method name, parameter name, or new parameter type is null or
-	 * an empty string, the operation fails.
-	 *
-	 * @param methodName the name of the method containing the parameter whose type will be changed
-	 * @param parameterName the name of the parameter whose type will be changed
-	 * @param newParamType the new type for the parameter
-	 * @return true if the parameter type is successfully changed, false otherwise
-	 */
-	public boolean changeParamType(String methodName, String parameterName, String newParamType){
+	public boolean replaceParameters(String className, String methodName, String[] parameterNames, String[] parameterTypes)
+	{
 		memento.clearRedo();
 		saveState();
-		for(Method method : methods){
-			if(method.getName().equals(methodName)){
-				if(method.changeParameterType(parameterName, newParamType))
-					return true;
+		clearParameters(className, methodName);
+		int i = 0;
+		boolean success = true;
+		
+		for (String paramName : parameterNames) {
+			success = addParameter(className, methodName, paramName, parameterTypes[i]);
+			i++;
+			if(!success)
+			{
 				memento.popUndo();
 				return false;
 			}
 		}
-		memento.popUndo();
-		return false;
-	}
-
-	/**
-	 * Removes all parameters from a method in the class.
-	 *
-	 * This method removes all parameters from the method with the specified name.
-	 * If the method does not exist or if the method name is null or an empty string,
-	 * the operation fails.
-	 *
-	 * @param methodName the name of the method from which all parameters will be removed
-	 * @return true if all parameters are successfully removed, false otherwise
-	 */
-	public boolean removeAllPar(String methodName){
-		memento.clearRedo();
-		saveState();
-		for(Method method : methods){
-			if (method.getName().equals(methodName)){
-				if(method.deleteAllParameters())
-					return true;
-				memento.popUndo();
-				return	false;
-			}
-		}
-		memento.popUndo();
-		return false;
-	}
-
-	/**
-	 * Replaces the parameter list of a method in the class with a new list.
-	 *
-	 * This method replaces the parameter list of the method with the specified name
-	 * with a new list of parameters. If the method does not exist or if the method name
-	 * is null or an empty string, the operation fails.
-	 *
-	 * @param methodName the name of the method whose parameter list will be replaced
-	 * @param newParameterList the new list of parameters to replace the existing ones
-	 * @return true if the parameter list is successfully replaced, false otherwise
-	 */
-	public boolean replaceParameterList(String methodName, ArrayList<Parameter> newParameterList){
-		memento.clearRedo();
-		saveState();
-		for(Method method : methods){
-			if(method.getName().equals(methodName)){
-				method.replaceParameterList(newParameterList);
-			}
-		}
 		return true;
+	}
+	public boolean clearParameters(String className, String methodName)
+	{
+		memento.clearRedo();
+		saveState();
+		UMLClass umlClass = getClassByName(className);
+		
+	    if (umlClass != null) {
+			if(umlClass.removeAllPar(methodName))
+				return true;
+			memento.popUndo();
+	        return false;
+	    }
+		memento.popUndo();
+	    return false;
+
 	}
 
 	
+	
+
 	/****************************** SAVE & LOAD *****************************************************************/
 	/**
 	 * Undos to previous state.
@@ -650,19 +566,13 @@ public class UMLDiagram implements UMLStructure {
 		state.setGui(this.gui);
 		state.setClassNameMap(this.classNameMapToName);
 		state.setClassMap(this.classMapToRelation);
-		state.setParams(this.parameters);
-		if(this.methods != null)
-			state.setMethods(this.methods);
 		state.setMemento(this.memento);
-		state.setClassName(this.className);
 		UMLDiagram  undo = memento.undoState();
 		if(undo==null)
 			return false;
 		setGui(undo.getGui());
 		setClassNameMap(undo.getClassNameMapToName());
 		setClassMap(undo.getClassMapToRelation());
-		setParams(undo.getParameters());
-		setMethods(undo.getMethods());
 		setMemento(undo.getMemento());
 		memento.pushRedo(state);
 		return true;
@@ -683,8 +593,6 @@ public class UMLDiagram implements UMLStructure {
 		setGui(redo.getGui());
 		setClassNameMap(redo.getClassNameMapToName());
 		setClassMap(redo.getClassMapToRelation());
-		setParams(redo.getParameters());
-		setMethods(redo.getMethods());
 		setMemento(redo.getMemento());
 		
 		return true;
@@ -699,11 +607,7 @@ public class UMLDiagram implements UMLStructure {
 		state.setGui(this.gui);
 		state.setClassNameMap(this.classNameMapToName);
 		state.setClassMap(this.classMapToRelation);
-		state.setParams(this.parameters);
-		if(this.methods != null)
-			state.setMethods(this.methods);
 		state.setMemento(this.memento);
-		state.setClassName(this.className);
 		memento.saveState(state);
 		return true;
 	}
@@ -755,9 +659,10 @@ public class UMLDiagram implements UMLStructure {
      */
 
 	public void clear() {
+		memento.clearRedo();
+		saveState();
 		classNameMapToName.clear();
 		classMapToRelation.clear();
-		//saveState();
 	}
 	 /**
      * Checks if a class exists in the UML diagram.
