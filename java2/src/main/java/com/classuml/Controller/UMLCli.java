@@ -183,13 +183,11 @@ public class UMLCli {
 		System.out.println("Help (h)- Help.");
 		System.out.println("Exit - Exit.");
 		System.out.println("  ");
-		System.out.println("  ");
-		System.out.print("Please enter your choice: ");
     }
 
 	private static ConsoleReader getConsoleReader() throws IOException {
 		ConsoleReader creader = new ConsoleReader();
-		creader.setPrompt("");
+		creader.setPrompt("\n> ");
 		return creader;
 	}
 
