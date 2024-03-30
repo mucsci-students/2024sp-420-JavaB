@@ -57,6 +57,7 @@ public class Memento
         if(statesRedo.isEmpty())
             return null;
         UMLDiagram state3 = new UMLDiagram(statesRedo.pop());
+        statesUndo.push(state3);
         return state3;
     }
     //Pops top of undo, used if command called failed but state was saved.
