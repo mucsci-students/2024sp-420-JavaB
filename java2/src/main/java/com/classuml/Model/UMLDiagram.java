@@ -309,7 +309,7 @@ public class UMLDiagram implements UMLStructure {
 	public boolean setPosition(String className, Point position){
 		UMLClass umlClass = this.getClassByName(className);
 		if(umlClass != null){
-			umlClass.setPosition(position);
+			umlClass.position.setLocation(position);
 			return true;
 		}
 		return false;

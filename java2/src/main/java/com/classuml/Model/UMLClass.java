@@ -4,6 +4,8 @@ package com.classuml.Model;
 import java.util.*;
 
 import java.awt.Point;
+import java.awt.FontMetrics;
+import java.awt.Dimension;
 
 /**
  * Represents a UML class with its class name, fields and methods.
@@ -14,8 +16,14 @@ public class UMLClass {
 	private ArrayList<Field> fields;
 	private ArrayList<Method> methods;
 	private ArrayList<Parameter> parameters;	
-	private Point position;
+	public Point position;
 
+	public FontMetrics fm;
+    public int uniformWidth = -1; // Cached width for uniform drawing
+    public int totalHeight = -1; // Cached total height
+
+    // public int boxWidth = 0;
+    // public int boxHeight = 0;
 	
 	/**
 	 * Constructs a new UMLClass with default constructor.
@@ -67,13 +75,6 @@ public class UMLClass {
 
 	}
 
-	public void setPosition(Point position) {
-        this.position = position;
-    }
-
-    public Point getPosition() {
-        return position;
-    }
 
 	/**
 	 * Retrieves the name of the UML class.

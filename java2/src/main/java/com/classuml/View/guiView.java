@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
 
+import com.classuml.Model.*;
+
 /**
  * The {@code GuiView} class extends {@code JComponent} to represent a visual component
  * that displays class information, including its name, fields, methods, and relationships.
@@ -17,23 +19,13 @@ import java.util.List;
  */
 public class guiView extends JComponent {
     private static final long serialVersionUID = 1L;
-    
-    private String className;
-    private List<String> fields;
-    private List<String> methods;
+
+    private List<UMLClass> classes;
 
     private final int padding = 10;
-    private int x = 20;
-    private int y = 20;
+    
     private Point lastPoint;
-    private boolean isClicked = false;
-
-    private FontMetrics fm;
-    private int uniformWidth = -1; // Cached width for uniform drawing
-    private int totalHeight = -1; // Cached total height
-
-    private int boxWidth = 0;
-    private int boxHeight = 0;
+    
 
     
    /**
@@ -44,10 +36,9 @@ public class guiView extends JComponent {
      * @param methods       The list of method descriptions.
      * @param relationships The list of relationship descriptions.
      */
-    public guiView(String className, List<String> fields, List<String> methods) {
-        this.className = className;
-        this.fields = fields;
-        this.methods = methods;
+    public guiView(List<UMLClass> classes) {
+        this.classes = classes;
+       
         initComponent();
     }
 
@@ -59,43 +50,23 @@ public class guiView extends JComponent {
      * @param methods       The new list of methods.
      * @param relationships The new list of relationships.
      */
-    public void updateContents(String className, List<String> fields, List<String> methods) {
-        this.className = className;
-        this.fields = fields;
-        this.methods = methods;
-
-        setPreferredSize(calculatePreferredSize());
+    public void updateContents(List<UMLClass> classes) {
+        this.classes = classes;
         revalidate();
         repaint();
     }
 
 
-    /**
-     * Gets the position of the component.
-     */
-    public Point getPosition() {
-        return new Point(x, y);
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        if (fm == null) {
-            fm = getFontMetrics(getFont());
-        }
-        return new Dimension(calculateMaxTextWidth(fm), calculateTotalHeight(fm));
-    }
+    
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        prepareForDrawing(g);
-        drawComponentContent(g);
-    }
-
-    @Override
-    public void addNotify() {
-        super.addNotify();
-        cacheMetrics();
+        
+        for(UMLClass c : classes){
+            prepareForDrawing(g, c);
+            drawComponentContent(g, c);
+        }
     }
 
     /**
@@ -107,15 +78,11 @@ public class guiView extends JComponent {
             @Override
             public void mousePressed(MouseEvent e) {
                 lastPoint = e.getPoint();
-                if(e.getX() >= x && e.getX() <= x + boxWidth && e.getY() >= y - (padding) && e.getY() <= (y + (padding) + boxHeight)){
-                    isClicked = true;
-                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 lastPoint = null;
-                isClicked = false;
             }
         });
 
@@ -138,10 +105,10 @@ public class guiView extends JComponent {
      *
      * @param g The {@code Graphics} context used for drawing.
      */
-    private void prepareForDrawing(Graphics g) {
-        fm = g.getFontMetrics();
-        if (uniformWidth == -1 || totalHeight == -1) {
-            cacheMetrics();
+    private void prepareForDrawing(Graphics g, UMLClass c) {
+        c.fm = g.getFontMetrics();
+        if (c.uniformWidth == -1 || c.totalHeight == -1) {
+            cacheMetrics(c);
         }
     }
 
@@ -149,10 +116,11 @@ public class guiView extends JComponent {
      * Caches metrics such as {@code FontMetrics}, uniform width, and total height.
      * This is called when the component is added to the container and when metrics need to be recalculated.
      */
-    private void cacheMetrics() {
-        if (fm != null) {
-            uniformWidth = calculateMaxTextWidth(fm);
-            totalHeight = calculateTotalHeight(fm);
+    private void cacheMetrics(UMLClass c) {
+        if (c.fm != null) {
+            c.uniformWidth = calculateMaxTextWidth(c.fm, c);
+            c.totalHeight = calculateTotalHeight(c.fm, c);
+            
         }
     }
 
@@ -162,14 +130,17 @@ public class guiView extends JComponent {
      * @param e The {@code MouseEvent} containing the current mouse coordinates.
      */
     private void handleDrag(MouseEvent e) {
-        if (lastPoint != null && isClicked == true) {
-            int dx = e.getX() - lastPoint.x;
-            int dy = e.getY() - lastPoint.y;
+        for(UMLClass c: classes){
+            if (lastPoint != null && withinPosition(e, c)) {
+                int dx = e.getX() - lastPoint.x;
+                int dy = e.getY() - lastPoint.y;
 
-            updatePosition(dx, dy);
-            lastPoint = e.getPoint();
-            repaint();
+                updatePosition(dx, dy, c);
+                lastPoint = e.getPoint();
+                repaint();
+            }
         }
+        
     }
 
     /**
@@ -178,9 +149,20 @@ public class guiView extends JComponent {
      * @param dx The change in X direction.
      * @param dy The change in Y direction.
      */
-    private void updatePosition(int dx, int dy) {
-        this.x += dx;
-        this.y += dy;
+    private void updatePosition(int dx, int dy, UMLClass c) {
+        c.position.setLocation((c.position.getX() + dx), (c.position.getY() + dy));
+    }
+
+    private boolean withinPosition(MouseEvent e, UMLClass c){
+        if(e.getX() >= c.position.getX()
+            && e.getX() <= (c.position.getX() + calculatePreferredSize(c).getWidth())
+            && e.getY() >= c.position.getY()
+            && e.getY() <= (c.position.getY() + calculatePreferredSize(c).getHeight())){
+                return true;
+            }
+            else{
+                return false;
+            }
     }
 
     /**
@@ -188,22 +170,22 @@ public class guiView extends JComponent {
      *
      * @return The preferred {@code Dimension} of this component.
      */
-    private Dimension calculatePreferredSize() {
-        ensureFontMetrics();
-        return new Dimension(calculateMaxTextWidth(fm), calculateTotalHeight(fm));
+    private Dimension calculatePreferredSize(UMLClass c) {
+        ensureFontMetrics(c);
+        return new Dimension(calculateMaxTextWidth(c.fm, c), calculateTotalHeight(c.fm, c));
     }
 
     /**
      * Ensures that {@code FontMetrics} is initialized. If not, it initializes it with the current font.
      */
-    private void ensureFontMetrics() {
-        if (fm == null) {
+    private void ensureFontMetrics(UMLClass c) {
+        if (c.fm == null) {
             Font font = getFont();
             if (font == null) {
                 font = new Font("Dialog", Font.PLAIN, 12);
                 setFont(font);
             }
-            fm = getFontMetrics(font);
+            c.fm = getFontMetrics(font);
         }
     }
 
@@ -212,19 +194,16 @@ public class guiView extends JComponent {
      *
      * @param g The {@code Graphics} context used for drawing.
      */
-    private void drawComponentContent(Graphics g) {
-        int localY = y;
-        localY = drawItem(g, "Class: " + className, x, localY, true);
+    private void drawComponentContent(Graphics g, UMLClass c) {
+        int localX = (int)c.position.getX();
+        int localY = (int)c.position.getY();
+        localY = drawItem(g, "Class: " + c.getName(), localX, localY, true, c);
 
-        //for (String field : fields) {
-            localY = drawItem(g, "Fields: " + fields, x, localY, false);
-        //}
-        for (String method : methods) {
-            localY = drawItem(g, "Method: " + method, x, localY, false);
+        localY = drawItem(g, "Fields: " + c.getFields(), localX, localY, false, c);
+
+        for (Method method : c.getMethods()) {
+            localY = drawItem(g, "Method: " + method, localX, localY, false, c);
         }
-        // for (String relationship : relationships) {
-        //     localY = drawItem(g, relationship, x, localY, false);
-        // }
     }
 
     /**
@@ -233,11 +212,11 @@ public class guiView extends JComponent {
      * @param fm The {@code FontMetrics} used to measure text width.
      * @return The maximum text width.
      */
-    private int calculateMaxTextWidth(FontMetrics fm) {
-        int maxWidth = fm.stringWidth("Class: " + className);
-        maxWidth = Math.max(maxWidth, calculateWidthForList(fm, fields, "Field: "));
-        maxWidth = Math.max(maxWidth, calculateWidthForList(fm, methods, "Method: "));
-        return boxWidth = maxWidth + padding * 2;
+    private int calculateMaxTextWidth(FontMetrics fm, UMLClass c) {
+        int maxWidth = fm.stringWidth("Class: " + c.getName());
+        maxWidth = Math.max(maxWidth, calculateWidthForField(fm, c.getFields(), "Field: "));
+        maxWidth = Math.max(maxWidth, calculateWidthForMethod(fm, c.getMethods(), "Method: "));
+        return maxWidth + padding * 2;
     }
 
     /**
@@ -246,10 +225,10 @@ public class guiView extends JComponent {
      * @param fm The {@code FontMetrics} used to measure text height.
      * @return The total text height.
      */
-    private int calculateTotalHeight(FontMetrics fm) {
+    private int calculateTotalHeight(FontMetrics fm, UMLClass c) {
         int heightPerItem = fm.getHeight();
-        int totalItems =  (fm.getHeight() * fields.size()) + (fm.getHeight() * methods.size());
-        return boxHeight = (heightPerItem + padding) * totalItems + padding * 2;
+        int totalItems =  (fm.getHeight() * c.getFields().size()) + (fm.getHeight() * c.getMethods().size());
+        return (heightPerItem + padding) * totalItems + padding * 2;
     }
 
  
@@ -263,29 +242,29 @@ public class guiView extends JComponent {
      * @param isHeader  Indicates whether the item is a header (class name).
      * @return The y-coordinate after drawing the item.
      */
-    private int drawItem(Graphics g, String text, int x, int y, boolean isHeader) {
+    private int drawItem(Graphics g, String text, int x, int y, boolean isHeader, UMLClass c) {
         // Split the text into lines
         String[] lines = text.split("\n");
 
         // Set the color and height for header or item
         Color bgColor = isHeader ? new Color(135, 206, 250) : Color.WHITE;
-        int lineHeight = fm.getHeight() + padding / 2;  // Adjust padding for each line
+        int lineHeight = c.fm.getHeight() + padding / 2;  // Adjust padding for each line
 
         // Calculate the total height of the text block (add extra padding if there are multiple lines)
         int textBlockHeight = lineHeight * lines.length + (lines.length > 1 ? padding : 0);
 
         // Draw the background rectangle for the entire text block
         g.setColor(bgColor);
-        g.fillRect(x, y, uniformWidth, textBlockHeight);
+        g.fillRect(x, y, c.uniformWidth, textBlockHeight);
         
         // Draw the border
         if (!isHeader) {
             g.setColor(Color.BLACK);
-            g.drawRect(x, y, uniformWidth, textBlockHeight);
+            g.drawRect(x, y, c.uniformWidth, textBlockHeight);
         }
 
         // Draw each line of text within the same box
-        int currentY = y + fm.getAscent() + padding / 2;  // Start drawing at this Y position
+        int currentY = y + c.fm.getAscent() + padding / 2;  // Start drawing at this Y position
         for (String line : lines) {
             // Draw the text
             g.setColor(Color.BLACK);
@@ -298,7 +277,7 @@ public class guiView extends JComponent {
         // Draw the border for the header once around the entire text block
         if (isHeader) {
             g.setColor(Color.BLACK);
-            g.drawRect(x, y, uniformWidth, textBlockHeight);
+            g.drawRect(x, y, c.uniformWidth, textBlockHeight);
         }
 
         // Return the Y position after the entire text block
@@ -313,23 +292,19 @@ public class guiView extends JComponent {
      * @param prefix The prefix to add before each item.
      * @return The maximum width needed for the items.
      */
-    private int calculateWidthForList(FontMetrics fm, List<String> items, String prefix) {
+    private int calculateWidthForMethod(FontMetrics fm, List<Method> items, String prefix) {
         int maxWidth = 0;
-        for (String item : items) {
-            maxWidth = Math.max(maxWidth, fm.stringWidth(prefix + item.split(",")[0].trim()));
+        for (Method item : items) {
+            maxWidth = Math.max(maxWidth, fm.stringWidth(prefix + item.toString().split(",")[0].trim()));
         }
         return maxWidth;
     }
 
-    public String getCName(){
-        return className;
-    }
-
-    public List<String> getCFields(){
-        return fields;
-    }
-
-    public List<String> getCMethods(){
-        return methods;
+    private int calculateWidthForField(FontMetrics fm, List<Field> items, String prefix) {
+        int maxWidth = 0;
+        for (Field item : items) {
+            maxWidth = Math.max(maxWidth, fm.stringWidth(prefix + item.toString().split(",")[0].trim()));
+        }
+        return maxWidth;
     }
 }
