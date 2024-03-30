@@ -56,7 +56,7 @@ public class UMLClass {
 	
 		}
 		if (this.position == null){
-			this.position = new Point();
+			this.position = class2.position;
 		}
 
 	}
