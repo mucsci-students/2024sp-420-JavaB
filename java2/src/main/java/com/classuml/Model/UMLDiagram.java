@@ -675,48 +675,48 @@ public class UMLDiagram implements UMLStructure {
 		return classNameMapToName.containsKey(className);
 	}
 
-	@Override
-	public String toString() {
-	    StringBuilder sb = new StringBuilder();
+	// @Override
+	// public String toString() {
+	//     StringBuilder sb = new StringBuilder();
 
-	    List<UMLClass> classes = this.getClasses();
-	    for (UMLClass umlClass : classes) {
-	        // Append class name
-	        sb.append(umlClass.getName()).append("\n");
+	//     List<UMLClass> classes = this.getClasses();
+	//     for (UMLClass umlClass : classes) {
+	//         // Append class name
+	//         sb.append(umlClass.getName()).append("\n");
 
-	        // Append fields
-	        for (Field field : umlClass.getFields()) {
-	            sb.append(field.getName()).append(" : ").append(field.getType()).append("\n");
-	        }
+	//         // Append fields
+	//         for (Field field : umlClass.getFields()) {
+	//             sb.append(field.getName()).append(" : ").append(field.getType()).append("\n");
+	//         }
 
-	        // Append methods
-	        for (Method method : umlClass.getMethods()) {
-	            sb.append(method.getName()).append("(");
-	            // Append parameters
-	            List<Parameter> params = method.getParameters();
-	            for (int i = 0; i < params.size(); i++) {
-	                Parameter param = params.get(i);
-	                sb.append(param.getName()).append(" : ").append(param.getType());
-	                if (i < params.size() - 1) {
-	                    sb.append(", ");
-	                }
-	            }
-	            sb.append(") : ").append(method.getReturnType()).append("\n");
-	        }
+	//         // Append methods
+	//         for (Method method : umlClass.getMethods()) {
+	//             sb.append(method.getName()).append("(");
+	//             // Append parameters
+	//             List<Parameter> params = method.getParameters();
+	//             for (int i = 0; i < params.size(); i++) {
+	//                 Parameter param = params.get(i);
+	//                 sb.append(param.getName()).append(" : ").append(param.getType());
+	//                 if (i < params.size() - 1) {
+	//                     sb.append(", ");
+	//                 }
+	//             }
+	//             sb.append(") : ").append(method.getReturnType()).append("\n");
+	//         }
 
-	        sb.append("\n"); // Add an empty line between classes
-	    }
+	//         sb.append("\n"); // Add an empty line between classes
+	//     }
 
-	    // Append relationships
-	    List<Relationship> relationships = this.getRelationships();
-	    for (Relationship relationship : relationships) {
-	        sb.append(relationship.getSource()).append(" ")
-	          .append(Relationship.getTypeAsString(relationship.getType()))
-	          .append(" ").append(relationship.getDestination()).append("\n");
-	    }
+	//     // Append relationships
+	//     List<Relationship> relationships = this.getRelationships();
+	//     for (Relationship relationship : relationships) {
+	//         sb.append(relationship.getSource()).append(" ")
+	//           .append(Relationship.getTypeAsString(relationship.getType()))
+	//           .append(" ").append(relationship.getDestination()).append("\n");
+	//     }
 
-	    return sb.toString();
-	}
+	//     return sb.toString();
+	// }
 
 
 	public List<Relationship> getRelationshipsForClass(String className) {
