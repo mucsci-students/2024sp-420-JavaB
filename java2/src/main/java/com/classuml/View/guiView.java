@@ -307,4 +307,8 @@ public class guiView extends JComponent {
         }
         return maxWidth;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> de51e75e8b5e6e663dcada13f2fc19a87afb79dd
