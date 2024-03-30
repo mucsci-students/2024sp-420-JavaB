@@ -32,6 +32,9 @@ public class UMLClass {
 		this.fields = new ArrayList<>();
 	    this.methods = new ArrayList<>();
 		this.parameters = new ArrayList<>();
+		if (this.position == null){
+			this.position = new Point();
+		}
 	}
 	public UMLClass(UMLClass class2)
 	{
@@ -51,6 +54,9 @@ public class UMLClass {
 				addParameter(method2.getName(),param2.getName(), param2.getType());
 			}
 	
+		}
+		if (this.position == null){
+			this.position = new Point();
 		}
 
 	}
