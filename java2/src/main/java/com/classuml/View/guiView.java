@@ -59,66 +59,192 @@ public class guiView extends JComponent {
     }
 
     interface Builder {
-        void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2);
-        void drawArrowHead(Graphics g, int x1, int y1);
+        void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2, boolean toRight, boolean above, boolean below);
+        void drawArrowHead(Graphics g, int x1, int y1, boolean flip, boolean pointDown, boolean pointUp);
     }
     class ArrowInheritanceBuidler implements Builder {
-        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
-            g.drawLine(x1, y1, x2, y2);
-            drawArrowHead(g, x2, y2);
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2, boolean toRight, boolean above, boolean below){
+            if(toRight){
+                g.drawLine(x1, y1, x2+10, y2);
+                drawArrowHead(g, x2, y2, true, false, false);
+            }else if(above){
+                g.drawLine(x1, y1, x2, y2-10);
+                drawArrowHead(g, x2, y2, false, true, false);
+            }else if(below){
+                g.drawLine(x1, y1, x2, y2+10);
+                drawArrowHead(g, x2, y2, false, false, true);
+            }else{
+                g.drawLine(x1, y1, x2-10, y2);
+                drawArrowHead(g, x2, y2, false, false, false);
+            }
         }
-        public void drawArrowHead(Graphics g, int x1, int y1){
-            g.drawLine(x1, y1, x1+25, y1);
-            g.drawLine(x1+25, y1, x1, y1+25);
-            g.drawLine(x1, y1+25, x1-25, y1);
-            g.drawLine(x1-25, y1, x1, y1);
+        public void drawArrowHead(Graphics g, int x1, int y1, boolean flip, boolean pointDown, boolean pointUp){
+            if(flip){
+                g.drawLine(x1 + 10, y1 - 10, x1, y1);
+                g.drawLine(x1, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1+10, y1);
+                g.drawLine(x1+10, y1, x1+10, y1-10);
+            }else if(pointDown){
+                g.drawLine(x1 - 10, y1 - 10, x1, y1);
+                g.drawLine(x1, y1, x1+10, y1-10);
+                g.drawLine(x1+10, y1-10, x1, y1-10);
+                g.drawLine(x1, y1-10, x1-10, y1-10);
+            }else if(pointUp){
+                g.drawLine(x1 - 10, y1 + 10, x1, y1);
+                g.drawLine(x1, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1, y1+10);
+                g.drawLine(x1, y1+10, x1-10, y1+10);
+            }else{
+                g.drawLine(x1 - 10, y1 - 10, x1, y1);
+                g.drawLine(x1, y1, x1-10, y1+10);
+                g.drawLine(x1-10, y1+10, x1-10, y1);
+                g.drawLine(x1-10, y1, x1-10, y1-10); 
+            }
+            
         }
         
     }
     class ArrowRealizationBuidler implements Builder {
-        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2, boolean toRight, boolean above, boolean below){
             Graphics2D g2d = (Graphics2D) g.create();
             Stroke dashed = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
             g2d.setStroke(dashed);
-            g2d.drawLine(x1, y1, x2, y2);
-            drawArrowHead(g, x2, y2);
+            if(toRight){
+                g2d.drawLine(x1, y1, x2+10, y2);
+                drawArrowHead(g, x2, y2, true, false, false);
+            }else if(above){
+                g2d.drawLine(x1, y1, x2, y2-10);
+                drawArrowHead(g, x2, y2, false, true, false);
+            }else if(below){
+                g2d.drawLine(x1, y1, x2, y2+10);
+                drawArrowHead(g, x2, y2, false, false, true);
+            }else{
+                g2d.drawLine(x1, y1, x2-10, y2);
+                drawArrowHead(g, x2, y2, false, false, false);
+            }
         }
-        public void drawArrowHead(Graphics g, int x1, int y1){
-            g.drawLine(x1, y1, x1+25, y1);
-            g.drawLine(x1+25, y1, x1, y1+25);
-            g.drawLine(x1, y1+25, x1-25, y1);
-            g.drawLine(x1-25, y1, x1, y1);
+        public void drawArrowHead(Graphics g, int x1, int y1, boolean flip, boolean pointDown, boolean pointUp){
+            if(flip){
+                g.drawLine(x1 + 10, y1 - 10, x1, y1);
+                g.drawLine(x1, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1+10, y1);
+                g.drawLine(x1+10, y1, x1+10, y1-10);
+            }else if(pointDown){
+                g.drawLine(x1 - 10, y1 - 10, x1, y1);
+                g.drawLine(x1, y1, x1+10, y1-10);
+                g.drawLine(x1+10, y1-10, x1, y1-10);
+                g.drawLine(x1, y1-10, x1-10, y1-10);
+            }else if(pointUp){
+                g.drawLine(x1 - 10, y1 + 10, x1, y1);
+                g.drawLine(x1, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1, y1+10);
+                g.drawLine(x1, y1+10, x1-10, y1+10);
+            }else{
+                g.drawLine(x1 - 10, y1 - 10, x1, y1);
+                g.drawLine(x1, y1, x1-10, y1+10);
+                g.drawLine(x1-10, y1+10, x1-10, y1);
+                g.drawLine(x1-10, y1, x1-10, y1-10); 
+            }
+            
         }
     }
     class ArrowCompositionBuidler implements Builder {
-        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
-            g.drawLine(x1, y1, x2, y2);
-            drawArrowHead(g, x2, y2);
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2, boolean toRight, boolean above, boolean below){
+            if(toRight){
+                g.drawLine(x1, y1, x2+20, y2);
+                drawArrowHead(g, x2, y2, true, false, false);
+            }else if(above){
+                g.drawLine(x1, y1, x2, y2-20);
+                drawArrowHead(g, x2, y2, false, true, false);
+            }else if(below){
+                g.drawLine(x1, y1, x2, y2+20);
+                drawArrowHead(g, x2, y2, false, false, true);
+            }else{
+                g.drawLine(x1, y1, x2-20, y2);
+                drawArrowHead(g, x2, y2, false, false, false);
+            }
         }
-        public void drawArrowHead(Graphics g, int x1, int y1){
-            g.drawLine(x1, y1, x1+5, y1-5);
-            g.drawLine(x1+5, y1-5, x1+10, y1);
-            g.drawLine(x1+10, y1, x1+5, y1+5);
-            g.drawLine(x1+5, y1+5, x1, y1);
-            arrrowHeadFill(g, x1, y1);
+        public void drawArrowHead(Graphics g, int x1, int y1, boolean flip, boolean pointDown, boolean pointUp){
+            if(flip){
+                g.drawLine(x1, y1, x1+10, y1-10);
+                g.drawLine(x1+10, y1-10, x1+20, y1);
+                g.drawLine(x1+20, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1, y1);
+                arrrowHeadFill(g, x1, y1, false);
+            }else if(pointDown){
+                g.drawLine(x1, y1, x1+10, y1-10);
+                g.drawLine(x1+10, y1-10, x1, y1-20);
+                g.drawLine(x1, y1-20, x1-10, y1-10);
+                g.drawLine(x1-10, y1-10, x1, y1);
+                arrrowHeadFill(g, x1, y1-20, true);
+            }else if(pointUp){
+                g.drawLine(x1, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1, y1+20);
+                g.drawLine(x1, y1+20, x1-10, y1+10);
+                g.drawLine(x1-10, y1+10, x1, y1);
+                arrrowHeadFill(g, x1, y1, true);
+            }else{
+                g.drawLine(x1, y1, x1-10, y1-10);
+                g.drawLine(x1-10, y1-10, x1-20, y1);
+                g.drawLine(x1-20, y1, x1-10, y1+10);
+                g.drawLine(x1-10, y1+10, x1, y1);
+                arrrowHeadFill(g, x1-20, y1, false);
+            }
+            
         }
-        public void arrrowHeadFill(Graphics g, int x1, int y1){
-            int [] x = {x1, x1+5, x1+10, x1+5, x1};
-            int [] y = {y1, y1-5, y1, y1+5, y1};
-            g.fillPolygon(x, y, 4);
+        public void arrrowHeadFill(Graphics g, int x1, int y1, boolean turn){
+            if(turn == false){
+                int [] x = {x1, x1+10, x1+20, x1+10, x1};
+                int [] y = {y1, y1-10, y1, y1+10, y1};
+                g.fillPolygon(x, y, 4);
+            }else{
+                int [] x = {x1, x1-10, x1, x1+10, x1};
+                int [] y = {y1, y1+10, y1+20, y1+10, y1};
+                g.fillPolygon(x, y, 4);
+            }
         }
     }
     class ArrowAggregationBuidler implements Builder {
-        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2, boolean toRight, boolean above, boolean below){
             g.setColor(Color.black);
-            g.drawLine(x1, y1, x2, y2);
-            drawArrowHead(g, x2, y2);
+            if(toRight){
+                g.drawLine(x1, y1, x2+20, y2);
+                drawArrowHead(g, x2, y2, true, false, false);
+            }else if(above){
+                g.drawLine(x1, y1, x2, y2-20);
+                drawArrowHead(g, x2, y2, false, true, false);
+            }else if(below){
+                g.drawLine(x1, y1, x2, y2+20);
+                drawArrowHead(g, x2, y2, false, false, true);
+            }else{
+                g.drawLine(x1, y1, x2-20, y2);
+                drawArrowHead(g, x2, y2, false, false, false);
+            }
+            
         }
-        public void drawArrowHead(Graphics g, int x1, int y1){
-            g.drawLine(x1, y1, x1+5, y1-5);
-            g.drawLine(x1+5, y1-5, x1+10, y1);
-            g.drawLine(x1+10, y1, x1+5, y1+5);
-            g.drawLine(x1+5, y1+5, x1, y1);
+        public void drawArrowHead(Graphics g, int x1, int y1, boolean flip, boolean pointDown, boolean pointUp){
+            if(flip){
+                g.drawLine(x1, y1, x1+10, y1-10);
+                g.drawLine(x1+10, y1-10, x1+20, y1);
+                g.drawLine(x1+20, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1, y1);
+            }else if(pointDown){
+                g.drawLine(x1, y1, x1+10, y1-10);
+                g.drawLine(x1+10, y1-10, x1, y1-20);
+                g.drawLine(x1, y1-20, x1-10, y1-10);
+                g.drawLine(x1-10, y1-10, x1, y1);
+            }else if(pointUp){
+                g.drawLine(x1, y1, x1+10, y1+10);
+                g.drawLine(x1+10, y1+10, x1, y1+20);
+                g.drawLine(x1, y1+20, x1-10, y1+10);
+                g.drawLine(x1-10, y1+10, x1, y1);
+            }else{
+                g.drawLine(x1, y1, x1-10, y1-10);
+                g.drawLine(x1-10, y1-10, x1-20, y1);
+                g.drawLine(x1-20, y1, x1-10, y1+10);
+                g.drawLine(x1-10, y1+10, x1, y1);
+            }
+            
         }
     }
 
@@ -148,13 +274,17 @@ public class guiView extends JComponent {
                 if (rel.getType() == 1){
                     ArrowAggregationBuidler aggArrow = new ArrowAggregationBuidler();
                     if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        aggArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                        aggArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
+                                                ,false, false, false);
                     }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        aggArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                        aggArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                                ,true , false, false);
                     }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                                ,false, true, false);
                     }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                                ,false, false, true);
                     }else{
 
                     }
@@ -163,13 +293,17 @@ public class guiView extends JComponent {
                 if (rel.getType() == 2){
                     ArrowCompositionBuidler compArrow = new ArrowCompositionBuidler();
                     if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        compArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                        compArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2) 
+                                                ,false, false, false);
                     }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        compArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                        compArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                                ,true, false, false);
                     }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                                ,false, true, false);
                     }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                                ,false, false, true);
                     }else{
 
                     }
@@ -177,13 +311,17 @@ public class guiView extends JComponent {
                 if (rel.getType() == 3){
                     ArrowInheritanceBuidler inhertArrow = new ArrowInheritanceBuidler();
                     if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        inhertArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                        inhertArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
+                                                ,false, false, false);
                     }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                        inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                                ,true, false, false);
                     }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                                ,false, true, false);
                     }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                                ,false, false, true);
                     }else{
 
                     }
@@ -191,13 +329,17 @@ public class guiView extends JComponent {
                 if (rel.getType() == 4){
                     ArrowRealizationBuidler realArrow = new ArrowRealizationBuidler();
                     if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        realArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                        realArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
+                                                ,false, false, false);
                     }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        realArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                        realArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                                ,true, false, false);
                     }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                                ,false, true, false);
                     }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                                ,false, false, true);
                     }else{
 
                     }
@@ -253,9 +395,7 @@ public class guiView extends JComponent {
      */
     private void cacheMetrics(UMLClass c) {
         if (c.fm != null) {
-            c.uniformWidth = calculateMaxTextWidth(c.fm, c);
-            c.totalHeight = calculateTotalHeight(c.fm, c);
-            
+            c.uniformWidth = calculateMaxTextWidth(c);
         }
     }
 
@@ -290,38 +430,14 @@ public class guiView extends JComponent {
 
     private boolean withinPosition(MouseEvent e, UMLClass c){
         if(e.getX() >= c.position.getX()
-            && e.getX() <= (c.position.getX() + calculatePreferredSize(c).getWidth())
+            && e.getX() <= (c.position.getX() + c.uniformWidth)
             && e.getY() >= c.position.getY()
-            && e.getY() <= (c.position.getY() + calculatePreferredSize(c).getHeight())){
+            && e.getY() <= (c.position.getY() + c.totalHeight)){
                 return true;
             }
             else{
                 return false;
             }
-    }
-
-    /**
-     * Calculates and returns the preferred size of this component based on its content.
-     *
-     * @return The preferred {@code Dimension} of this component.
-     */
-    private Dimension calculatePreferredSize(UMLClass c) {
-        ensureFontMetrics(c);
-        return new Dimension(calculateMaxTextWidth(c.fm, c), calculateTotalHeight(c.fm, c));
-    }
-
-    /**
-     * Ensures that {@code FontMetrics} is initialized. If not, it initializes it with the current font.
-     */
-    private void ensureFontMetrics(UMLClass c) {
-        if (c.fm == null) {
-            Font font = getFont();
-            if (font == null) {
-                font = new Font("Dialog", Font.PLAIN, 12);
-                setFont(font);
-            }
-            c.fm = getFontMetrics(font);
-        }
     }
 
     /**
@@ -334,7 +450,10 @@ public class guiView extends JComponent {
         int localY = (int)c.position.getY();
         localY = drawItem(g, "Class: " + c.getName(), localX, localY, true, c);
 
-        localY = drawItem(g, "Fields: " + c.getFields(), localX, localY, false, c);
+        if(c.getFields().size() > 0){
+            localY = drawItem(g, "Fields: " + c.getFields(), localX, localY, false, c);
+        }
+        
 
         for (Method method : c.getMethods()) {
             localY = drawItem(g, "Method: " + method, localX, localY, false, c);
@@ -347,23 +466,11 @@ public class guiView extends JComponent {
      * @param fm The {@code FontMetrics} used to measure text width.
      * @return The maximum text width.
      */
-    private int calculateMaxTextWidth(FontMetrics fm, UMLClass c) {
-        int maxWidth = fm.stringWidth("Class: " + c.getName());
-        maxWidth = Math.max(maxWidth, calculateWidthForField(fm, c.getFields(), "Field: "));
-        maxWidth = Math.max(maxWidth, calculateWidthForMethod(fm, c.getMethods(), "Method: "));
+    private int calculateMaxTextWidth(UMLClass c) {
+        int maxWidth = c.fm.stringWidth("Class: " + c.getName());
+        maxWidth = Math.max(maxWidth, calculateWidthForField(c.fm, c.getFields(), "Field: "));
+        maxWidth = Math.max(maxWidth, calculateWidthForMethod(c.fm, c.getMethods(), "Method: "));
         return maxWidth + padding * 2;
-    }
-
-    /**
-     * Calculates the total height needed for the component's text content.
-     *
-     * @param fm The {@code FontMetrics} used to measure text height.
-     * @return The total text height.
-     */
-    private int calculateTotalHeight(FontMetrics fm, UMLClass c) {
-        int heightPerItem = fm.getHeight();
-        int totalItems =  (heightPerItem + padding) + ((fm.getHeight() * c.getFields().size()) + padding) + ((fm.getHeight() * c.getMethods().size() + padding));
-        return totalItems;
     }
 
  
@@ -386,16 +493,16 @@ public class guiView extends JComponent {
         int lineHeight = c.fm.getHeight() + padding / 2;  // Adjust padding for each line
 
         // Calculate the total height of the text block (add extra padding if there are multiple lines)
-        int textBlockHeight = lineHeight * lines.length + (lines.length > 1 ? padding : 0);
+        c.totalHeight = lineHeight * lines.length + (lines.length > 1 ? padding : 0);
 
         // Draw the background rectangle for the entire text block
         g.setColor(bgColor);
-        g.fillRect(x, y, c.uniformWidth, textBlockHeight);
+        g.fillRect(x, y, c.uniformWidth, c.totalHeight);
         
         // Draw the border
         if (!isHeader) {
             g.setColor(Color.BLACK);
-            g.drawRect(x, y, c.uniformWidth, textBlockHeight);
+            g.drawRect(x, y, c.uniformWidth, c.totalHeight);
         }
 
         // Draw each line of text within the same box
@@ -412,11 +519,11 @@ public class guiView extends JComponent {
         // Draw the border for the header once around the entire text block
         if (isHeader) {
             g.setColor(Color.BLACK);
-            g.drawRect(x, y, c.uniformWidth, textBlockHeight);
+            g.drawRect(x, y, c.uniformWidth, c.totalHeight);
         }
 
         // Return the Y position after the entire text block
-        return y + textBlockHeight;
+        return y + c.totalHeight;
     }
     
     /**
