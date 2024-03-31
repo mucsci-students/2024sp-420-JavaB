@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -36,6 +37,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 
 import java.awt.Point;
 
@@ -116,27 +123,27 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		// File Menu
 		JMenu fileMenu = new JMenu("File");
-		addMenuItem(fileMenu, "Save", "save");
-		addMenuItem(fileMenu, "Load", "load");
-		addMenuItem(fileMenu, "Help", "help");
+		addMenuItem(fileMenu, "Save", "save", 'S');
+		addMenuItem(fileMenu, "Load", "load", 'O');
+		addMenuItem(fileMenu, "Help", "help", 'H');
 
 		// Class Menu
 		JMenu classMenu = new JMenu("Class");
-		addMenuItem(classMenu, "Add Class", "addClass");
+		addMenuItem(classMenu, "Add Class", "addClass", 'C');
 		addMenuItem(classMenu, "Rename Class", "renameClass");
 		addMenuItem(classMenu, "Delete Class", "deleteClass");
 
 		// Attribute Menu
 		JMenu attributeMenu = new JMenu("Attribute");
-		addMenuItem(attributeMenu, "Add Field", "addField");
+		addMenuItem(attributeMenu, "Add Field", "addField", 'F');
 		addMenuItem(attributeMenu, "Rename Field", "renameField");
 		addMenuItem(attributeMenu, "Delete Field", "deleteField");
 		
-		addMenuItem(attributeMenu, "Add Method", "addMethod");		
+		addMenuItem(attributeMenu, "Add Method", "addMethod", 'M');		
 		addMenuItem(attributeMenu, "Rename Method", "renameMethod");
 		addMenuItem(attributeMenu, "Delete Method", "deleteMethod");
 		
-		addMenuItem(attributeMenu, "Add Parameter", "addParameter");
+		addMenuItem(attributeMenu, "Add Parameter", "addParameter", 'P');
 		addMenuItem(attributeMenu, "Rename Parameter", "renameParameter");
 		addMenuItem(attributeMenu, "Delete Parameter", "deleteParameter");
 
@@ -144,7 +151,7 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		// Relationship Menu
 		JMenu relationshipMenu = new JMenu("Relationship");
-		addMenuItem(relationshipMenu, "Add Relationship", "addRelationship");
+		addMenuItem(relationshipMenu, "Add Relationship", "addRelationship", 'R');
 		addMenuItem(relationshipMenu, "Delete Relationship", "deleteRelationship");
 		addMenuItem(relationshipMenu, "Change Type", "changeType");
 
@@ -152,9 +159,9 @@ public class UMLGui extends JFrame implements ActionListener {
 		JMenu interfaceMenu = new JMenu("Interface");
 		addMenuItem(interfaceMenu, "List Class", "listClass");
 		addMenuItem(interfaceMenu, "List Relationships", "listRelationships");
-		addMenuItem(interfaceMenu, "List Classes", "listClasses");
-		addMenuItem(interfaceMenu, "Undo", "undo");
-        addMenuItem(interfaceMenu, "Redo", "redo");
+		addMenuItem(interfaceMenu, "List Classes", "listClasses", 'L');
+		addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
+        addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
 
 		// Adding menus to menu bar
 		menuBar.add(fileMenu);
@@ -178,6 +185,14 @@ public class UMLGui extends JFrame implements ActionListener {
 		JMenuItem menuItem = new JMenuItem(title);
 		menuItem.setActionCommand(actionCommand);
 		menuItem.addActionListener(this);
+		menu.add(menuItem);
+	}
+
+	private void addMenuItem(JMenu menu, String title, String actionCommand, int controlChar) {
+		JMenuItem menuItem = new JMenuItem(title);
+		menuItem.setActionCommand(actionCommand);
+		menuItem.addActionListener(this);
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(controlChar, java.awt.event.InputEvent.CTRL_DOWN_MASK));
 		menu.add(menuItem);
 	}
 
