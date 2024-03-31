@@ -968,28 +968,52 @@ public class UMLGui extends JFrame implements ActionListener {
      * otherwise shows an error message.
      */
 	private void addRelationship() {
-		String sourceClass = JOptionPane.showInputDialog(this, "Enter the source class name:", "Add Relationship",
-				JOptionPane.PLAIN_MESSAGE);
-		String destinationClass = JOptionPane.showInputDialog(this, "Enter the destination class name:",
-				"Add Relationship", JOptionPane.PLAIN_MESSAGE);
-		String typeAsString = JOptionPane.showInputDialog(this,
-				"Enter the new relationship type (as a number):\n" 
-						+ "1: Aggregation\n"
-						+ "2: Composition\n"
-						+ "3: Inheritance\n"
-						+ "4: Realization\n",
-						"Change Relationship Type", JOptionPane.PLAIN_MESSAGE);
 
-		if (sourceClass != null && !sourceClass.isEmpty() && destinationClass != null && !destinationClass.isEmpty()
-				&& typeAsString != null && !typeAsString.isEmpty()) {
+		JPanel aPanel = new JPanel();
+		aPanel.setLayout(new BoxLayout(aPanel, BoxLayout.Y_AXIS));
+		String[] classNames = getClassNames();
+		JComboBox<String> namesBox1 = new JComboBox<String>(classNames);
+		JComboBox<String> namesBox2 = new JComboBox<String>(classNames);
+		JComboBox<String> typesBox = new JComboBox<String>();
+
+		typesBox.addItem("Aggregation");
+		typesBox.addItem("Composition");
+		typesBox.addItem("Inheritance");
+		typesBox.addItem("Realization");
+		namesBox2.removeItemAt(0);
+
+		namesBox1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				String[] cNames = getClassNames();
+				namesBox2.removeAllItems();
+				for(String name: cNames){
+					if(!namesBox1.getSelectedItem().toString().equals(name)){
+						namesBox2.addItem(name);
+					}
+				}
+			}
+		});
+
+		aPanel.add(new JLabel("Select source class: "));
+		aPanel.add(namesBox1);
+		aPanel.add(new JLabel("Select destination class: "));
+		aPanel.add(namesBox2);
+		aPanel.add(new JLabel("Select relationship type: "));
+		aPanel.add(typesBox);
+
+		int entered = -1;
+		entered = JOptionPane.showConfirmDialog(this, aPanel, "Add Relationship", JOptionPane.OK_CANCEL_OPTION);
+
+		String sourceClass = namesBox1.getSelectedItem().toString();
+		String destinationClass = namesBox2.getSelectedItem().toString();
+
+		if (namesBox1.getSelectedItem() != null && namesBox2.getSelectedItem() != null && typesBox.getSelectedItem() != null && entered == 0) {
 			try {
-				int type = Integer.parseInt(typeAsString);
-				if (type >= 1 && type <= 5) {
-					boolean added = diagram.addRelationship(sourceClass, destinationClass, type);
+				if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3) {
+					boolean added = diagram.addRelationship(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
 					if (added) {
+						changeComponent();
 						updateDiagramView();
-						JOptionPane.showMessageDialog(this, "Relationship added successfully.", "Relationship Added",
-								JOptionPane.INFORMATION_MESSAGE);
 					} else {
 						JOptionPane.showMessageDialog(this, "Failed to add relationship. Ensure both classes exist.",
 								"Error Adding Relationship", JOptionPane.ERROR_MESSAGE);
@@ -1016,26 +1040,27 @@ public class UMLGui extends JFrame implements ActionListener {
      * otherwise shows an error message.
      */
 	private void deleteRelationship() {
-		// Prompt the user for the source class name of the relationship to delete
-		String sourceClass = JOptionPane.showInputDialog(this,
-				"Enter the source class name of the relationship to delete:", "Delete Relationship",
-				JOptionPane.PLAIN_MESSAGE);
 
-		// Prompt for the destination class name
-		String destinationClass = JOptionPane.showInputDialog(this,
-				"Enter the destination class name of the relationship to delete:", "Delete Relationship",
-				JOptionPane.PLAIN_MESSAGE);
+		JPanel dPanel = new JPanel();
+		dPanel.setLayout(new BoxLayout(dPanel, BoxLayout.Y_AXIS));
+		ArrayList<Relationship> relates = diagram.getRelationships();
+		JComboBox<Relationship> relateBox = new JComboBox<Relationship>();
 
-		if (sourceClass != null && !sourceClass.trim().isEmpty() && destinationClass != null
-				&& !destinationClass.trim().isEmpty()) {
-			// Confirm the deletion
-			int confirm = JOptionPane
-					.showConfirmDialog(this,
-							"Are you sure you want to delete the relationship from '" + sourceClass + "' to '"
-									+ destinationClass + "'?",
-							"Confirm Delete Relationship", JOptionPane.YES_NO_OPTION);
+		for(Relationship r: relates){
+			relateBox.addItem(r);
+		}
 
-			if (confirm == JOptionPane.YES_OPTION) {
+		dPanel.add(new JLabel("Select the relationship to delete: "));
+		dPanel.add(relateBox);
+
+		int entered = -1;
+		entered = JOptionPane.showConfirmDialog(this, dPanel, "Delete Relationship", JOptionPane.OK_CANCEL_OPTION);
+
+		Relationship selected = (Relationship) relateBox.getSelectedItem();
+		String sourceClass = selected.getSource();
+		String destinationClass = selected.getDestination();
+
+			if (relateBox.getSelectedItem() != null && entered == 0) {
 				try {
 					// Attempt to delete the relationship
 					boolean deleted = diagram.deleteRelationship(sourceClass, destinationClass); // Assuming such a
@@ -1043,10 +1068,8 @@ public class UMLGui extends JFrame implements ActionListener {
 																									// UMLDiagram
 					if (deleted) {
 						// Update the diagram view to reflect the change
+						changeComponent();
 						updateDiagramView();
-						// Inform the user of success
-						JOptionPane.showMessageDialog(this, "Relationship deleted successfully.",
-								"Relationship Deleted", JOptionPane.INFORMATION_MESSAGE);
 					} else {
 						// Inform the user if the relationship couldn't be deleted (e.g., because it
 						// doesn't exist)
@@ -1061,7 +1084,6 @@ public class UMLGui extends JFrame implements ActionListener {
 				}
 			}
 		}
-	}
 
     /**
      * Changes the type of an existing relationship between two specified classes.
@@ -1116,7 +1138,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		}
 	}
 
-	
+
 /**************************************************************************************************************************************/
     /**   INTERFACES   **/
 /**************************************************************************************************************************************/

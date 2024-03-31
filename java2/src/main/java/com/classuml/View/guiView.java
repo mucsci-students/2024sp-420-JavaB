@@ -107,9 +107,7 @@ public class guiView extends JComponent {
      */
     private void prepareForDrawing(Graphics g, UMLClass c) {
         c.fm = g.getFontMetrics();
-        if (c.uniformWidth == -1 || c.totalHeight == -1) {
-            cacheMetrics(c);
-        }
+        cacheMetrics(c);
     }
 
     /**
