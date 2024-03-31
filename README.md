@@ -14,8 +14,8 @@ Save and load to standar JSON format.
 
 # Design Patterns Used
 - Memento is implemented in our redo/undo.
-- Abstract is implemented in our tab completion.
-- Oberserver is implemented in our gui to notify the diagram when methods are called.
+- Observer is implemented in our tab completion.
+- Builder is implemented in our relationship arrows.
 - MVC is implemented throughout our project.
 
 # 1.Requirements: 
