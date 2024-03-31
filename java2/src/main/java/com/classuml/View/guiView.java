@@ -95,15 +95,15 @@ public class guiView extends JComponent {
             drawArrowHead(g, x2, y2);
         }
         public void drawArrowHead(Graphics g, int x1, int y1){
-            g.drawLine(x1, y1, x1+25, y1+25);
-            g.drawLine(x1+25, y1+25, x1, y1+50);
-            g.drawLine(x1, y1+50, x1-25, y1+25);
-            g.drawLine(x1-25, y1+25, x1, y1);
+            g.drawLine(x1, y1, x1+5, y1-5);
+            g.drawLine(x1+5, y1-5, x1+10, y1);
+            g.drawLine(x1+10, y1, x1+5, y1+5);
+            g.drawLine(x1+5, y1+5, x1, y1);
             arrrowHeadFill(g, x1, y1);
         }
         public void arrrowHeadFill(Graphics g, int x1, int y1){
-            int [] x = {x1, x1+25, x1, x1-25, x1};
-            int [] y = {y1, y1+25, y1+50, y1+25, y1};
+            int [] x = {x1, x1+5, x1+10, x1+5, x1};
+            int [] y = {y1, y1-5, y1, y1+5, y1};
             g.fillPolygon(x, y, 4);
         }
     }
@@ -114,10 +114,10 @@ public class guiView extends JComponent {
             drawArrowHead(g, x2, y2);
         }
         public void drawArrowHead(Graphics g, int x1, int y1){
-            g.drawLine(x1, y1, x1+25, y1+25);
-            g.drawLine(x1+25, y1+25, x1+25, y1+50);
-            g.drawLine(x1+25, y1+50, x1-25, y1+25);
-            g.drawLine(x1-25, y1+25, x1, y1);
+            g.drawLine(x1, y1, x1+5, y1-5);
+            g.drawLine(x1+5, y1-5, x1+10, y1);
+            g.drawLine(x1+10, y1, x1+5, y1+5);
+            g.drawLine(x1+5, y1+5, x1, y1);
         }
     }
 
@@ -146,19 +146,60 @@ public class guiView extends JComponent {
                 }
                 if (rel.getType() == 1){
                     ArrowAggregationBuidler aggArrow = new ArrowAggregationBuidler();
-                    aggArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
+                    if(c1.position.x + c1.uniformWidth < c2.position.x){
+                        aggArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                        aggArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                    }else{
+
+                    }
+                    
                 }
                 if (rel.getType() == 2){
                     ArrowCompositionBuidler compArrow = new ArrowCompositionBuidler();
-                    compArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
+                    if(c1.position.x + c1.uniformWidth < c2.position.x){
+                        compArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                        compArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                    }else{
+
+                    }
                 }
                 if (rel.getType() == 3){
                     ArrowInheritanceBuidler inhertArrow = new ArrowInheritanceBuidler();
-                    inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
+                    if(c1.position.x + c1.uniformWidth < c2.position.x){
+                        inhertArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                        inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                    }else{
+
+                    }
                 }
                 if (rel.getType() == 4){
                     ArrowRealizationBuidler realArrow = new ArrowRealizationBuidler();
-                    realArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
+                    if(c1.position.x + c1.uniformWidth < c2.position.x){
+                        realArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                        realArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2));
+                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y);
+                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight);
+                    }else{
+
+                    }
                 }
             }
         }
@@ -320,8 +361,8 @@ public class guiView extends JComponent {
      */
     private int calculateTotalHeight(FontMetrics fm, UMLClass c) {
         int heightPerItem = fm.getHeight();
-        int totalItems =  (fm.getHeight() * c.getFields().size()) + (fm.getHeight() * c.getMethods().size());
-        return (heightPerItem + padding) * totalItems + padding * 2;
+        int totalItems =  (heightPerItem + padding) + ((fm.getHeight() * c.getFields().size()) + padding) + ((fm.getHeight() * c.getMethods().size() + padding));
+        return totalItems;
     }
 
  
