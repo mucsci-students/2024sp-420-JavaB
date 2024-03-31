@@ -50,7 +50,7 @@ import java.awt.Point;
 public class UMLGui extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static UMLDiagram diagram = new UMLDiagram();
-	private guiView view = new guiView(diagram.getClasses());
+	private guiView view = new guiView(diagram.getClasses(), diagram.getRelationships());
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
 	
@@ -190,7 +190,7 @@ public class UMLGui extends JFrame implements ActionListener {
         classPanelContainer.removeAll(); // Remove all existing components
 
         // Rebuild the components based on the current state of the 'diagram' object
-        guiView classView = new guiView(diagram.getClasses());
+        guiView classView = new guiView(diagram.getClasses(), diagram.getRelationships());
         classPanelContainer.add(classView);
         
 
