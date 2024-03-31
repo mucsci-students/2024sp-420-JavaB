@@ -25,6 +25,21 @@ public class UMLDiagramTest {
     }
 
     @Test
+    public void testClear() {
+        UMLDiagram diagram = new UMLDiagram();
+        diagram.addClass("Class1");
+        diagram.addClass("Class2");
+        diagram.addRelationship("Class1", "Class2", 1);
+
+        // Clear the diagram
+        diagram.clear();
+
+        // Check that the diagram is empty
+        assertTrue(diagram.getClasses().isEmpty());
+        assertTrue(diagram.getClassMapToRelation().isEmpty());
+    }
+
+    @Test
     public void testAddClass() {
         UMLDiagram diagram = new UMLDiagram();
         assertTrue(diagram.addClass("Class1"));
