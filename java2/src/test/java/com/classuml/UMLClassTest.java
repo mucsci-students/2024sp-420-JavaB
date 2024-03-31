@@ -1,260 +1,126 @@
-// package com.classuml;
+package com.classuml;
 
-// import static org.junit.jupiter.api.Assertions.assertEquals;
-// import static org.junit.jupiter.api.Assertions.assertFalse;
-// import static org.junit.jupiter.api.Assertions.assertNull;
-// import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
-// import org.junit.jupiter.api.Test;
+import com.classuml.Model.*;
 
-// import com.classuml.Model.UMLClass;
+import static org.junit.Assert.assertEquals;
 
-// public class UMLClassTest {
-    
-//     private UMLClass umlClass;
-//     private UMLClass umlCLass2;
-//     private UMLClass umlCLass3;
-    
-//     public void main() {
-//         umlClass = new UMLClass("TestClass");
-//     }
-    
-//     @Test
-//     public void testAddNullClassName() {
-//     	String nule = null;
-//     	this.umlCLass2 = new UMLClass(nule);
-//     	assertFalse(umlCLass2.getName() == null);
-//     }
-   
-//     @Test
-//     public void testAddEmptyClassString() {
-//     	String nule = "";
-//     	this.umlCLass3 = new UMLClass(nule);
-//     	assertFalse(umlCLass3.getName() == "");
-//     }
-    
-    
-//     @Test
-//     public void testGetName() {
-//         assertEquals("TestClass", umlClass.getName());
-//     }
-    
+public class UMLClassTest {
 
-//     @Test
-//     public void testAddNullClassAttribute() {
-//     	String nule = null;
-//     	this.umlCLass2 = new UMLClass("TestClass2");
-//     	assertFalse(umlCLass2.addField(nule, "String"));
-//     }
-   
-//     @Test
-//     public void testAddEmptyClassAttribute() {
-//     	this.umlCLass3 = new UMLClass("TestClass3");
-//     	assertFalse(umlCLass3.addField("", "String"));
-//     }
-   
-//     @Test
-//     public void testAddNullClassAttributeType() {
-//     	String nule = null;
-//     	this.umlCLass2 = new UMLClass("TestClass2");
-//     	assertFalse(umlCLass2.addField("attr1", nule));
-//     }
-    
-//     @Test
-//     public void testAddEmptyClassAttributeType() {
-//     	this.umlCLass3 = new UMLClass("TestClass3");
-//     	assertFalse(umlCLass3.addField("attr1", ""));
-//     }
-    
-//     @Test
-//     public void testAddNullClassAttributeClass() {
-//     	this.umlCLass2 = new UMLClass("TestClass2");
-//     	assertFalse(umlCLass2.addField("attr1", "String"));
-//     }
-    
-//     @Test
-//     public void testAddEmptyClassAttributeClass() {
-//     	this.umlCLass3 = new UMLClass("TestClass3");
-//     	assertFalse(umlCLass3.addField("attr1", "String"));
-//     }
-    
-//     @Test
-//     public void testAddMultipleAttributes() {
-//         assertTrue(umlClass.addField("attr1", "String"));
-//         assertTrue(umlClass.addField("attr2", "int"));
-//     }
+    @Test
+    public void testChangeMethodType() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
 
-//     @Test
-//     public void testAddDuplicateAttributes() {
-//         assertTrue(umlClass.addField("attr1", "String"));
-//         assertFalse(umlClass.addField("attr1", "int"));
-//     }
+        // Add a method to the class
+        clazz.addMethod("method1", "int");
+        Method method1 = clazz.getMethod("method1");
 
-//     @Test
-//     public void testAddMultipleMethods() {
-//         assertTrue(umlClass.addMethod("method1", "void"));
-//         assertTrue(umlClass.addMethod("method2", "String"));
-//         assertEquals(2, umlClass.getMethods().size());
-//     }
+        // Change the return type of the method
+        clazz.changeMethodType(method1.getName(), "float");
 
-//     @Test
-//     public void testAddDuplicateMethods() {
-//         assertTrue(umlClass.addMethod("method1", "void"));
-//         assertFalse(umlClass.addMethod("method1", "int"));
-//         assertEquals(1, umlClass.getMethods().size());
-//     }
+        // Check that the return type of the method has been changed
+        assertEquals("float", method1.getType());
+    }
 
-//     @Test
-//     public void testDeleteAllAttributes() {
-//         umlClass.addField("attr1", "String");
-//         umlClass.addField("attr2", "int");
-//         assertTrue(umlClass.deleteField());
-//     }
+    @Test
+    public void testChangeMethodType_whenMethodDoesNotExist_shouldReturnFalse() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
 
-//     @Test
-//     public void testDeleteAllMethods() {
-//         umlClass.addMethod("method1", "void");
-//         umlClass.addMethod("method2", "String");
-//         assertTrue(umlClass.deleteMethods());
-//         assertTrue(umlClass.getMethods().isEmpty());
-//     }
+        // Try to change the return type of a non-existent method
+        boolean result = clazz.changeMethodType("non-existent", "float");
 
-//     @Test
-//     public void testDeleteNonExistingAttribute() {
-//         assertFalse(umlClass.deleteField("nonexistent_attr"));
-//     }
+        // Check that the method returned false
+        assertEquals(false, result);
+    }
 
-//     @Test
-//     public void testDeleteNonExistingMethod() {
-//         assertFalse(umlClass.deleteMethod("nonexistent_method"));
-//     }
+    @Test
+    public void testChangeMethodType_whenMethodNameIsEmpty_shouldReturnFalse() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
 
-//     @Test
-//     public void testRenameNonExistingAttribute() {
-//         assertFalse(umlClass.renameField("nonexistent_attr", "newAttrName"));
-//     }
+        // Add a method to the class
+        clazz.addMethod("method1", "int");
 
-//     @Test
-//     public void testRenameExistingAttributeNull() {
-//     	String nole = null;
-//         assertFalse(umlClass.renameField("TestClass", nole));
-//     }
-    
-//     @Test
-//     public void testRenameExistingAttributeToSame() {
-//         assertFalse(umlClass.renameField("TestClass", "TestClass"));
-//     }
-    
-//     @Test
-//     public void testRenameExistingAttributeToNull() {
-//     	String nole = null;
-//         assertFalse(umlClass.renameField("TestClass", nole));
-//     }
-    
-//     @Test
-//     public void testRenameExistingAttributetoEmpty() {
-//         assertFalse(umlClass.renameField("TestClass", ""));
-//     }
-    
-//     @Test
-//     public void testRenameNonExistingMethod() {
-//         assertFalse(umlClass.renameMethod("nonexistent_method", "newMethodName"));
-//     }
+        // Try to change the return type of the method with an empty name
+        boolean result = clazz.changeMethodType("", "float");
 
-//     @Test
-//     public void testChangeNonExistingAttributeType() {
-//         assertFalse(umlClass.changeFieldType("nonexistent_attr", "int"));
-//     }
+        // Check that the method returned false
+        assertEquals(false, result);
+    }
 
-//     @Test
-//     public void testChangeNonExistingMethodType() {
-//         assertFalse(umlClass.changeMethodType("nonexistent_method", "int"));
-//     }
+    @Test
+    public void testChangeMethodType_whenNewTypeIsEmpty_shouldReturnFalse() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
 
-//     @Test
-//     public void testGetNonExistingMethod() {
-//         assertNull(umlClass.getMethod("nonexistent_method"));
-//     }
+        // Add a method to the class
+        clazz.addMethod("method1", "int");
 
-//     @Test
-//     public void testSetName() {
-//         umlClass.setName("NewTestClass");
-//         assertEquals("NewTestClass", umlClass.getName());
-//     }
+        // Try to change the return type of the method with an empty new type
+        boolean result = clazz.changeMethodType("method1", "");
 
-//     @Test
-//     public void testContainsAttribute() {
-//         umlClass.addField("attr1", "String");
-//         assertTrue(umlClass.containsField("attr1"));
-//         assertFalse(umlClass.containsField("nonexistent_attr"));
-//     }
+        // Check that the method returned false
+        assertEquals(false, result);
+    }
 
-//     @Test
-//     public void testDeleteAttribute() {
-//         umlClass.addField("attr1", "String");
-//         assertTrue(umlClass.deleteField("attr1"));
-//         assertFalse(umlClass.deleteField("nonexistent_attr"));
-//     }
+    @Test
+    public void testChangeFieldType() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
 
-//     @Test
-//     public void testAddMethod() {
-//         assertTrue(umlClass.addMethod("method1", "void"));
-//         assertEquals(1, umlClass.getMethods().size());
-//     }
+        // Add a field to the class
+        clazz.addField("field1", "int");
+        Field field1 = clazz.getField("field1");
 
-//     @Test
-//     public void testContainsMethod() {
-//         umlClass.addMethod("method1", "void");
-//         assertTrue(umlClass.containsMethod("method1"));
-//         assertFalse(umlClass.containsMethod("nonexistent_method"));
-//     }
+        // Change the type of the field
+        clazz.changeFieldType(field1.getName(), "float");
 
-//     @Test
-//     public void testDeleteMethod() {
-//         umlClass.addMethod("method1", "void");
-//         assertTrue(umlClass.deleteMethod("method1"));
-//         assertFalse(umlClass.deleteMethod("nonexistent_method"));
-//     }
+        // Check that the field type has been changed
+        assertEquals("float", field1.getType());
+    }
 
-//     @Test
-//     public void testRenameAttribute() {
-//         umlClass.addField("attr1", "String");
-//         assertTrue(umlClass.renameField("attr1", "newAttrName"));
-//         assertFalse(umlClass.renameField("nonexistent_attr", "newAttrName"));
-//     }
+    @Test
+    public void testChangeFieldType_whenFieldDoesNotExist_shouldReturnFalse() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
 
-//     @Test
-//     public void testRenameMethod() {
-//         umlClass.addMethod("method1", "void");
-//         assertTrue(umlClass.renameMethod("method1", "newMethodName"));
-//         assertFalse(umlClass.renameMethod("nonexistent_method", "newMethodName"));
-//     }
+        // Try to change the type of a non-existent field
+        boolean result = clazz.changeFieldType("non-existent", "float");
 
-//     @Test
-//     public void testChangeAttributeType() {
-//         umlClass.addField("attr1", "String");
-//         assertTrue(umlClass.changeFieldType("attr1", "int"));
-//         assertFalse(umlClass.changeFieldType("nonexistent_attr", "int"));
-//     }
+        // Check that the method returned false
+        assertEquals(false, result);
+    }
 
-//     @Test
-//     public void testChangeMethodType() {
-//         umlClass.addMethod("method1", "void");
-//         assertTrue(umlClass.changeMethodType("method1", "int"));
-//         assertFalse(umlClass.changeMethodType("nonexistent_method", "int"));
-//     }
+    @Test
+    public void testChangeFieldType_whenFieldNameIsEmpty_shouldReturnFalse() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
 
-//     @Test
-//     public void testDeleteAttributes() {
-//         umlClass.addField("attr1", "String");
-//         assertTrue(umlClass.deleteField());
-//     }
+        // Add a field to the class
+        clazz.addField("field1", "int");
 
-//     @Test
-//     public void testDeleteMethods() {
-//         umlClass.addMethod("method1", "void");
-//         assertTrue(umlClass.deleteMethods());
-//     }
+        // Try to change the type of the field with an empty name
+        boolean result = clazz.changeFieldType("", "float");
 
-    
-// }
+        // Check that the method returned false
+        assertEquals(false, result);
+    }
+
+    @Test
+    public void testChangeFieldType_whenNewTypeIsEmpty_shouldReturnFalse() {
+        // Create a new UMLClass
+        UMLClass clazz = new UMLClass("TestClass");
+
+        // Add a field to the class
+        clazz.addField("field1", "int");
+
+        // Try to change the type of the field with an empty new type
+        boolean result = clazz.changeFieldType("field1", "");
+
+        // Check that the method returned false
+        assertEquals(false, result);
+    }
+}

@@ -1,99 +1,47 @@
-// package com.classuml;
+package com.classuml;
 
-// import static org.junit.jupiter.api.Assertions.assertEquals;
-// import static org.junit.jupiter.api.Assertions.assertFalse;
-// import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import com.classuml.Model.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-// import org.junit.jupiter.api.Test;
+public class methodTest {
 
-// import com.classuml.Model.Method;
+    private Method method;
 
-// public class methodTest {
+    @BeforeEach
+    public void setUp() {
+        method = new Method("methodName", "void");
+    }
 
-//     private Method method;
+    @Test
+    public void testToString() {
+        assertEquals("\n    Name: methodName,\n    Type: void,", method.toString());
+    }
 
-//     public void main() throws Exception {
-//         method = new Method("sampleMethod", "void");
-//     }
-    
-//  // Utility method for adding parameters
-//     private void addTestParameters() {
-//         method.addParameter("param1", "String");
-//         method.addParameter("param2", "int");
-//     }
+    @Test
+    public void testGetReturnType() {
+        assertEquals("void", method.getReturnType());
+    }
 
-//     @Test
-//     public void testAddAndDeleteParameter() {
-//         String paramName = "param1";
-//         String paramType = "int";
-//         // Test adding a parameter
-//         assertTrue(method.addParameter(paramName, paramType));
-//         assertEquals(1, method.getParameters().size());
-        
-//         // Test deleting the parameter
-//         assertTrue(method.deleteParameter(paramName));
-//         assertEquals(0, method.getParameters().size());
-//     }
-    
-//     @Test
-//     public void addParameterWithNullName() {
-//         assertFalse(method.addParameter(null, "String"));
-//     }
+    @Test
+    public void testGetParameters() {
+        assertNotNull(method.getParameters());
+        assertTrue(method.getParameters().isEmpty());
+    }
 
-//     @Test
-//     public void addParameterWithBlankType() {
-//         assertFalse(method.addParameter("paramName", "  "));
-//     }
-    
-//     @Test
-//     public void deleteNonExistingParameter() {
-//         method.addParameter("existingParam", "int");
-//         assertFalse(method.deleteParameter("nonExistingParam"));
-//     }
+    @Test
+    public void testDeleteAllParameters() {
+        assertFalse(method.deleteAllParameters()); // Deleting when there are no parameters should return false
+        method.addParameter("paramName", "int");
+        assertTrue(method.deleteAllParameters()); // Deleting all parameters should return true
+        assertTrue(method.getParameters().isEmpty());
+    }
 
-//     @Test
-//     public void changeTypeOfNonExistingParameter() {
-//         assertFalse(method.changeParameterType("nonExisting", "String"));
-//     }
-
-//     @Test
-//     public void changeParameterTypeToNull() {
-//         method.addParameter("param1", "int");
-//         assertFalse(method.changeParameterType("param1", null));
-//     }
-
-    
-//     @Test
-//     public void renameParameterToExistingName() {
-//         method.addParameter("param1", "int");
-//         method.addParameter("param2", "String");
-//         assertFalse(method.renameParameter("param1", "param2"));
-//     }
-
-//     @Test
-//     public void renameNonExistingParameter() {
-//         assertFalse(method.renameParameter("nonExisting", "newName"));
-//     }
-
-//     @Test
-//     public void replaceParametersWithNullList() {
-//         method.addParameter("param1", "int");
-//         method.replaceParameterList(null);
-//         assertTrue(method.getParameters().isEmpty());
-//     }
-
-
-//     @Test
-//     public void testToStringNoParameters() {
-//         assertEquals("String representation for method without parameters should match expected format",
-//                 "\n    Name: sampleMethod,\n    Type: void,", method.toString().trim());
-//     }
-
-//     @Test
-//     public void testToStringWithParameters() {
-//         addTestParameters();
-//         String expected = "\n    Name: sampleMethod,\n    Type: void,    \nParam: \n    param1: String,\n    param2: int\n";
-//         assertEquals("String representation with parameters should match expected format", expected.trim(), method.toString().trim());
-//     }
-
-// }
+    @Test
+    public void testChangeParameterType() {
+        method.addParameter("paramName", "int");
+        assertTrue(method.changeParameterType("paramName", "String"));
+        assertFalse(method.changeParameterType("nonExistentParam", "String")); // Changing type of non-existent param should return false
+    }
+}

@@ -5,7 +5,6 @@ import java.util.*;
 
 import java.awt.Point;
 import java.awt.FontMetrics;
-import java.awt.Dimension;
 
 /**
  * Represents a UML class with its class name, fields and methods.
@@ -32,6 +31,9 @@ public class UMLClass {
 		this.fields = new ArrayList<>();
 	    this.methods = new ArrayList<>();
 		this.parameters = new ArrayList<>();
+		if (this.position == null){
+			this.position = new Point();
+		}
 	}
 	public UMLClass(UMLClass class2)
 	{
@@ -51,6 +53,9 @@ public class UMLClass {
 				addParameter(method2.getName(),param2.getName(), param2.getType());
 			}
 	
+		}
+		if (this.position == null){
+			this.position = class2.position;
 		}
 
 	}
@@ -500,7 +505,7 @@ public class UMLClass {
 	
 	
 	
-	Method getMethodByName(String methodName) {
+	public Method getMethodByName(String methodName) {
 	    // Return the method with the given name or null if not found
 	    for (Method m : methods) {
 	        if (m.getName().equals(methodName)) {
@@ -575,37 +580,37 @@ public class UMLClass {
 	 *
 	 * @return a string representation of the class
 	 */
-	@Override
-	public String toString() {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("Class Name: ").append(className).append("\nFields:\n");
+	// @Override
+	// public String toString() {
+	//     StringBuilder sb = new StringBuilder();
+	//     sb.append("Class Name: ").append(className).append("\nFields:\n");
 
-	    if (fields.isEmpty()) {
-	        sb.append("  [No fields]\n");
-	    } else {
-	        for (Field field : fields) {
-	            sb.append("  ").append(field.getType()).append(" ").append(field.getName()).append("\n");
-	        }
-	    }
+	//     if (fields.isEmpty()) {
+	//         sb.append("  [No fields]\n");
+	//     } else {
+	//         for (Field field : fields) {
+	//             sb.append("  ").append(field.getType()).append(" ").append(field.getName()).append("\n");
+	//         }
+	//     }
 
-	    sb.append("Methods:\n");
-	    if (methods.isEmpty()) {
-	        sb.append("  [No methods]\n");
-	    } else {
-	        for (Method method : methods) {
-	            sb.append("  ").append(method.getReturnType()).append(" ").append(method.getName()).append("(");
-	            List<Parameter> params = method.getParameters();
-	            for (int i = 0; i < params.size(); i++) {
-	                Parameter param = params.get(i);
-	                sb.append(param.getType()).append(" ").append(param.getName());
-	                if (i < params.size() - 1) {
-	                    sb.append(", ");
-	                }
-	            }
-	            sb.append(")\n");
-	        }
-	    }
+	//     sb.append("Methods:\n");
+	//     if (methods.isEmpty()) {
+	//         sb.append("  [No methods]\n");
+	//     } else {
+	//         for (Method method : methods) {
+	//             sb.append("  ").append(method.getReturnType()).append(" ").append(method.getName()).append("(");
+	//             List<Parameter> params = method.getParameters();
+	//             for (int i = 0; i < params.size(); i++) {
+	//                 Parameter param = params.get(i);
+	//                 sb.append(param.getType()).append(" ").append(param.getName());
+	//                 if (i < params.size() - 1) {
+	//                     sb.append(", ");
+	//                 }
+	//             }
+	//             sb.append(")\n");
+	//         }
+	//     }
 
-	    return sb.toString();
-	}
+	//     return sb.toString();
+	// }
 }
