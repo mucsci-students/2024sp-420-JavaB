@@ -458,6 +458,7 @@ public class guiView extends JComponent {
         for (Method method : c.getMethods()) {
             localY = drawItem(g, "Method: " + method, localX, localY, false, c);
         }
+        c.totalHeight = localY - c.position.y;
     }
 
     /**
