@@ -66,18 +66,14 @@ public class guiView extends JComponent {
     }
     class ArrowInheritanceBuidler implements Builder {
         public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
-            System.out.println("123");
             g.drawLine(x1, y1, x2, y2);
             drawArrowHead(g, x2, y2);
-            System.out.println("234");
         }
         public void drawArrowHead(Graphics g, int x1, int y1){
-            System.out.println("345");
             g.drawLine(x1, y1, x1+25, y1);
             g.drawLine(x1+25, y1, x1, y1+25);
             g.drawLine(x1, y1+25, x1-25, y1);
             g.drawLine(x1-25, y1, x1, y1);
-            System.out.println("456");
         }
         
     }
@@ -137,7 +133,6 @@ public class guiView extends JComponent {
     }
     private void drawArrows(Graphics g){
         if (this.relationships != null){
-            System.out.println(relationships.toString());
             for (Relationship rel : relationships){
                 UMLClass c1 = new UMLClass();
                 UMLClass c2 = new UMLClass();
@@ -151,19 +146,19 @@ public class guiView extends JComponent {
                 }
                 if (rel.getType() == 1){
                     ArrowAggregationBuidler aggArrow = new ArrowAggregationBuidler();
-                    aggArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                    aggArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
                 }
                 if (rel.getType() == 2){
                     ArrowCompositionBuidler compArrow = new ArrowCompositionBuidler();
-                    compArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                    compArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
                 }
                 if (rel.getType() == 3){
                     ArrowInheritanceBuidler inhertArrow = new ArrowInheritanceBuidler();
-                    inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                    inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
                 }
                 if (rel.getType() == 4){
                     ArrowRealizationBuidler realArrow = new ArrowRealizationBuidler();
-                    realArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                    realArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c2.position.y);
                 }
             }
         }

@@ -1092,35 +1092,52 @@ public class UMLGui extends JFrame implements ActionListener {
      * otherwise shows an error message.
      */
 	private void changeType() {
-		String sourceClass = JOptionPane.showInputDialog(this, "Enter the source class name of the relationship:",
-				"Change Relationship Type", JOptionPane.PLAIN_MESSAGE);
-		String destinationClass = JOptionPane.showInputDialog(this,
-				"Enter the destination class name of the relationship:", "Change Relationship Type",
-				JOptionPane.PLAIN_MESSAGE);
 
-		if (sourceClass == null || destinationClass == null || sourceClass.isEmpty() || destinationClass.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Source or destination class cannot be empty.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return;
+		JPanel cPanel = new JPanel();
+		cPanel.setLayout(new BoxLayout(cPanel, BoxLayout.Y_AXIS));
+
+		ArrayList<Relationship> relates = diagram.getRelationships();
+		JComboBox<Relationship> relateBox = new JComboBox<Relationship>();
+		JComboBox<String> typesBox = new JComboBox<String>();
+
+		typesBox.addItem("Aggregation");
+		typesBox.addItem("Composition");
+		typesBox.addItem("Inheritance");
+		typesBox.addItem("Realization");
+
+		for(Relationship r: relates){
+			relateBox.addItem(r);
 		}
+		Relationship selected = (Relationship) relateBox.getSelectedItem();
+		typesBox.setSelectedIndex((selected.getType() - 1));
 
-		// Assuming a predefined set of relationship types
-		String typeAsString = JOptionPane.showInputDialog(this,
-				"Enter the new relationship type (as a number):\n" 
-						+ "1: Aggregation\n"
-						+ "2: Composition\n"
-						+ "3: Inheritance\n"
-						+ "4: Realization\n",
-						"Change Relationship Type", JOptionPane.PLAIN_MESSAGE);
+		relateBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){
+				Relationship select = (Relationship) relateBox.getSelectedItem();
+				typesBox.setSelectedIndex((select.getType() - 1));
+			}
+		});
+
+		cPanel.add(new JLabel("Select the relationship to change: "));
+		cPanel.add(relateBox);
+		cPanel.add(new JLabel("Select the new type: "));
+		cPanel.add(typesBox);
+
+
+
+		int entered = -1;
+		entered = JOptionPane.showConfirmDialog(this, cPanel, "Delete Relationship", JOptionPane.OK_CANCEL_OPTION);
+
+		
+		String sourceClass = selected.getSource();
+		String destinationClass = selected.getDestination();
 
 		try {
-			int newType = Integer.parseInt(typeAsString);
-			if (newType >= 1 && newType <= 5) { // Validate the input range
-				boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, newType);
+			if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3 && entered == 0 && relateBox.getSelectedItem() != null) { // Validate the input range
+				boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
 				if (typeChanged) {
+					changeComponent();
 					updateDiagramView();
-					JOptionPane.showMessageDialog(this, "Relationship type changed successfully.", "Type Changed",
-							JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to change relationship type.", "Error",
 							JOptionPane.ERROR_MESSAGE);
@@ -1150,13 +1167,23 @@ public class UMLGui extends JFrame implements ActionListener {
      * Shows an error message if the class is not found.
      */
 	private void listClass() {
-	    String className = JOptionPane.showInputDialog(this, "Enter the class name to list its contents:", "List Class", JOptionPane.PLAIN_MESSAGE);
-	    if (className != null && !className.trim().isEmpty()) {
-	        UMLClass umlClass = diagram.getClassByName(className);
+		JPanel lPanel = new JPanel();
+		lPanel.setLayout(new BoxLayout(lPanel, BoxLayout.Y_AXIS));
+		String[] classNames = getClassNames();
+		JComboBox<String> namesBox = new JComboBox<String>(classNames);
+
+		lPanel.add(new JLabel("Select the class to list: "));
+		lPanel.add(namesBox);
+
+		int entered = -1;
+		entered = JOptionPane.showConfirmDialog(this, lPanel, "List Class", JOptionPane.OK_CANCEL_OPTION);
+
+	    if (namesBox.getSelectedItem() != null && entered == 0) {
+	        UMLClass umlClass = diagram.getClassByName(namesBox.getSelectedItem().toString());
 	        if (umlClass != null) {
 	            JOptionPane.showMessageDialog(this, umlClass.toString(), "Class Information", JOptionPane.INFORMATION_MESSAGE);
 	        } else {
-	            JOptionPane.showMessageDialog(this, "Class '" + className + "' not found.", "Error", JOptionPane.ERROR_MESSAGE);
+	            JOptionPane.showMessageDialog(this, "Class '" + namesBox.getSelectedItem().toString() + "' not found.", "Error", JOptionPane.ERROR_MESSAGE);
 	        }
 	    }
 	}
