@@ -987,6 +987,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (type >= 1 && type <= 5) {
 					boolean added = diagram.addRelationship(sourceClass, destinationClass, type);
 					if (added) {
+						changeComponent();
 						updateDiagramView();
 						JOptionPane.showMessageDialog(this, "Relationship added successfully.", "Relationship Added",
 								JOptionPane.INFORMATION_MESSAGE);
@@ -1403,7 +1404,7 @@ public class UMLGui extends JFrame implements ActionListener {
      */
 	private void changeComponent() {
 		classPanelContainer.remove(view);
-		view.updateContents(diagram.getClasses());
+		view.updateContents(diagram.getClasses(), diagram.getRelationships());
 		classPanelContainer.add(view);
 		
 

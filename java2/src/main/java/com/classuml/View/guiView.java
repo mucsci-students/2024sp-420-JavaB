@@ -3,6 +3,7 @@ package com.classuml.View;
 import javax.swing.*;
 
 import com.classuml.Model.UMLClass;
+import com.google.common.graph.Graph;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -21,6 +22,8 @@ public class guiView extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private List<UMLClass> classes;
+
+    private List<Relationship> relationships;
 
     private final int padding = 10;
     
@@ -50,14 +53,70 @@ public class guiView extends JComponent {
      * @param methods       The new list of methods.
      * @param relationships The new list of relationships.
      */
-    public void updateContents(List<UMLClass> classes) {
+    public void updateContents(List<UMLClass> classes, List<Relationship> relationships) {
         this.classes = classes;
+        this.relationships = relationships;
         revalidate();
         repaint();
     }
 
-
-    
+    interface Builder {
+        void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2);
+        void drawArrowHead(Graphics g, int x1, int y1);
+    }
+    class ArrowInheritanceBuidler implements Builder {
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
+            g.drawLine(x1, y1, x2, y2);
+        }
+        public void drawArrowHead(Graphics g, int x1, int y1){
+            g.drawLine(x1, y1, x1+25, y1);
+            g.drawLine(x1+25, y1, x1, y1+25);
+            g.drawLine(x1, y1+25, x1-25, y1);
+            g.drawLine(x1-25, y1, x1, y1);
+        }
+        
+    }
+    class ArrowRealizationBuidler implements Builder {
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
+            g.drawLine(x1, y1, x2, y2);
+        }
+        public void drawArrowHead(Graphics g, int x1, int y1){
+            g.drawLine(x1, y1, x1+25, y1);
+            g.drawLine(x1+25, y1, x1, y1+25);
+            g.drawLine(x1, y1+25, x1-25, y1);
+            g.drawLine(x1-25, y1, x1, y1);
+        }
+    }
+    class ArrowCompositionBuidler implements Builder {
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
+            g.drawLine(x1, y1, x2, y2);
+            drawArrowHead(g, x2, y2);
+        }
+        public void drawArrowHead(Graphics g, int x1, int y1){
+            g.drawLine(x1, y1, x1+25, y1+25);
+            g.drawLine(x1+25, y1+25, x1, y1+50);
+            g.drawLine(x1, y1+50, x1-25, y1+25);
+            g.drawLine(x1-25, y1+25, x1, y1);
+            arrrowHeadFill(g, x1, y1);
+        }
+        public void arrrowHeadFill(Graphics g, int x1, int y1){
+            int [] x = {x1, x1+25, x1, x1-25, x1};
+            int [] y = {y1, y1+25, y1+50, y1+25, y1};
+            g.fillPolygon(x, y, 4);
+        }
+    }
+    class ArrowAggregationBuidler implements Builder {
+        public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
+            g.setColor(Color.black);
+            g.drawLine(x1, y1, x2, y2);
+        }
+        public void drawArrowHead(Graphics g, int x1, int y1){
+            g.drawLine(x1, y1, x1+25, y1+25);
+            g.drawLine(x1+25, y1+25, x1+25, y1+50);
+            g.drawLine(x1+25, y1+50, x1-25, y1+25);
+            g.drawLine(x1-25, y1+25, x1, y1);
+        }
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -66,6 +125,69 @@ public class guiView extends JComponent {
         for(UMLClass c : classes){
             prepareForDrawing(g, c);
             drawComponentContent(g, c);
+        }
+        drawArrows(g);
+    }
+    private void drawArrows(Graphics g){
+        if (this.relationships != null){
+            for (Relationship rel : relationships){
+                if (rel.getType() == 1){
+                    ArrowAggregationBuidler aggArrow = new ArrowAggregationBuidler();
+                    UMLClass c1 = new UMLClass();
+                    UMLClass c2 = new UMLClass();
+                    for (UMLClass cls : classes){
+                        if (cls.getName().equals(rel.getSource())){
+                            c1 = cls;
+                        }
+                        if (cls.getName().equals(rel.getDestination())){
+                            c2 = cls;
+                        }
+                    }
+                    aggArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                }
+                if (rel.getType() == 2){
+                    ArrowCompositionBuidler compArrow = new ArrowCompositionBuidler();
+                    UMLClass c1 = new UMLClass();
+                    UMLClass c2 = new UMLClass();
+                    for (UMLClass cls : classes){
+                        if (cls.getName().equals(rel.getSource())){
+                            c1 = cls;
+                        }
+                        if (cls.getName().equals(rel.getDestination())){
+                            c2 = cls;
+                        }
+                    }
+                    compArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                }
+                if (rel.getType() == 3){
+                    ArrowInheritanceBuidler inhertArrow = new ArrowInheritanceBuidler();
+                    UMLClass c1 = new UMLClass();
+                    UMLClass c2 = new UMLClass();
+                    for (UMLClass cls : classes){
+                        if (cls.getName().equals(rel.getSource())){
+                            c1 = cls;
+                        }
+                        if (cls.getName().equals(rel.getDestination())){
+                            c2 = cls;
+                        }
+                    }
+                    inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                }
+                if (rel.getType() == 4){
+                    ArrowRealizationBuidler realArrow = new ArrowRealizationBuidler();
+                    UMLClass c1 = new UMLClass();
+                    UMLClass c2 = new UMLClass();
+                    for (UMLClass cls : classes){
+                        if (cls.getName().equals(rel.getSource())){
+                            c1 = cls;
+                        }
+                        if (cls.getName().equals(rel.getDestination())){
+                            c2 = cls;
+                        }
+                    }
+                    realArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
+                }
+            }
         }
     }
 
