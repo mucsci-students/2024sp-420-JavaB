@@ -2,8 +2,6 @@ package com.classuml.View;
 
 import javax.swing.*;
 
-import com.classuml.Model.UMLClass;
-
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -21,12 +19,11 @@ public class guiView extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private List<UMLClass> classes;
+    private List<UMLArrow> arrows;
 
     private final int padding = 10;
     
     private Point lastPoint;
-    
-
     
    /**
      * Constructs a {@code GuiView} component with specified class information.
@@ -36,8 +33,9 @@ public class guiView extends JComponent {
      * @param methods       The list of method descriptions.
      * @param relationships The list of relationship descriptions.
      */
-    public guiView(List<UMLClass> classes) {
+    public guiView(List<UMLClass> classes /*, List<UMLArrow> arrows*/) {
         this.classes = classes;
+        //this.arrows = arrows;
        
         initComponent();
     }
@@ -50,22 +48,23 @@ public class guiView extends JComponent {
      * @param methods       The new list of methods.
      * @param relationships The new list of relationships.
      */
-    public void updateContents(List<UMLClass> classes) {
+    public void updateContents(List<UMLClass> classes /*, List<UMLArrow> arrows */) {
         this.classes = classes;
+        //this.arrows = arrows;
         revalidate();
         repaint();
     }
-
-
-    
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        for(UMLClass c : classes){
+        for(UMLClass c : classes) {
             prepareForDrawing(g, c);
             drawComponentContent(g, c);
+        }
+        for(UMLArrow a : arrows) {
+            drawArrowContent(g, a);
         }
     }
 
@@ -120,7 +119,6 @@ public class guiView extends JComponent {
         if (c.fm != null) {
             c.uniformWidth = calculateMaxTextWidth(c.fm, c);
             c.totalHeight = calculateTotalHeight(c.fm, c);
-            
         }
     }
 
@@ -153,16 +151,32 @@ public class guiView extends JComponent {
         c.position.setLocation((c.position.getX() + dx), (c.position.getY() + dy));
     }
 
+    private void updatePosition(int dx, int dy, UMLArrow a) {
+        a.position.setLocation((a.position.getX() + dx), (a.position.getY() + dy));
+    }
+
     private boolean withinPosition(MouseEvent e, UMLClass c){
         if(e.getX() >= c.position.getX()
             && e.getX() <= (c.position.getX() + calculatePreferredSize(c).getWidth())
             && e.getY() >= c.position.getY()
             && e.getY() <= (c.position.getY() + calculatePreferredSize(c).getHeight())){
-                return true;
-            }
-            else{
-                return false;
-            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    private boolean withinPosition(MouseEvent e, UMLArrow a){
+        if(e.getX() >= a.position.getX()
+            && e.getX() <= (a.position.getX() + a.getWidth())
+            && e.getY() >= a.position.getY()
+            && e.getY() <= (a.position.getY() + a.getHeight())){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     /**
@@ -204,6 +218,11 @@ public class guiView extends JComponent {
         for (Method method : c.getMethods()) {
             localY = drawItem(g, "Method: " + method, localX, localY, false, c);
         }
+    }
+
+    private void drawArrowContent(Graphics g, UMLArrow a) {
+        a.drawArrowLine((Graphics2D) g, a.getXPos(), a.getYPos(), 0, 0, a.getWidth(), a.getHeight());
+        a.drawArrowHead((Graphics2D) g);
     }
 
     /**
