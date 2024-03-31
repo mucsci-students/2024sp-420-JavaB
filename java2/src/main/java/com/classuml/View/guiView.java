@@ -3,7 +3,6 @@ package com.classuml.View;
 import javax.swing.*;
 
 import com.classuml.Model.UMLClass;
-import com.google.common.graph.Graph;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -39,7 +38,8 @@ public class guiView extends JComponent {
      * @param methods       The list of method descriptions.
      * @param relationships The list of relationship descriptions.
      */
-    public guiView(List<UMLClass> classes) {
+    public guiView(List<UMLClass> classes, List<Relationship> relationships) {
+        this.relationships = relationships;
         this.classes = classes;
        
         initComponent();
@@ -66,14 +66,18 @@ public class guiView extends JComponent {
     }
     class ArrowInheritanceBuidler implements Builder {
         public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
+            System.out.println("123");
             g.drawLine(x1, y1, x2, y2);
             drawArrowHead(g, x2, y2);
+            System.out.println("234");
         }
         public void drawArrowHead(Graphics g, int x1, int y1){
+            System.out.println("345");
             g.drawLine(x1, y1, x1+25, y1);
             g.drawLine(x1+25, y1, x1, y1+25);
             g.drawLine(x1, y1+25, x1-25, y1);
             g.drawLine(x1-25, y1, x1, y1);
+            System.out.println("456");
         }
         
     }
@@ -133,6 +137,7 @@ public class guiView extends JComponent {
     }
     private void drawArrows(Graphics g){
         if (this.relationships != null){
+            System.out.println(relationships.toString());
             for (Relationship rel : relationships){
                 UMLClass c1 = new UMLClass();
                 UMLClass c2 = new UMLClass();
