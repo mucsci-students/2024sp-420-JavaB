@@ -1425,7 +1425,7 @@ public class UMLGui extends JFrame implements ActionListener {
      */
 	private void changeComponent() {
 		classPanelContainer.remove(view);
-		view.updateContents(diagram.getClasses());
+		view.updateContents(diagram.getClasses(), diagram.getRelationships());
 		classPanelContainer.add(view);
 		
 
