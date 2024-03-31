@@ -67,6 +67,7 @@ public class guiView extends JComponent {
     class ArrowInheritanceBuidler implements Builder {
         public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
             g.drawLine(x1, y1, x2, y2);
+            drawArrowHead(g, x2, y2);
         }
         public void drawArrowHead(Graphics g, int x1, int y1){
             g.drawLine(x1, y1, x1+25, y1);
@@ -79,6 +80,7 @@ public class guiView extends JComponent {
     class ArrowRealizationBuidler implements Builder {
         public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
             g.drawLine(x1, y1, x2, y2);
+            drawArrowHead(g, x2, y2);
         }
         public void drawArrowHead(Graphics g, int x1, int y1){
             g.drawLine(x1, y1, x1+25, y1);
@@ -109,6 +111,7 @@ public class guiView extends JComponent {
         public void drawArrowBody(Graphics g, int x1, int y1, int x2, int y2){
             g.setColor(Color.black);
             g.drawLine(x1, y1, x2, y2);
+            drawArrowHead(g, x2, y2);
         }
         public void drawArrowHead(Graphics g, int x1, int y1){
             g.drawLine(x1, y1, x1+25, y1+25);
@@ -131,60 +134,30 @@ public class guiView extends JComponent {
     private void drawArrows(Graphics g){
         if (this.relationships != null){
             for (Relationship rel : relationships){
+                UMLClass c1 = new UMLClass();
+                UMLClass c2 = new UMLClass();
+                for (UMLClass cls : classes){
+                    if (cls.getName().equals(rel.getSource())){
+                        c1 = cls;
+                    }
+                    if (cls.getName().equals(rel.getDestination())){
+                        c2 = cls;
+                    }
+                }
                 if (rel.getType() == 1){
                     ArrowAggregationBuidler aggArrow = new ArrowAggregationBuidler();
-                    UMLClass c1 = new UMLClass();
-                    UMLClass c2 = new UMLClass();
-                    for (UMLClass cls : classes){
-                        if (cls.getName().equals(rel.getSource())){
-                            c1 = cls;
-                        }
-                        if (cls.getName().equals(rel.getDestination())){
-                            c2 = cls;
-                        }
-                    }
                     aggArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
                 }
                 if (rel.getType() == 2){
                     ArrowCompositionBuidler compArrow = new ArrowCompositionBuidler();
-                    UMLClass c1 = new UMLClass();
-                    UMLClass c2 = new UMLClass();
-                    for (UMLClass cls : classes){
-                        if (cls.getName().equals(rel.getSource())){
-                            c1 = cls;
-                        }
-                        if (cls.getName().equals(rel.getDestination())){
-                            c2 = cls;
-                        }
-                    }
                     compArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
                 }
                 if (rel.getType() == 3){
                     ArrowInheritanceBuidler inhertArrow = new ArrowInheritanceBuidler();
-                    UMLClass c1 = new UMLClass();
-                    UMLClass c2 = new UMLClass();
-                    for (UMLClass cls : classes){
-                        if (cls.getName().equals(rel.getSource())){
-                            c1 = cls;
-                        }
-                        if (cls.getName().equals(rel.getDestination())){
-                            c2 = cls;
-                        }
-                    }
                     inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
                 }
                 if (rel.getType() == 4){
                     ArrowRealizationBuidler realArrow = new ArrowRealizationBuidler();
-                    UMLClass c1 = new UMLClass();
-                    UMLClass c2 = new UMLClass();
-                    for (UMLClass cls : classes){
-                        if (cls.getName().equals(rel.getSource())){
-                            c1 = cls;
-                        }
-                        if (cls.getName().equals(rel.getDestination())){
-                            c2 = cls;
-                        }
-                    }
                     realArrow.drawArrowBody(g, c1.position.x, c1.position.y, c2.position.x, c1.position.y);
                 }
             }
