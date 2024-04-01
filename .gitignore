@@ -1,0 +1,11 @@
+*.class
+*.html
+*.gif
+site
+surefire-reports
+jacoco.exec
+*.lst
+*.jar
+java-1.0-SNAPSHOT.jar.original
+pom.properties
+*.json

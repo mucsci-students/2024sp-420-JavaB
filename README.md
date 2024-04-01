@@ -1,4 +1,4 @@
-# NRDS
+# Java2
 # Overview:
 
 The UML Editor is a Java-based software tool designed to facilitate the creation and manipulation of Modeling Language [UML EDITOR] diagrams. 
@@ -12,30 +12,38 @@ Save and load to standar JSON format.
 
 # State to run the program:
 
+# Design Patterns Used
+- Memento is implemented in our redo/undo.
+- Observer is implemented in our tab completion.
+- Builder is implemented in our relationship arrows.
+- MVC is implemented throughout our project.
+
 # 1.Requirements: 
 
-- Java Development Kit (JDK)
-- Gradle
+- Java Development Kit (JDK) 17 or higher https://www.oracle.com/java/technologies/downloads/#jdk21-windows
+- Maven https://maven.apache.org/download.cgi
+- Git Installed https://github.com/git-guides/install-git
 - Gson library (for JSON serialization and deserialization)
 
 # 2. Running the Application
-To run the UML Editor Command Line Tool,
-Run the main class UMLCli.
+- Git clone the repository https://github.com/mucsci-students/2024sp-420-JavaB.git
+- Make sure you run all of the following commands from the java2 directory
+- mvn clean install
+- mvn clean package spring-boot:repackage
+# Slashes are backwards on linux machines
+- To run the gui use java -jar .\target\java-1.0-SNAPSHOT.jar
+- To run the cli use java -jar .\target\java-1.0-SNAPSHOT.jar cli
+- To run the tests use mvn clean test
+- Run specific tests by using "mvn test -Dtest=TestClassName#MethodName" where TestClassName is the name of the file you want to run and Methodname is the name of the test you want to run, you can also use * as the MethodName to run all tests of that class.
 
-# 3. Using Gson
-[Gson](https://github.com/google/gson) is a Java library that can be used to convert Java Objects into their JSON representation and vice versa. In the context of the UML Editor Command Line Tool, Gson is utilized for saving and loading diagrams in JSON format.
+# 3. Testing code coverage
+- In the java2 director run mvn clean jacoco:prepare-agent install jacoco:report
+- As well as mvn jacoco:report
+- Then open 2024sp-420-JavaB\java2\target\site\jacoco\index.html in your web browser to find the total test coverage.
 
-# 4. Adding Gson Dependency
-Use Gradle, add the following dependencies to your build.gradle file:
-    implementation 'com.google.guava:guava:31.1-jre'
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+# List of known bugs
+- The Gui class boxes will detatch from cursor if moving too quickly
 
-# 5. How to Run
-Open terminal, open the file directory where the zip was saved.
-Type "gradle build"
-Type "gradle run" to run program
 
 # Authors: 
-   Natnael Thehaye, David Marquez, Simeon Belayneh, Ram Gurung
+   Eric Almonrode, Joshua Lease, Cullen Kurtz, Vasilis Bougiamas
