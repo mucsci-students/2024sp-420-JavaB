@@ -38,12 +38,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import javafx.scene.control.MenuItem;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-
 import java.awt.Point;
 
 
@@ -146,6 +140,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		addMenuItem(attributeMenu, "Add Parameter", "addParameter", 'P');
 		addMenuItem(attributeMenu, "Rename Parameter", "renameParameter");
 		addMenuItem(attributeMenu, "Delete Parameter", "deleteParameter");
+		addMenuItem(attributeMenu, "Replace Parameters", "replaceParameters");
 
 
 
@@ -259,6 +254,9 @@ public class UMLGui extends JFrame implements ActionListener {
 			break;
 		case "deleteParameter":
 			deleteParameter();
+			break;
+		case "replaceParameters":
+			replaceParameters();
 			break;
 		case "addRelationship":
 			addRelationship();
@@ -958,6 +956,53 @@ public class UMLGui extends JFrame implements ActionListener {
 	            JOptionPane.showMessageDialog(this, "Failed to delete parameter. Ensure the method and parameter exist.", "Error", JOptionPane.ERROR_MESSAGE);
 	        }
 	    }
+	}
+	private void replaceParameters() {
+		// Prompt the user for class name, method name, and number of parameters
+		String[] classNames = getClassNames();
+		JComboBox<String> namesBox = new JComboBox<String>(classNames);
+		JTextField methName = new JTextField();
+		JTextField numParams = new JTextField();
+		JPanel pPanel = new JPanel();
+		pPanel.setLayout(new BoxLayout(pPanel, BoxLayout.Y_AXIS));
+		pPanel.add(new JLabel("Select class: "));
+		pPanel.add(namesBox);
+		pPanel.add(new JLabel("Enter method name: "));
+		pPanel.add(methName);
+		pPanel.add(new JLabel("Enter number of parameters: "));
+		pPanel.add(numParams);
+	
+		int entered = -1;
+		entered = JOptionPane.showConfirmDialog(this, pPanel, "Replace Parameters", JOptionPane.OK_CANCEL_OPTION);
+	
+		if (entered == 0 && namesBox.getSelectedItem() != null && methName.getText() != null && numParams.getText() != null) {
+			int num = Integer.parseInt(numParams.getText());
+			String[] paramNames = new String[num];
+			String[] paramTypes = new String[num];
+	
+			for (int i = 0; i < num; i++) {
+				JPanel pPanelInner = new JPanel();
+				pPanelInner.setLayout(new BoxLayout(pPanelInner, BoxLayout.Y_AXIS));
+				JTextField paramName = new JTextField();
+				JComboBox<String> attType = new JComboBox<String>(attributeTypes());
+				pPanelInner.add(new JLabel("Enter parameter name: "));
+				pPanelInner.add(paramName);
+				pPanelInner.add(new JLabel("Select parameter type: "));
+				pPanelInner.add(attType);
+	
+				entered = JOptionPane.showConfirmDialog(this, pPanelInner, "Parameter " + (i + 1), JOptionPane.OK_CANCEL_OPTION);
+	
+				if (entered == 0 && paramName.getText() != null) {
+					paramNames[i] = paramName.getText();
+					paramTypes[i] = attType.getSelectedItem().toString();
+				} else {
+					return;
+				}
+			}
+	
+			diagram.replaceParameters(namesBox.getSelectedItem().toString(), methName.getText(), paramNames, paramTypes);
+			updateDiagramView();
+		}
 	}
 
 	
