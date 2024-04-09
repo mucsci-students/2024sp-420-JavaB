@@ -2,6 +2,9 @@ package com.classuml.Controller;
 
 import java.awt.Toolkit;
 import java.awt.Dimension;
+import java.awt.Robot;
+import java.awt.image.BufferedImage;
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,6 +31,7 @@ import javax.swing.KeyStroke;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.imageio.*;
 
 import com.classuml.Model.*;
 import com.classuml.View.guiView;
@@ -39,6 +43,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 
 
 // Assuming UMLDiagram and related classes are in the Model package
@@ -54,14 +59,18 @@ public class UMLGui extends JFrame implements ActionListener {
 	private guiView view = new guiView(diagram.getClasses(), diagram.getRelationships());
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
+	private Robot rbt;
+	private Dimension screenSize;
+	private Toolkit tk;
 	
 	
     /**
      * Constructs the UMLGui frame and initializes the GUI components, including
      * setting up the menu bar, class panel container, and scroll pane. It also
      * maximizes the window and sets the diagram GUI linkage.
+     * @throws AWTException 
      */
-	public UMLGui() {
+	public UMLGui() throws AWTException {
 		super("UML Diagram Editor");
 		initializeGUI();
 		diagram.setGui(this);
@@ -76,9 +85,12 @@ public class UMLGui extends JFrame implements ActionListener {
      * the menu bar, class panel container for displaying classes, and a scroll pane
      * for navigation. It also calls methods to update the diagram view and populate
      * class components based on the current state of the diagram.
+     * @throws AWTException 
      */
-	public void initializeGUI() {   
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	public void initializeGUI() throws AWTException {
+		rbt = new Robot();
+		tk = Toolkit.getDefaultToolkit();   
+		screenSize = tk.getScreenSize();
 	    setSize(screenSize);
 	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -157,6 +169,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		addMenuItem(interfaceMenu, "List Classes", "listClasses", 'L');
 		addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
         addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
+		addMenuItem(interfaceMenu, "Snapshot Diagram", "snapshot");
 
 		// Adding menus to menu bar
 		menuBar.add(fileMenu);
@@ -291,7 +304,14 @@ public class UMLGui extends JFrame implements ActionListener {
         case "redo":
             redo();
             break;
-        } 
+		case "snapshot":
+			try {
+				getSnapshotImage();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			break; 
+        }
 		updateDiagramView();
 	}
 
@@ -1286,6 +1306,14 @@ public class UMLGui extends JFrame implements ActionListener {
 		updateDiagramView();
 	}
 
+	private void getSnapshotImage() throws IOException {
+		// https://alvinalexander.com/blog/post/jfc-swing/how-take-create-screenshot-java-swing-robot-class/
+		//BufferedImage background = rbt.createScreenCapture(getBounds());
+		BufferedImage background = rbt.createScreenCapture(new Rectangle(0, 0, (int) screenSize.getWidth(), (int) screenSize.getHeight()));
+		File outputfile = new File("image.jpg");
+		ImageIO.write(background, "jpg", outputfile);
+	}
+
 	
 /**************************************************************************************************************************************/
     /**   SAVE DIAGRAM   **/
@@ -1547,7 +1575,13 @@ public class UMLGui extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-		SwingUtilities.invokeLater(() -> new UMLGui().setVisible(true));
+		SwingUtilities.invokeLater(() -> {
+			try {
+				new UMLGui().setVisible(true);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 }

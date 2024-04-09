@@ -1,5 +1,6 @@
 package com.classuml.Controller;
 
+import java.awt.AWTException;
 import java.io.IOException;
 
 /**
@@ -43,7 +44,14 @@ public class UMLEditor {
   
         } else {
             // Launch GUI mode
-            javax.swing.SwingUtilities.invokeLater(UMLGui::new);
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                try {
+                    new UMLGui();
+                } catch (AWTException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            });
         }
     }
 }
