@@ -70,12 +70,6 @@ public class Memento
     {
         statesRedo.push(curState);
     }
-    //Clears both states.
-    public void clearStates()
-    {
-        statesUndo.clear();
-        statesRedo.clear();
-    }
     //Clears redo when new command is issues after undoing.
     public void clearRedo()
     {

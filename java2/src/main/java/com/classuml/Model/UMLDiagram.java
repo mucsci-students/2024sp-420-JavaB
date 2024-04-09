@@ -25,10 +25,7 @@ public class UMLDiagram implements UMLStructure {
 	private transient Memento memento = new Memento();
 
 	private transient UMLGui gui;
-
-	public UMLDiagram(UMLGui gui) {
-		this.gui = gui;
-	}
+	
 	public UMLDiagram(UMLDiagram diagram2)
 	{
 		this.gui = diagram2.getGui();
@@ -610,11 +607,6 @@ public class UMLDiagram implements UMLStructure {
 		state.setMemento(this.memento);
 		memento.saveState(state);
 		return true;
-	}
-	public boolean clearState()
-	{
-		memento.clearStates();
-		return false;
 	}
 	/**
 	 * Saves the UML diagram as a JSON file.
