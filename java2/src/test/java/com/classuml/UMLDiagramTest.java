@@ -3,6 +3,7 @@ package com.classuml;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
 
 import java.awt.Point;
 
@@ -364,9 +365,74 @@ public class UMLDiagramTest {
     public void testUndoEmpty()
     {
         UMLDiagram diagram = new UMLDiagram();
+        diagram.helperMethodForHelp();
         diagram.addClass("Class1");
         diagram.undo();
         assertFalse(diagram.undo());
 
+    }
+    @Test
+    public void testRenameClassNull()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        diagram.addClass("Aa");
+        diagram.addClass("bb");
+        diagram.addRelationship("Aa", "bb", 1);
+        assertFalse(diagram.renameClass(null, null));
+        assertTrue(diagram.renameClass("Aa", "ee"));
+        assertTrue(diagram.renameClass("bb", "ea"));
+    }
+    @Test 
+    public void testRelNull()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        assertFalse(diagram.addRelationship(null, null, 0));
+        assertFalse(diagram.changeRelType(null, null, 0));
+    }
+    @Test 
+    public void testAddNull()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        assertFalse(diagram.addField(null, "a", "b"));
+
+    }
+    @Test 
+    public void testRenameField2()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        diagram.addClass("a");
+        diagram.addField("a", "b", "c");
+        diagram.addField("a", "c", "c");
+        assertFalse(diagram.renameField("a", "b", "c"));
+    }
+    @Test
+    public void testAddMethod()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        diagram.addClass("a");
+        diagram.addMethod("a", "b", "c");
+        assertFalse(diagram.addMethod("a", "b", "c"));
+        assertFalse(diagram.addMethod("c", "a", "c"));
+    }
+    @Test
+    public void testAddParamBad()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        assertFalse(diagram.addParameter(null, null, null, null));
+    }
+    @Test
+    public void testClearParams()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        assertFalse(diagram.clearParameters(null, null));
+    }
+    @Test
+    public void testDeleteClass2()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        diagram.addClass("a");
+        diagram.addClass("b");
+        diagram.addRelationship("a", "b", 0);
+        assertTrue(diagram.deleteClass("a"));
     }
 }

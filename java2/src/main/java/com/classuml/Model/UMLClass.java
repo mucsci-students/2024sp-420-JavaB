@@ -184,7 +184,7 @@ public class UMLClass {
 		if(original == null || original == "" || newName == null || newName == "") {
 			return false;
 		}
-		if(!containsField(original) && containsMethod(newName)) {
+		if(!containsField(original) || containsField(newName)) {
 			return false;
 		}
 		for(Field fld : fields) {

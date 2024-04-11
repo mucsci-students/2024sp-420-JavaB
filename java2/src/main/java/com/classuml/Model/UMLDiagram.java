@@ -25,7 +25,7 @@ public class UMLDiagram implements UMLStructure {
 	private transient Memento memento = new Memento();
 
 	private transient UMLGui gui;
-	
+
 	public UMLDiagram(UMLDiagram diagram2)
 	{
 		this.gui = diagram2.getGui();
@@ -608,44 +608,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.saveState(state);
 		return true;
 	}
-	/**
-	 * Saves the UML diagram as a JSON file.
-	 *
-	 * @param fileName The name of the JSON file to save.
-	 * @return true if the diagram was successfully saved, false if an error
-	 *         occurred during the process.
-	 * @throws IOException if an I/O error occurs while writing to the file.
-	 */
- 
-	public boolean saveToJSON(String fileName) throws IOException {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try (FileWriter writer = new FileWriter(fileName)) {
-			gson.toJson(this, writer);
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
 
-	/**
-	 * Loads a UML diagram from a JSON file.
-	 *
-	 * @param fileName The name of the JSON file to load.
-	 * @return true if the diagram was successfully loaded, false if an error
-	 *         occurred during the process.
-	 */
-
-	public boolean loadFromJSON(String fileName) {
-		Gson gson = new Gson();
-		try (FileReader reader = new FileReader(fileName)) {
-			gson.fromJson(reader, UMLDiagram.class);
-			return true; // Loading successful
-		} catch (IOException | JsonSyntaxException e) {
-			e.printStackTrace();
-			return false; // Loading failed
-		}
-	}
 	/**
      * Clears all classes and relationships from the UML diagram.
      */

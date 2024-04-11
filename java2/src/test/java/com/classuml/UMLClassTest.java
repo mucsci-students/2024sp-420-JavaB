@@ -123,4 +123,10 @@ public class UMLClassTest {
         // Check that the method returned false
         assertEquals(false, result);
     }
+    // @Test
+    // public void testToString()
+    // {
+    //     UMLDiagram diagram = new UMLDiagram();
+    //     assertEquals(diagram.toString(), diagram.toString());
+    // }
 }
