@@ -7,6 +7,7 @@ import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -93,7 +95,8 @@ public class UMLGui extends JFrame implements ActionListener {
 		rbt = new Robot();
 		tk = Toolkit.getDefaultToolkit();   
 		screenSize = tk.getScreenSize();
-	    setSize(screenSize);
+	    //setSize(screenSize);
+		//setVisible(true);
 	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
@@ -102,9 +105,15 @@ public class UMLGui extends JFrame implements ActionListener {
 	    setJMenuBar(createMenuBar());	   
 
 	    classPanelContainer = new JPanel();
-	    classPanelContainer.setLayout(new BorderLayout());
+		classPanelContainer.setBorder(BorderFactory.createLineBorder(Color.red));
+		classPanelContainer.setPreferredSize(new Dimension(3000, 2000));
 	    scrollPane = new JScrollPane(classPanelContainer);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		classPanelContainer.setLayout(new BorderLayout());
 	    add(scrollPane, BorderLayout.CENTER);
+		setSize(300,300);
+		setVisible(true);
 	    
 	    // Now it's safe to call updateDiagramView
 	    updateDiagramView();
@@ -217,7 +226,7 @@ public class UMLGui extends JFrame implements ActionListener {
         // Rebuild the components based on the current state of the 'diagram' object
         guiView classView = new guiView(diagram.getClasses(), diagram.getRelationships());
         classPanelContainer.add(classView);
-        
+		
 
         classPanelContainer.revalidate();
         classPanelContainer.repaint();
