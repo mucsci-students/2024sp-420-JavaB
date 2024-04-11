@@ -1344,22 +1344,18 @@ public class UMLGui extends JFrame implements ActionListener {
 		updateDiagramView();
 	}
 
-	private void getSnapshotImage() throws IOException {
-		// https://alvinalexander.com/blog/post/jfc-swing/how-take-create-screenshot-java-swing-robot-class/
+	public void getSnapshotImage() throws IOException {
 		updateDiagramView();
-		BufferedImage bImg = new BufferedImage(getContentPane().getWidth(), getContentPane().getHeight(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage bImg = new BufferedImage(classPanelContainer.getWidth(), classPanelContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D cg = bImg.createGraphics();
-		getContentPane().paintAll(cg);
-		try
-		{
-			if (ImageIO.write(bImg, "png", new File("./output_image.png")))
-			{
+		classPanelContainer.paintAll(cg);
+		try {
+			if (ImageIO.write(bImg, "png", new File("./output_image.png"))) {
 				System.out.println("-- saved");
 			}
-		} catch (IOException e) 
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
-    	}
+		}
 	}
 
 	
