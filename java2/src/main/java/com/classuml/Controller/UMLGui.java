@@ -1351,7 +1351,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		classPanelContainer.paintAll(cg);
 		try {
 			if (ImageIO.write(bImg, "png", new File("./output_image.png"))) {
-				System.out.println("-- saved");
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
