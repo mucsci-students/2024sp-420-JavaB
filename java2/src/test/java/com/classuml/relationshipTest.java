@@ -1,12 +1,22 @@
 package com.classuml;
 
-import org.junit.Test;
 
-import com.classuml.Model.Relationship;
+import com.classuml.Model.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.*;
+import java.awt.Point;
+import java.util.List;
 
-public class relationshipTestClass {
+
+public class relationshipTest {
+    private Relationship relationship;
+
+    @BeforeEach
+    void setUp() {
+        relationship = new Relationship("SourceClass", "DestinationClass", 1);
+    }
 
     /**
      * Tests the constructor and getter methods of the {@link Relationship} class.
@@ -17,34 +27,34 @@ public class relationshipTestClass {
         Relationship relationship = new Relationship("SourceClass", "DestinationClass", 1);
         assertEquals("SourceClass", relationship.getSource());
         assertEquals("DestinationClass", relationship.getDestination());
-        assertEquals("Aggregation", relationship.getType());
+        assertEquals("Aggregation", relationship.getTypeAsString(relationship.getType()));
     }
-
+/**{@link Relationship} */
     @Test
     public void testConstructorAndGetters2() {
         // Test constructor and getter methods
         Relationship relationship = new Relationship("SourceClass", "DestinationClass", 5);
         assertEquals("SourceClass", relationship.getSource());
         assertEquals("DestinationClass", relationship.getDestination());
-        assertEquals(null, relationship.getType());
+        assertEquals(5, relationship.getType());
     }
-    
+    /**{@link Relationship} */
     @Test
     public void testConstructorAndGetters3() {
         // Test constructor and getter methods
         Relationship relationship = new Relationship("Source", "Destination", 0);
         assertEquals("Source", relationship.getSource());
         assertEquals("Destination", relationship.getDestination());
-        assertEquals(null, relationship.getType());
+        assertEquals(0, relationship.getType());
     }
-
+/**{@link Relationship} */
     @Test
     public void testConstructorAndGetters4() {
         // Test constructor and getter methods
         Relationship relationship = new Relationship("", "", 0);
         assertEquals("", relationship.getSource());
         assertEquals("", relationship.getDestination());
-        assertEquals(null, relationship.getType());
+        assertEquals(0, relationship.getType());
     }
     
     /**
@@ -59,7 +69,7 @@ public class relationshipTestClass {
         relationship.changeRelType(4);
         assertEquals("NewSourceClass", relationship.getSource());
         assertEquals("NewDestinationClass", relationship.getDestination());
-        assertEquals("Realization", relationship.getType());
+        assertEquals("Realization", relationship.getTypeAsString(relationship.getType()));
     }
 
     /**
@@ -74,7 +84,7 @@ public class relationshipTestClass {
         relationship.changeRelType(4);
         assertEquals("NewSourceClass", relationship.getSource());
         assertEquals("NewDestinationClass", relationship.getDestination());
-        assertEquals("Composition", relationship.getType());
+        assertEquals("Realization",relationship.getTypeAsString(relationship.getType()));
     }
     
     /**
@@ -89,7 +99,7 @@ public class relationshipTestClass {
         relationship.changeRelType(5);
         assertEquals("NewSourceClass", relationship.getSource());
         assertEquals("NewDestinationClass", relationship.getDestination());
-        assertEquals("Composition", relationship.getType());
+        assertEquals("Composition", relationship.getTypeAsString(relationship.getType()));
     }
     
     /**
@@ -99,7 +109,7 @@ public class relationshipTestClass {
     public void testToString() {
         // Test toString method
         Relationship relationship = new Relationship("SourceClass", "DestinationClass", 1);
-        String expected = "Relationship between SourceClass and DestinationClass";
+        String expected = "Relationship is (Aggregation)\nbetween SourceClass and DestinationClass";
         assertEquals(expected, relationship.toString());
     }
 
@@ -113,9 +123,42 @@ public class relationshipTestClass {
         assertNull(relationship.getSource());
         assertNull(relationship.getDestination());
     }
+    @Test
+    public void testChangeRelTypes()
+    {
+        Relationship relationship = new Relationship("SourceClass", "DestinationClass", 2);
+        relationship.setSource("NewSourceClass");
+        relationship.setDestination("NewDestinationClass");
+        relationship.changeRelType(1);
+        assertEquals("NewSourceClass", relationship.getSource());
+        assertEquals("NewDestinationClass", relationship.getDestination());
+        assertEquals("Aggregation", relationship.getTypeAsString(relationship.getType()));
+    }
+    @Test
+    public void testChangeRelTypes2()
+    {
+        Relationship relationship = new Relationship("SourceClass", "DestinationClass", 3);
+        relationship.setSource("NewSourceClass");
+        relationship.setDestination("NewDestinationClass");
+        relationship.changeRelType(2);
+        assertEquals("NewSourceClass", relationship.getSource());
+        assertEquals("NewDestinationClass", relationship.getDestination());
+        assertEquals("Composition", relationship.getTypeAsString(relationship.getType()));
+    }
+    @Test
+    public void testChangeRelTypes3()
+    {
+        Relationship relationship = new Relationship("SourceClass", "DestinationClass", 2);
+        relationship.setSource("NewSourceClass");
+        relationship.setDestination("NewDestinationClass");
+        relationship.changeRelType(3);
+        assertEquals("NewSourceClass", relationship.getSource());
+        assertEquals("NewDestinationClass", relationship.getDestination());
+        assertEquals("Inheritance", relationship.getTypeAsString(relationship.getType()));
+    }
 
     /**
-     * Tests setting the source and destination classes separately.
+     * Tests setting the source and destination classes separately. {@link Relationship}
      */
     @Test
     public void testSetSourceAndDestinationSeparately() {
@@ -128,6 +171,7 @@ public class relationshipTestClass {
 
     /**
      * Tests setting the source and destination classes to the same value.
+     * {@link Relationship}
      */
     @Test
     public void testSetSameSourceAndDestination() {
@@ -141,6 +185,7 @@ public class relationshipTestClass {
 
     /**
      * Tests setting the source and destination classes to null values.
+     * {@link Relationship}
      */
     @Test
     public void testSetNullSourceAndDestination() {
@@ -153,6 +198,7 @@ public class relationshipTestClass {
 
     /**
      * Tests setting the source class to null.
+     * {@link Relationship}
      */
     @Test
     public void testSetNullSource() {
@@ -164,6 +210,7 @@ public class relationshipTestClass {
 
     /**
      * Tests setting the destination class to null.
+     * {@link Relationship}
      */
     @Test
     public void testSetNullDestination() {
