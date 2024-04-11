@@ -2,6 +2,7 @@ package com.classuml.Controller;
 
 import java.awt.Toolkit;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.IllegalComponentStateException;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
@@ -1346,9 +1347,19 @@ public class UMLGui extends JFrame implements ActionListener {
 	private void getSnapshotImage() throws IOException {
 		// https://alvinalexander.com/blog/post/jfc-swing/how-take-create-screenshot-java-swing-robot-class/
 		updateDiagramView();
-		BufferedImage background = rbt.createScreenCapture(windowDimensions);
-		File outputfile = new File("image.jpg");
-		ImageIO.write(background, "jpg", outputfile);
+		BufferedImage bImg = new BufferedImage(getContentPane().getWidth(), getContentPane().getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D cg = bImg.createGraphics();
+		getContentPane().paintAll(cg);
+		try
+		{
+			if (ImageIO.write(bImg, "png", new File("./output_image.png")))
+			{
+				System.out.println("-- saved");
+			}
+		} catch (IOException e) 
+		{
+			e.printStackTrace();
+    	}
 	}
 
 	
