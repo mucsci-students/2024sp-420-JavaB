@@ -225,6 +225,13 @@ public class UMLGui extends JFrame implements ActionListener {
 		recalculateWindowDimForSnapshot();
     }
 
+	/**
+	 * Finds the window dimensions to snapshot the screen. This does not
+	 * capture the internal canvas, only what the monitor sees, so I can't 
+	 * unfortunately take a snapshot of the entire UML canvas if the window
+	 * showing it is smaller and needs to display a scroll bar to see the
+	 * whole thing.
+	 */
 	public void recalculateWindowDimForSnapshot()
 	{
 		Point frameLocation;
