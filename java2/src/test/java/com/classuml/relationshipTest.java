@@ -156,6 +156,16 @@ public class relationshipTest {
         assertEquals("NewDestinationClass", relationship.getDestination());
         assertEquals("Inheritance", relationship.getTypeAsString(relationship.getType()));
     }
+    @Test
+    public void testChangeRelTypes4()
+    {
+        Relationship relationship = new Relationship("SourceClass", "DestinationClass", 6);
+        relationship.setSource("NewSourceClass");
+        relationship.setDestination("NewDestinationClass");
+        assertEquals("NewSourceClass", relationship.getSource());
+        assertEquals("NewDestinationClass", relationship.getDestination());
+        assertEquals("Unknown", relationship.getTypeAsString(6));
+    }
 
     /**
      * Tests setting the source and destination classes separately. {@link Relationship}
