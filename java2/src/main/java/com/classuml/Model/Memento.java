@@ -36,12 +36,9 @@ public class Memento
     //Saves the passed in state.
     public boolean saveState(UMLDiagram curState)
     {
-        if(curState != null)
-        {
+
             statesUndo.push(curState);
             return true;
-        }  
-        return false;
     }
     //Returns undo diagram.
     public UMLDiagram undoState()

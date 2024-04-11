@@ -360,4 +360,13 @@ public class UMLDiagramTest {
         // Try to set the position of a non-existent class
         assertFalse(diagram.setPosition("Class2", new Point(200, 200)));
     }
+    @Test
+    public void testUndoEmpty()
+    {
+        UMLDiagram diagram = new UMLDiagram();
+        diagram.addClass("Class1");
+        diagram.undo();
+        assertFalse(diagram.undo());
+
+    }
 }

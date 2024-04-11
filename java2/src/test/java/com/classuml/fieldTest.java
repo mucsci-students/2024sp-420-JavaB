@@ -18,4 +18,10 @@ public class fieldTest {
     public void testToString() {
         assertEquals("\n    Name: fieldName,\n    Type: String", field.toString());
     }
+    @Test
+    public void testEqualsFalse()
+    {
+        UMLClass class2 = new UMLClass();
+        assertFalse(field.equals(class2));
+    }
 }
