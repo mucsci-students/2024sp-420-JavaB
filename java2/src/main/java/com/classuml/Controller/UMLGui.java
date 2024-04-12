@@ -34,6 +34,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.imageio.*;
 
@@ -67,7 +68,9 @@ public class UMLGui extends JFrame implements ActionListener {
 	private Dimension screenSize;
 	private Rectangle windowDimensions;
 	private Toolkit tk;
-	
+	private static int prefMaxWidth = 800;
+	private static int prefMaxHeight = 800;
+	Timer timer;
 	
     /**
      * Constructs the UMLGui frame and initializes the GUI components, including
@@ -79,7 +82,19 @@ public class UMLGui extends JFrame implements ActionListener {
 		super("UML Diagram Editor");
 		initializeGUI();
 		diagram.setGui(this);
+		timer = new Timer(1000, timerActionListener);
+        timer.start();
 	}  
+
+	private ActionListener timerActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// Restart the timer
+			timer.restart();
+			// Call the updatePreferredDimensions method
+			updatePreferredDimensions();
+		}
+	};
 
 /**************************************************************************************************************************************/
     /**   GUI FRAME SET-UPS   **/
@@ -107,7 +122,7 @@ public class UMLGui extends JFrame implements ActionListener {
 
 	    classPanelContainer = new JPanel();
 		classPanelContainer.setBorder(BorderFactory.createLineBorder(Color.red));
-		classPanelContainer.setPreferredSize(new Dimension(3000, 2000));
+		classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
 	    scrollPane = new JScrollPane(classPanelContainer);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -120,6 +135,40 @@ public class UMLGui extends JFrame implements ActionListener {
 	    // Maximize the window
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+	}
+
+	public void updatePreferredDimensions() {
+		int maxWidth = prefMaxWidth;
+		int maxHeight = prefMaxHeight;
+
+		for (UMLClass umlClass : diagram.getClasses()) {
+			Point position = umlClass.position;
+			maxWidth = Math.max(maxWidth, position.x + 50);
+			maxHeight = Math.max(maxHeight, position.y + 50);
+		}
+
+		if (maxWidth > prefMaxWidth || maxHeight > prefMaxHeight) {
+			prefMaxWidth = maxWidth + 50;
+			prefMaxHeight = maxHeight + 50;
+			classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
+			classPanelContainer.revalidate();
+			classPanelContainer.repaint();
+		}
+
+		// Add null checks for the String objects being used
+		String[] classNames = getClassNames();
+		if (classNames != null) {
+			for (String className : classNames) {
+				if (className != null) {
+					UMLClass umlClass = diagram.getClassByName(className);
+					if (umlClass != null) {
+						Point position = umlClass.position;
+						maxWidth = Math.max(maxWidth, position.x + 50);
+						maxHeight = Math.max(maxHeight, position.y + 50);
+					}
+				}
+			}
+		}
 	}
 
 /**************************************************************************************************************************************/
