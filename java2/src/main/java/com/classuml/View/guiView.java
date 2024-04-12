@@ -7,6 +7,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
+import javafx.util.Pair;
+import java.util.Optional;
 
 import com.classuml.Model.*;
 
@@ -345,7 +347,68 @@ public class guiView extends JComponent {
                     }
                 }
             }
+
+            if(relationships.size() > 1){
+                for(Relationship relate: relationships){
+                    //Pair is used to keep the values of both the points in the middle of each class, 
+                    //and the slope and yInt for the line equation
+                    Pair<Point[], int[]> line1 = lineEquation(relate);
+
+                    for(Relationship relate2: relationships){
+                        if(relate != relate2){
+                            Pair<Point[], int[]> line2 = lineEquation(relate2);
+                            int[] equation1 = line1.getValue();
+                            int[] equation2 = line2.getValue();
+
+
+                            //Optional<Integer> is used in case the value found is null
+                            Optional<Integer> intersectX = Optional.of((equation2[1] - equation1[1]) / (equation2[0] - equation1[0]));
+                            Optional<Integer> intersectY = Optional.empty();
+                            if(intersectX.isPresent()){
+                                intersectY = Optional.of((equation1[0] * intersectX.get()) + equation1[1]);
+                            }
+                            
+                            if(intersectY.isPresent()){
+                                //need to rerout the relationship with the longer distance
+                            }
+                        }
+                        
+                    }
+
+                }
+            }
         }
+    }
+
+    public Pair<Point[], int[]> lineEquation(Relationship relate){
+                    Point[] mids = getClassesMidPoints(relate);
+                    int slope = (mids[1].y - mids[0].y) / (mids[1].x - mids[0].x);
+                    int yInt = mids[0].y - (mids[0].x * slope);
+                    
+                    int[] equation = {slope, yInt};
+                    return new Pair<Point[],int[]>(mids, equation);
+    }
+
+    public Point[] getClassesMidPoints(Relationship relate){
+            UMLClass c1 = null;
+                    UMLClass c2 = null;
+                    Point c1Mid;
+                    Point c2Mid;
+                    for(UMLClass c: classes){
+                        if(c.getName().equalsIgnoreCase(relate.getSource())){
+                            c1 = c;
+                        }
+                        if(c.getName().equalsIgnoreCase(relate.getDestination())){
+                            c2 = c;
+                        }
+                    }
+                    if(c1 != null && c2 != null){
+                        c1Mid = new Point(c1.position.x + (c1.uniformWidth / 2), c1.position.y + (c1.totalHeight/2));
+                        c2Mid = new Point(c2.position.x + (c2.uniformWidth / 2), c2.position.y + (c2.totalHeight/2));
+                        Point[] mids = {c1Mid, c2Mid};
+                        return mids;
+                    }
+                    return null;
     }
 
     /**
