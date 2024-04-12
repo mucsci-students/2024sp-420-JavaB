@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Timer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -67,6 +68,9 @@ public class UMLGui extends JFrame implements ActionListener {
 	private Dimension screenSize;
 	private Rectangle windowDimensions;
 	private Toolkit tk;
+	private static int prefMaxWidth = 800;
+	private static int prefMaxHeight = 800;
+	Timer timer;
 	
 	
     /**
@@ -79,7 +83,19 @@ public class UMLGui extends JFrame implements ActionListener {
 		super("UML Diagram Editor");
 		initializeGUI();
 		diagram.setGui(this);
+		timer = new Timer(1000, timerActionListener);
+        timer.start();
 	}  
+
+	private ActionListener timerActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// Restart the timer
+			timer.restart();
+			// Call the updatePreferredDimensions method
+			updatePreferredDimensions();
+		}
+	};
 
 /**************************************************************************************************************************************/
     /**   GUI FRAME SET-UPS   **/
@@ -107,7 +123,7 @@ public class UMLGui extends JFrame implements ActionListener {
 
 	    classPanelContainer = new JPanel();
 		classPanelContainer.setBorder(BorderFactory.createLineBorder(Color.red));
-		classPanelContainer.setPreferredSize(new Dimension(3000, 2000));
+		classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
 	    scrollPane = new JScrollPane(classPanelContainer);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -1592,6 +1608,40 @@ public class UMLGui extends JFrame implements ActionListener {
 	    classPanelContainer.repaint();
 		
 		recalculateWindowDimForSnapshot();
+	}
+
+	public void updatePreferredDimensions() {
+		int maxWidth = prefMaxWidth;
+		int maxHeight = prefMaxHeight;
+	
+		for (UMLClass umlClass : diagram.getClasses()) {
+			Point position = umlClass.position;
+			maxWidth = Math.max(maxWidth, position.x + 50);
+			maxHeight = Math.max(maxHeight, position.y + 50);
+		}
+	
+		if (maxWidth > prefMaxWidth || maxHeight > prefMaxHeight) {
+			prefMaxWidth = maxWidth + 50;
+			prefMaxHeight = maxHeight + 50;
+			classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
+			classPanelContainer.revalidate();
+			classPanelContainer.repaint();
+		}
+	
+		// Add null checks for the String objects being used
+		String[] classNames = getClassNames();
+		if (classNames != null) {
+			for (String className : classNames) {
+				if (className != null) {
+					UMLClass umlClass = diagram.getClassByName(className);
+					if (umlClass != null) {
+						Point position = umlClass.position;
+						maxWidth = Math.max(maxWidth, position.x + 50);
+						maxHeight = Math.max(maxHeight, position.y + 50);
+					}
+				}
+			}
+		}
 	}
 
 	
