@@ -2,7 +2,13 @@ package com.classuml.Controller;
 
 import java.awt.Toolkit;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.IllegalComponentStateException;
+import java.awt.Robot;
+import java.awt.image.BufferedImage;
+import java.awt.AWTException;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -13,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -28,6 +35,7 @@ import javax.swing.KeyStroke;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.imageio.*;
 
 import com.classuml.Model.*;
 import com.classuml.View.guiView;
@@ -38,13 +46,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import javafx.scene.control.MenuItem;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-
 import java.awt.Point;
+import java.awt.Rectangle;
 
 
 // Assuming UMLDiagram and related classes are in the Model package
@@ -60,14 +63,19 @@ public class UMLGui extends JFrame implements ActionListener {
 	private guiView view = new guiView(diagram.getClasses(), diagram.getRelationships());
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
+	private Robot rbt;
+	private Dimension screenSize;
+	private Rectangle windowDimensions;
+	private Toolkit tk;
 	
 	
     /**
      * Constructs the UMLGui frame and initializes the GUI components, including
      * setting up the menu bar, class panel container, and scroll pane. It also
      * maximizes the window and sets the diagram GUI linkage.
+     * @throws AWTException 
      */
-	public UMLGui() {
+	public UMLGui() throws AWTException {
 		super("UML Diagram Editor");
 		initializeGUI();
 		diagram.setGui(this);
@@ -82,10 +90,14 @@ public class UMLGui extends JFrame implements ActionListener {
      * the menu bar, class panel container for displaying classes, and a scroll pane
      * for navigation. It also calls methods to update the diagram view and populate
      * class components based on the current state of the diagram.
+     * @throws AWTException 
      */
-	public void initializeGUI() {   
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    setSize(screenSize);
+	public void initializeGUI() throws AWTException {
+		rbt = new Robot();
+		tk = Toolkit.getDefaultToolkit();   
+		screenSize = tk.getScreenSize();
+	    //setSize(screenSize);
+		//setVisible(true);
 	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
@@ -94,9 +106,15 @@ public class UMLGui extends JFrame implements ActionListener {
 	    setJMenuBar(createMenuBar());	   
 
 	    classPanelContainer = new JPanel();
-	    classPanelContainer.setLayout(new BorderLayout());
+		classPanelContainer.setBorder(BorderFactory.createLineBorder(Color.red));
+		classPanelContainer.setPreferredSize(new Dimension(3000, 2000));
 	    scrollPane = new JScrollPane(classPanelContainer);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		classPanelContainer.setLayout(new BorderLayout());
 	    add(scrollPane, BorderLayout.CENTER);
+		setSize(300,300);
+		setVisible(true);
 	    
 	    
 	    // Maximize the window
@@ -144,6 +162,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		addMenuItem(attributeMenu, "Add Parameter", "addParameter", 'P');
 		addMenuItem(attributeMenu, "Rename Parameter", "renameParameter");
 		addMenuItem(attributeMenu, "Delete Parameter", "deleteParameter");
+		addMenuItem(attributeMenu, "Replace Parameters", "replaceParameters");
 
 
 
@@ -160,6 +179,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		addMenuItem(interfaceMenu, "List Classes", "listClasses", 'L');
 		addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
         addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
+		addMenuItem(interfaceMenu, "Snapshot Diagram", "snapshot");
 
 		// Adding menus to menu bar
 		menuBar.add(fileMenu);
@@ -192,6 +212,30 @@ public class UMLGui extends JFrame implements ActionListener {
 		menuItem.addActionListener(this);
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(controlChar, java.awt.event.InputEvent.CTRL_DOWN_MASK));
 		menu.add(menuItem);
+	}
+
+	/**
+	 * Finds the window dimensions to snapshot the screen. This does not
+	 * capture the internal canvas, only what the monitor sees, so I can't 
+	 * unfortunately take a snapshot of the entire UML canvas if the window
+	 * showing it is smaller and needs to display a scroll bar to see the
+	 * whole thing.
+	 */
+	public void recalculateWindowDimForSnapshot()
+	{
+		Point frameLocation;
+		try
+		{
+			frameLocation = this.getLocationOnScreen();
+		}
+		catch (IllegalComponentStateException e)
+		{
+			frameLocation = new Point();
+		}
+		int frameX = frameLocation.x + 9;
+		int frameY = frameLocation.y;
+		windowDimensions = classPanelContainer.getBounds();
+		windowDimensions.setLocation(frameX, frameY);
 	}
 
     /**
@@ -241,6 +285,9 @@ public class UMLGui extends JFrame implements ActionListener {
 		case "deleteParameter":
 			deleteParameter();
 			break;
+		case "replaceParameters":
+			replaceParameters();
+			break;
 		case "addRelationship":
 			addRelationship();
 			break;
@@ -274,8 +321,14 @@ public class UMLGui extends JFrame implements ActionListener {
         case "redo":
             redo();
             break;
-        } 
-		
+		case "snapshot":
+			try {
+				getSnapshotImage();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			break; 
+        }
 	}
 
 
@@ -940,6 +993,53 @@ public class UMLGui extends JFrame implements ActionListener {
 	        }
 	    }
 	}
+	private void replaceParameters() {
+		// Prompt the user for class name, method name, and number of parameters
+		String[] classNames = getClassNames();
+		JComboBox<String> namesBox = new JComboBox<String>(classNames);
+		JTextField methName = new JTextField();
+		JTextField numParams = new JTextField();
+		JPanel pPanel = new JPanel();
+		pPanel.setLayout(new BoxLayout(pPanel, BoxLayout.Y_AXIS));
+		pPanel.add(new JLabel("Select class: "));
+		pPanel.add(namesBox);
+		pPanel.add(new JLabel("Enter method name: "));
+		pPanel.add(methName);
+		pPanel.add(new JLabel("Enter number of parameters: "));
+		pPanel.add(numParams);
+	
+		int entered = -1;
+		entered = JOptionPane.showConfirmDialog(this, pPanel, "Replace Parameters", JOptionPane.OK_CANCEL_OPTION);
+	
+		if (entered == 0 && namesBox.getSelectedItem() != null && methName.getText() != null && numParams.getText() != null) {
+			int num = Integer.parseInt(numParams.getText());
+			String[] paramNames = new String[num];
+			String[] paramTypes = new String[num];
+	
+			for (int i = 0; i < num; i++) {
+				JPanel pPanelInner = new JPanel();
+				pPanelInner.setLayout(new BoxLayout(pPanelInner, BoxLayout.Y_AXIS));
+				JTextField paramName = new JTextField();
+				JComboBox<String> attType = new JComboBox<String>(attributeTypes());
+				pPanelInner.add(new JLabel("Enter parameter name: "));
+				pPanelInner.add(paramName);
+				pPanelInner.add(new JLabel("Select parameter type: "));
+				pPanelInner.add(attType);
+	
+				entered = JOptionPane.showConfirmDialog(this, pPanelInner, "Parameter " + (i + 1), JOptionPane.OK_CANCEL_OPTION);
+	
+				if (entered == 0 && paramName.getText() != null) {
+					paramNames[i] = paramName.getText();
+					paramTypes[i] = attType.getSelectedItem().toString();
+				} else {
+					return;
+				}
+			}
+	
+			diagram.replaceParameters(namesBox.getSelectedItem().toString(), methName.getText(), paramNames, paramTypes);
+			changeComponent();
+		}
+	}
 
 	
 	private String[] getMethodParams(String className, String methodName){
@@ -1222,6 +1322,19 @@ public class UMLGui extends JFrame implements ActionListener {
 		
 	}
 
+	public void getSnapshotImage() throws IOException {
+		BufferedImage bImg = new BufferedImage(classPanelContainer.getWidth(), classPanelContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D cg = bImg.createGraphics();
+		classPanelContainer.paintAll(cg);
+		try {
+			if (ImageIO.write(bImg, "png", new File("./output_image.png"))) {
+				
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	
 /**************************************************************************************************************************************/
     /**   SAVE DIAGRAM   **/
@@ -1454,6 +1567,8 @@ public class UMLGui extends JFrame implements ActionListener {
 
 	    classPanelContainer.revalidate();
 	    classPanelContainer.repaint();
+		
+		recalculateWindowDimForSnapshot();
 	}
 
 	
@@ -1483,7 +1598,13 @@ public class UMLGui extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-		SwingUtilities.invokeLater(() -> new UMLGui().setVisible(true));
+		SwingUtilities.invokeLater(() -> {
+			try {
+				new UMLGui().setVisible(true);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 }
