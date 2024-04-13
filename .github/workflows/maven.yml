@@ -27,6 +27,10 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file /home/runner/work/2024sp-420-JavaB/2024sp-420-JavaB/java2/pom.xml
 
+    - name: JaCoCo Report
+      uses: Madrapps/jacoco-report@v1.6.1
+            
+
     - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
