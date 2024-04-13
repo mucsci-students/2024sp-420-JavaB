@@ -32,6 +32,9 @@ jobs:
       with:
         paths: /home/runner/work/2024sp-420-JavaB/2024sp-420-JavaB/java2/target/site/jacoco/jacoco.xml
         token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 40
+        min-coverage-changed-files: 60
+        title: Code Coverage
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
