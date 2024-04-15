@@ -67,7 +67,6 @@ public class UMLGui extends JFrame implements ActionListener {
 	//private Robot rbt;
 	//private Dimension screenSize;
 	private Rectangle windowDimensions;
-	private Toolkit tk;
 	private static int prefMaxWidth = 800;
 	private static int prefMaxHeight = 800;
 	Timer timer;
