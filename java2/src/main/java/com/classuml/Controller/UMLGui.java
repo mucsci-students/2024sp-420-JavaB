@@ -1,10 +1,10 @@
 package com.classuml.Controller;
 
-import java.awt.Toolkit;
+//import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.IllegalComponentStateException;
-import java.awt.Robot;
+//import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
@@ -64,10 +64,9 @@ public class UMLGui extends JFrame implements ActionListener {
 	private guiView view = new guiView(diagram.getClasses(), diagram.getRelationships());
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
-	private Robot rbt;
-	private Dimension screenSize;
+	//private Robot rbt;
+	//private Dimension screenSize;
 	private Rectangle windowDimensions;
-	private Toolkit tk;
 	private static int prefMaxWidth = 800;
 	private static int prefMaxHeight = 800;
 	Timer timer;
@@ -108,9 +107,9 @@ public class UMLGui extends JFrame implements ActionListener {
      * @throws AWTException 
      */
 	public void initializeGUI() throws AWTException {
-		rbt = new Robot();
-		tk = Toolkit.getDefaultToolkit();   
-		screenSize = tk.getScreenSize();
+		//Robot rbt = new Robot();
+		//tk = Toolkit.getDefaultToolkit();   
+		//Dimension screenSize = tk.getScreenSize();
 	    //setSize(screenSize);
 		//setVisible(true);
 	    setLocationRelativeTo(null);
@@ -281,7 +280,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		{
 			frameLocation = new Point();
 		}
-		int frameX = frameLocation.x + 9;
+		int frameX = frameLocation.x;
 		int frameY = frameLocation.y;
 		windowDimensions = classPanelContainer.getBounds();
 		windowDimensions.setLocation(frameX, frameY);
@@ -1376,7 +1375,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		Graphics2D cg = bImg.createGraphics();
 		classPanelContainer.paintAll(cg);
 		try {
-			if (ImageIO.write(bImg, "png", new File("./output_image.png"))) {
+			if (ImageIO.write(bImg, "png", new File("./GUIOutput.png"))) {
 				
 			}
 		} catch (IOException e) {
