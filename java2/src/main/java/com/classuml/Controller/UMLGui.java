@@ -345,9 +345,6 @@ public class UMLGui extends JFrame implements ActionListener {
 		case "changeType":
 			changeType();
 			break;
-		case "listClass":
-			listClass();
-			break;
 		case "listClasses":
 			listClasses();
 			break;
@@ -1304,33 +1301,6 @@ public class UMLGui extends JFrame implements ActionListener {
     /**   INTERFACES   **/
 /**************************************************************************************************************************************/
 
-	
-    /**
-     * Lists the contents of a specified class.
-     * Prompts the user for the class name and displays its contents including fields, methods, and relationships.
-     * Shows an error message if the class is not found.
-     */
-	private void listClass() {
-		JPanel lPanel = new JPanel();
-		lPanel.setLayout(new BoxLayout(lPanel, BoxLayout.Y_AXIS));
-		String[] classNames = getClassNames();
-		JComboBox<String> namesBox = new JComboBox<String>(classNames);
-
-		lPanel.add(new JLabel("Select the class to list: "));
-		lPanel.add(namesBox);
-
-		int entered = -1;
-		entered = JOptionPane.showConfirmDialog(this, lPanel, "List Class", JOptionPane.OK_CANCEL_OPTION);
-
-	    if (namesBox.getSelectedItem() != null && entered == 0) {
-	        UMLClass umlClass = diagram.getClassByName(namesBox.getSelectedItem().toString());
-	        if (umlClass != null) {
-	            JOptionPane.showMessageDialog(this, umlClass.toString(), "Class Information", JOptionPane.INFORMATION_MESSAGE);
-	        } else {
-	            JOptionPane.showMessageDialog(this, "Class '" + namesBox.getSelectedItem().toString() + "' not found.", "Error", JOptionPane.ERROR_MESSAGE);
-	        }
-	    }
-	}
 
     /**
      * Lists all classes in the UML diagram.

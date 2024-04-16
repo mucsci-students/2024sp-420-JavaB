@@ -84,10 +84,7 @@ public class Relationship {
     public int getType(){
         return relationType;
     }
-    
-    public void setType(int type) {
-    	this.relationType = type;
-    }
+
     
     //add comments
     public void changeRelType(int type) {
@@ -95,7 +92,7 @@ public class Relationship {
         switch (type) {
             case 1:
                 // Assign the integer representing the relationship type
-                this.relationType = 1; // Aggregation
+                relationType = 1; // Aggregation
                 break;
             case 2:
                 this.relationType = 2; // Composition
