@@ -21,7 +21,6 @@ public class fieldTest {
     @Test
     public void testEqualsFalse()
     {
-        UMLClass class2 = new UMLClass();
-        assertFalse(field.equals(class2));
+        assertFalse(field.equals(null));
     }
 }

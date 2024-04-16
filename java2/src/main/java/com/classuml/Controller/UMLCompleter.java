@@ -28,7 +28,7 @@ public class UMLCompleter implements Completer {
         return Set.of("menu", "addclass", "deleteclass", "renameclass", "addparameter", "deleteparameter", "renameparameter",
                 "replaceparams", "addfield", "renamefield", "deletefield", "addmethod", "deletemethod", "renamemethod",
                 "addrelationship", "deleterelationship", "changetype", "listclasses", "listclass", "listrelationships",
-                "save", "load", "help", "exit", "undo", "redo");
+                "snapshot", "save", "load", "help", "exit", "undo", "redo");
     }
 
     private ArrayList<String> getCommandsArr(){
