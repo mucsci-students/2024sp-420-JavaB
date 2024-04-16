@@ -28,6 +28,7 @@ public class UMLClassTest {
     public void testChangeMethodType_whenMethodDoesNotExist_shouldReturnFalse() {
         // Create a new UMLClass
         UMLClass clazz = new UMLClass("TestClass");
+        clazz.addMethod("b", "c");
 
         // Try to change the return type of a non-existent method
         boolean result = clazz.changeMethodType("non-existent", "float");
@@ -86,6 +87,7 @@ public class UMLClassTest {
     public void testChangeFieldType_whenFieldDoesNotExist_shouldReturnFalse() {
         // Create a new UMLClass
         UMLClass clazz = new UMLClass("TestClass");
+        clazz.addField("b", "cc");
 
         // Try to change the type of a non-existent field
         boolean result = clazz.changeFieldType("non-existent", "float");
@@ -123,10 +125,71 @@ public class UMLClassTest {
         // Check that the method returned false
         assertEquals(false, result);
     }
-    // @Test
-    // public void testToString()
-    // {
-    //     UMLDiagram diagram = new UMLDiagram();
-    //     assertEquals(diagram.toString(), diagram.toString());
-    // }
+    @Test 
+    public void testRemBadMethod()
+    {
+        UMLClass class2 = new UMLClass("a");
+        assertEquals(false, class2.deleteMethod(null));
+    }
+    @Test
+    public void testRenameFalseMethod()
+    {
+        UMLClass class2 = new UMLClass("a");
+        class2.addMethod("test", "b");
+        class2.addMethod("test2", "c");
+        assertEquals(false, class2.renameMethod("test3", "test2"));
+        assertEquals(false, class2.renameMethod("b", "c"));
+    }
+    @Test
+    public void testAddMethod()
+    {
+        UMLClass class2 = new UMLClass("a");
+        class2.addMethod("null", "notnull");
+        assertEquals(false, class2.addMethod(null, null));
+        assertEquals(false, class2.addMethod(null, "no"));
+    }
+    @Test
+    public void testGetMethod()
+    {
+        UMLClass class2 = new UMLClass("a");
+        class2.addMethod("c", "c");
+        assertEquals(null, class2.getMethod(null));
+        assertEquals(null, class2.getMethod("b"));
+    }
+    @Test
+    public void testContainsMethod()
+    {
+        UMLClass class2 = new UMLClass("a");
+        assertEquals(false, class2.containsMethod(null));
+    }
+    @Test
+    public void testDelMethod()
+    {
+        UMLClass class2 = new UMLClass("a");
+        class2.addMethod("a", "B");
+        assertEquals(false, class2.deleteMethod("c"));
+    }
+    @Test
+    public void testDelField()
+    {
+        UMLClass class2 = new UMLClass("a");
+        class2.addField("c", "c");
+        assertEquals(false, class2.deleteField("a"));
+    }
+    @Test
+    public void testRenField()
+    {
+        UMLClass class2 = new UMLClass();
+        class2.addField("c", "d");
+        assertEquals(false, class2.renameField(null, null));
+        assertEquals(false, class2.renameField("a", "b") );
+    }
+    @Test 
+    public void testGetField()
+    {
+        UMLClass class2 = new UMLClass();
+        class2.addField("c", "c");
+        assertEquals(null, class2.getField(null));
+        assertEquals(null, class2.getField("b"));
+    }
 }

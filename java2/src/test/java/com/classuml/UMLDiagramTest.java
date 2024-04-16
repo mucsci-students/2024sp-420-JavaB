@@ -432,7 +432,15 @@ public class UMLDiagramTest {
         UMLDiagram diagram = new UMLDiagram();
         diagram.addClass("a");
         diagram.addClass("b");
-        diagram.addRelationship("a", "b", 0);
-        assertTrue(diagram.deleteClass("a"));
+        diagram.addRelationship("a", "b", 1);
+        assertTrue(diagram.deleteClass("b"));
+        diagram.addClass("c");
+        diagram.addRelationship("c", "a", 2);
+        assertTrue(diagram.deleteClass("c"));
+        diagram.addClass("d");
+        diagram.addRelationship("a", "d", 1);
+        diagram.addClass("e");
+        assertTrue(diagram.deleteClass("e"));
+        diagram.deleteClass("a");
     }
 }

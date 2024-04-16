@@ -184,7 +184,7 @@ public class UMLClass {
 		if(original == null || original == "" || newName == null || newName == "") {
 			return false;
 		}
-		if(!containsField(original) || containsField(newName)) {
+		if(containsField(newName)) {
 			return false;
 		}
 		for(Field fld : fields) {
@@ -232,9 +232,6 @@ public class UMLClass {
 	 */
 	public boolean deleteField(String name) {
 		if(name == null || name == "") {
-			return false;
-		}
-		if(!containsField(name)) {
 			return false;
 		}
 		for(Field fld : fields) {
@@ -308,7 +305,7 @@ public class UMLClass {
 	 * @return true if the method is successfully added, false otherwise
 	 */
 	public boolean addMethod(String name, String type) {
-		if(name == null || name == "" || type == null || type == "") {
+		if((name == null || name == "") || (type == null || type == "")) {
 			return false;
 		}
 		if(containsMethod(name)) {
@@ -463,63 +460,5 @@ public class UMLClass {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Retrieves a string representation of all methods in the class.
-	 *
-	 * @return a string containing information about all methods in the class
-	 */
-	public String printMethods() {
-		return " Methods:  " + methods;
-	}
-
-	/**
-	 * Retrieves a string representation of all fields in the class.
-	 *
-	 * @return a string containing information about all fields in the class
-	 */
-	public String printFiled() {
-		return "Field:  " + fields;
-	}
-
-
-	/**
-	 * Returns a string representation of the class including its fields and methods.
-	 *
-	 * @return a string representation of the class
-	 */
-	@Override
-	public String toString() {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("Class Name: ").append(className).append("\nFields:\n");
-
-	    if (fields.isEmpty()) {
-	        sb.append("  [No fields]\n");
-	    } else {
-	        for (Field field : fields) {
-	            sb.append("  ").append(field.getType()).append(" ").append(field.getName()).append("\n");
-	        }
-	    }
-
-	    sb.append("Methods:\n");
-	    if (methods.isEmpty()) {
-	        sb.append("  [No methods]\n");
-	    } else {
-	        for (Method method : methods) {
-	            sb.append("  ").append(method.getReturnType()).append(" ").append(method.getName()).append("(");
-	            List<Parameter> params = method.getParameters();
-	            for (int i = 0; i < params.size(); i++) {
-	                Parameter param = params.get(i);
-	                sb.append(param.getType()).append(" ").append(param.getName());
-	                if (i < params.size() - 1) {
-	                    sb.append(", ");
-	                }
-	            }
-	            sb.append(")\n");
-	        }
-	    }
-
-	    return sb.toString();
 	}
 }
