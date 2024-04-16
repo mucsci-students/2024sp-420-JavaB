@@ -1,12 +1,15 @@
 package com.classuml.Controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+
 import jline.console.ConsoleReader;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -158,8 +161,8 @@ public class UMLCli {
 	  case "redo":
 	    redo();
 	    break;
-	  case "CLIOutputAsImage":
-	  case "ci":
+	  case "snapshot":
+	  case "si":
 		CLIOutputAsImage();
 		break;
       default:
@@ -198,7 +201,7 @@ public class UMLCli {
 		System.out.println("ListClasses (lcs)- List all classes.");
 		System.out.println("ListClass (lc)- List contents of a specified class.");
 		System.out.println("ListRelationships (lr)- List all relationships.");
-		System.out.println("CLIOutputAsImage (ci) - Saves the listing of all classes as a .jpg in the java2 directory.");
+		System.out.println("CLIOutputAsImage (si) - Outputs listing of classes, fields, methods, and relationships as a .jpg.");
 		System.out.println("  ");
 		System.out.println("Save (s)- Save diagram to JSON file.");
 		System.out.println("Load (lo)- Load diagram from JSON file.");
@@ -980,9 +983,10 @@ public class UMLCli {
 
         // Generate an image from the string content
         BufferedImage image = createImageFromString(stringToRasterize.toString());
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
 
         // Save the image to a file
-        File outputFile = new File("CLIOutput.jpg");
+        File outputFile = new File(timestamp + "CLIOutput.jpg");
         try {
             ImageIO.write(image, "jpg", outputFile);
             System.out.println("Image saved to: " + outputFile.getAbsolutePath());

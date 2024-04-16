@@ -1,14 +1,9 @@
 package com.classuml;
 
-
 import com.classuml.Model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.awt.Point;
-import java.util.List;
-
 
 public class relationshipTest {
     private Relationship relationship;

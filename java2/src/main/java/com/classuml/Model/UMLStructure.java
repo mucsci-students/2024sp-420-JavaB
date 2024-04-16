@@ -1,7 +1,5 @@
 package com.classuml.Model;
 
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
