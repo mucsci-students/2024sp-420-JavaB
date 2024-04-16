@@ -48,7 +48,6 @@ public class UMLEditor {
                 try {
                     new UMLGui();
                 } catch (AWTException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             });

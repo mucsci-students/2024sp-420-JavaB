@@ -2,10 +2,19 @@ package com.classuml.Controller;
 
 import java.io.IOException;
 import jline.console.ConsoleReader;
+
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.*;
 
 import com.classuml.Model.*;
 import com.google.gson.Gson;
@@ -149,6 +158,10 @@ public class UMLCli {
 	  case "redo":
 	    redo();
 	    break;
+	  case "CLIOutputAsImage":
+	  case "ci":
+		CLIOutputAsImage();
+		break;
       default:
         System.out.println("Invalid choice. Please enter a valid command.");
         break;
@@ -185,6 +198,8 @@ public class UMLCli {
 		System.out.println("ListClasses (lcs)- List all classes.");
 		System.out.println("ListClass (lc)- List contents of a specified class.");
 		System.out.println("ListRelationships (lr)- List all relationships.");
+		System.out.println("CLIOutputAsImage (ci) - Saves the listing of all classes as a .jpg in the java2 directory.");
+		System.out.println("  ");
 		System.out.println("Save (s)- Save diagram to JSON file.");
 		System.out.println("Load (lo)- Load diagram from JSON file.");
 		System.out.println("Menu (m)- Display main menu.");
@@ -902,7 +917,6 @@ public class UMLCli {
 		for (UMLClass umlClass : classes) {
 			System.out.println("- " + umlClass.getName());
 		}
-
 	}
 
 	protected static void listClassContents() throws IOException {
@@ -950,6 +964,76 @@ public class UMLCli {
 		}
 	}
 
+	/**
+	 * This first version of the function just outputs what lcs has.
+	 * @TODO: Store all text output to the console by UMLEditor into an ArrayList<String>
+	 * 		from which I can just pass that arraylist as parameter to createImageFromString. 
+	 */
+	protected static void CLIOutputAsImage() {
+        // Create a StringBuilder to hold the content
+        StringBuilder stringToRasterize = new StringBuilder();
+        ArrayList<UMLClass> classes = umlDiagram.getClasses();
+        stringToRasterize.append("Classes: ");
+        for (UMLClass umlClass : classes) {
+            stringToRasterize.append("\n- " + umlClass.getName());
+        }
+
+        // Generate an image from the string content
+        BufferedImage image = createImageFromString(stringToRasterize.toString());
+
+        // Save the image to a file
+        File outputFile = new File("CLIOutput.jpg");
+        try {
+            ImageIO.write(image, "jpg", outputFile);
+            System.out.println("Image saved to: " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+	/**
+	 * Creates a Buffered image from a String, which is important 
+	 * for the Export as Image user story.
+	 * @param content The giant string to put into the picture, ideally in
+	 * 	the future being an ArrayList<String> of all cli output.
+	 * @return A buffered image that we write to a JPEG file in CLIOutputAsImage().
+	 */
+    private static BufferedImage createImageFromString(String content) {
+		// Set font and color
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		int lineHeight = font.getSize(); // Get the height of a single line
+	
+		// Split the content into separate lines
+		String[] lines = content.split("\n");
+	
+		// Calculate the total height required for all lines
+		int totalHeight = lines.length * lineHeight;
+	
+		// Set the image dimensions
+		int width = 480; // Arbitrary width.
+		int height = totalHeight + 40; // Add some padding at the top
+	
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = image.createGraphics();
+		g2d.setColor(Color.WHITE);
+		g2d.fillRect(0, 0, width, height);
+	
+		g2d.setFont(font);
+		g2d.setColor(Color.BLACK);
+	
+		// Draw each line
+		int y = 30;
+		for (String line : lines) {
+			g2d.drawString(line, 20, y);
+			y += lineHeight; // Move to the next line
+		}
+	
+		g2d.dispose(); // Clean up graphics resources
+	
+		return image;
+	}
+	
+
 	
 /**************************************************************************************************************************************/
     /**   HELP   **/
@@ -966,7 +1050,7 @@ public class UMLCli {
 		System.out.println("   Arguments: Name of the class to delete\n");
 		System.out.println("3. RenameClass - Rename a class");
 		System.out.println("   Arguments: Current name of the class, New name for the class\n");
-		System.out.println("4. AddField - Add an fieldto a class");
+		System.out.println("4. AddField - Add an field to a class");
 		System.out.println("   Arguments: Name of the class, Name of the field, Type of the field\n");
 		System.out.println("5. DeleteField - Delete an field from a class");
 		System.out.println("   Arguments: Name of the class, Name of the field to delete\n");
