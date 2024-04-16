@@ -262,6 +262,37 @@ public class guiView extends JComponent {
     }
     private void drawArrows(Graphics g){
         if (this.relationships != null){
+
+            if(relationships.size() > 1){
+                for(Relationship relate: relationships){
+                    //Pair is used to keep the values of both the points in the middle of each class, 
+                    //and the slope and yInt for the line equation
+                    Pair<Point[], int[]> line1 = lineEquation(relate);
+
+                    for(Relationship relate2: relationships){
+                        if(relate != relate2){
+                            Pair<Point[], int[]> line2 = lineEquation(relate2);
+                            int[] equation1 = line1.getValue();
+                            int[] equation2 = line2.getValue();
+
+
+                            //Optional<Integer> is used in case the value found is null
+                            Optional<Integer> intersectX = Optional.of((equation2[1] - equation1[1]) / (equation2[0] - equation1[0]));
+                            Optional<Integer> intersectY = Optional.empty();
+                            if(intersectX.isPresent()){
+                                intersectY = Optional.of((equation1[0] * intersectX.get()) + equation1[1]);
+                            }
+                            
+                            if(intersectY.isPresent()){
+                                //need to rerout the relationship with the longer distance
+                            }
+                        }
+                        
+                    }
+
+                }
+            }
+
             for (Relationship rel : relationships){
                 UMLClass c1 = new UMLClass();
                 UMLClass c2 = new UMLClass();
@@ -348,35 +379,7 @@ public class guiView extends JComponent {
                 }
             }
 
-            if(relationships.size() > 1){
-                for(Relationship relate: relationships){
-                    //Pair is used to keep the values of both the points in the middle of each class, 
-                    //and the slope and yInt for the line equation
-                    Pair<Point[], int[]> line1 = lineEquation(relate);
-
-                    for(Relationship relate2: relationships){
-                        if(relate != relate2){
-                            Pair<Point[], int[]> line2 = lineEquation(relate2);
-                            int[] equation1 = line1.getValue();
-                            int[] equation2 = line2.getValue();
-
-
-                            //Optional<Integer> is used in case the value found is null
-                            Optional<Integer> intersectX = Optional.of((equation2[1] - equation1[1]) / (equation2[0] - equation1[0]));
-                            Optional<Integer> intersectY = Optional.empty();
-                            if(intersectX.isPresent()){
-                                intersectY = Optional.of((equation1[0] * intersectX.get()) + equation1[1]);
-                            }
-                            
-                            if(intersectY.isPresent()){
-                                //need to rerout the relationship with the longer distance
-                            }
-                        }
-                        
-                    }
-
-                }
-            }
+            
         }
     }
 
