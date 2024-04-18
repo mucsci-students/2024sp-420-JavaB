@@ -104,7 +104,7 @@ public class UMLDiagram implements UMLStructure {
 	public boolean addClass(String className) {
 		memento.clearRedo();
 		saveState();
-	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)) {    	
+	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)||!(Character.isLetter(className.charAt(0)))) {    	
 			memento.popUndo();
 	        return false; // Class already exists or invalid name      
 	    }
@@ -156,7 +156,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 		
-		    if (newName == null || newName.isEmpty()) {
+		    if (newName == null || newName.isEmpty()||!(Character.isLetter(newName.charAt(0)))) {
 				memento.popUndo();
 		        return false; // New name cannot be null or empty
 		    }
@@ -286,7 +286,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    UMLClass umlClass = this.getClassByName(className); // Assuming getClassByName is implemented correctly
-	    if (umlClass != null) {
+	    if (umlClass != null&& fieldName != null && (Character.isLetter(fieldName.charAt(0)))) {
 			if(umlClass.addField(fieldName, fieldType))// Corrected to match UMLClass's method signature
 				return true;
 			memento.popUndo();
@@ -343,7 +343,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    // Check for null or empty new attribute name, or if the class does not exist
-	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)) {
+	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)||!(Character.isLetter(newAttributeName.charAt(0)))) {
 			memento.popUndo();
 	        return false;
 	    }
@@ -381,7 +381,7 @@ public class UMLDiagram implements UMLStructure {
 	public boolean addMethod(String className, String methodName, String methodType) {
 		memento.clearRedo();
 		saveState();
-		if (classNameMapToName.containsKey(className)) {
+		if (classNameMapToName.containsKey(className)&&(Character.isLetter(methodName.charAt(0)))) {
 			if(classNameMapToName.get(className).addMethod(methodName, methodType))
 				return true;
 			memento.popUndo();
@@ -412,7 +412,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    if (classNameMapToName.containsKey(className) && originalName != null && newName != null) {
-			if(classNameMapToName.get(className).renameMethod(originalName, newName))
+			if(classNameMapToName.get(className).renameMethod(originalName, newName)&&(Character.isLetter(newName.charAt(0))))
 				return true;
 			memento.popUndo();
 	        return false;
@@ -439,7 +439,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    UMLClass targetClass = classNameMapToName.get(className);
-	    if (targetClass == null) {
+	    if (targetClass == null||!(Character.isLetter(parameterName.charAt(0)))) {
 			memento.popUndo();
 	        return false; // Class not found
 	    }
@@ -468,7 +468,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    UMLClass umlClass = getClassByName(className);
-	    if (umlClass != null) {
+	    if (umlClass != null&&newParameterName != null &&newParameterName.length()!= 0 && (Character.isLetter(newParameterName.charAt(0)))) {
 	        Method method = umlClass.getMethodByName(methodName);
 	        if (method != null) {
 				if(method.renameParameter(oldParameterName, newParameterName))
