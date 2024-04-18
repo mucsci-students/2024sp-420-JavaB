@@ -1325,11 +1325,13 @@ public class UMLGui extends JFrame implements ActionListener {
 
 	private void undo(){
 		diagram.undo();
+		changeComponent();
 		
 	}
 
 	private void redo(){
 		diagram.redo();
+		changeComponent();
 		
 	}
 
