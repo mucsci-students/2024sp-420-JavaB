@@ -1,12 +1,15 @@
 package com.classuml.Controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+
 import jline.console.ConsoleReader;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -158,8 +161,9 @@ public class UMLCli {
 	  case "redo":
 	    redo();
 	    break;
-	  case "CLIOutputAsImage":
-	  case "ci":
+	  case "snapshot":
+	  case "saveasimage":
+	  case "si":
 		CLIOutputAsImage();
 		break;
       default:
@@ -198,7 +202,7 @@ public class UMLCli {
 		System.out.println("ListClasses (lcs)- List all classes.");
 		System.out.println("ListClass (lc)- List contents of a specified class.");
 		System.out.println("ListRelationships (lr)- List all relationships.");
-		System.out.println("CLIOutputAsImage (ci) - Saves the listing of all classes as a .jpg in the java2 directory.");
+		System.out.println("SaveAsImage (si) - Outputs listing of classes, fields, methods, and relationships as a .jpg.");
 		System.out.println("  ");
 		System.out.println("Save (s)- Save diagram to JSON file.");
 		System.out.println("Load (lo)- Load diagram from JSON file.");
@@ -972,17 +976,44 @@ public class UMLCli {
 	protected static void CLIOutputAsImage() {
         // Create a StringBuilder to hold the content
         StringBuilder stringToRasterize = new StringBuilder();
-        ArrayList<UMLClass> classes = umlDiagram.getClasses();
+        
+		// Listing the classes and their fields and methods.
+		ArrayList<UMLClass> classes = umlDiagram.getClasses();
         stringToRasterize.append("Classes: ");
-        for (UMLClass umlClass : classes) {
-            stringToRasterize.append("\n- " + umlClass.getName());
+        for (UMLClass umlClass : classes) 
+		{
+			stringToRasterize.append("\n" + umlClass.getName() + ":");
+	        for (Field field : umlClass.getFields()) {
+	            stringToRasterize.append("\n  --" + field.getName() + ": " + field.getType());
+	        }
+	        for (Method method : umlClass.getMethods()) {
+	            stringToRasterize.append("\n  +" + method.getName() + "(");
+	            // Print method parameters
+	            List<Parameter> params = method.getParameters();
+	            for (int i = 0; i < params.size(); i++) {
+	                Parameter param = params.get(i);
+	                stringToRasterize.append(param.getName() + ": " + param.getType());
+	                if (i < params.size() - 1) {
+	                    stringToRasterize.append(", ");
+	                }
+	            }
+	            stringToRasterize.append("): " + method.getReturnType());
+	        }
         }
+
+		// Listing the relationships
+		stringToRasterize.append("\n\nRelationships:");
+		for (Relationship relationship : umlDiagram.getRelationships()) {
+			stringToRasterize.append("\n  " + relationship.getSource() + " --> " + relationship.getDestination() +
+				"    " + relationship.getTypeAsString(relationship.getType()));
+		}
 
         // Generate an image from the string content
         BufferedImage image = createImageFromString(stringToRasterize.toString());
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
 
         // Save the image to a file
-        File outputFile = new File("CLIOutput.jpg");
+        File outputFile = new File(timestamp + "CLIOutput.jpg");
         try {
             ImageIO.write(image, "jpg", outputFile);
             System.out.println("Image saved to: " + outputFile.getAbsolutePath());
@@ -1072,13 +1103,14 @@ public class UMLCli {
 		System.out.println("14. ListRelationships - List all relationships\n");
 		System.out.println("15. ListClass - List contents of a specified class");
 		System.out.println("    Arguments: Name of the class to list its contents\n");
-		System.out.println("16. Save - Save diagram to JSON file");
+		System.out.println("16. SaveAsImage - Outputs listing of classes, fields, methods, and relationships as a .jpg.");
+		System.out.println("17. Save - Save diagram to JSON file");
 		System.out.println("    Arguments: File path to save the diagram (JSON format)\n");
-		System.out.println("17. Load - Load diagram from JSON file");
+		System.out.println("18. Load - Load diagram from JSON file");
 		System.out.println("    Arguments: File path to load the diagram (JSON format)\n");
-		System.out.println("18. Menu - Displays Main menu\n");
-		System.out.println("19. Help - Displays detailed information of program\n");
-		System.out.println("20. Exit - Exits program\n");
+		System.out.println("19. Menu - Displays Main menu\n");
+		System.out.println("20. Help - Displays detailed information of program\n");
+		System.out.println("21. Exit - Exits program\n");
 
 	}
 
@@ -1146,6 +1178,7 @@ public class UMLCli {
 	            ListRelationships -   List all relationships
 	            ListClass -           List contents of a specified class
 	            Arguments:            Name of the class to list its contents
+				SaveAsImage -         Outputs listing of classes, fields, methods, and relationships as a .jpg.
 
 	            Save -                Save diagram to JSON file
 	            Arguments:            File path to save the diagram (JSON format)

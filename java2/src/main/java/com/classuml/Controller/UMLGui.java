@@ -1,10 +1,8 @@
 package com.classuml.Controller;
 
-//import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.IllegalComponentStateException;
-//import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
@@ -16,7 +14,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -64,8 +64,6 @@ public class UMLGui extends JFrame implements ActionListener {
 	private guiView view = new guiView(diagram.getClasses(), diagram.getRelationships());
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
-	//private Robot rbt;
-	//private Dimension screenSize;
 	private Rectangle windowDimensions;
 	private static int prefMaxWidth = 800;
 	private static int prefMaxHeight = 800;
@@ -107,11 +105,6 @@ public class UMLGui extends JFrame implements ActionListener {
      * @throws AWTException 
      */
 	public void initializeGUI() throws AWTException {
-		//Robot rbt = new Robot();
-		//tk = Toolkit.getDefaultToolkit();   
-		//Dimension screenSize = tk.getScreenSize();
-	    //setSize(screenSize);
-		//setVisible(true);
 	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
@@ -344,9 +337,6 @@ public class UMLGui extends JFrame implements ActionListener {
 			break;
 		case "changeType":
 			changeType();
-			break;
-		case "listClass":
-			listClass();
 			break;
 		case "listClasses":
 			listClasses();
@@ -1296,33 +1286,6 @@ public class UMLGui extends JFrame implements ActionListener {
     /**   INTERFACES   **/
 /**************************************************************************************************************************************/
 
-	
-    /**
-     * Lists the contents of a specified class.
-     * Prompts the user for the class name and displays its contents including fields, methods, and relationships.
-     * Shows an error message if the class is not found.
-     */
-	private void listClass() {
-		JPanel lPanel = new JPanel();
-		lPanel.setLayout(new BoxLayout(lPanel, BoxLayout.Y_AXIS));
-		String[] classNames = getClassNames();
-		JComboBox<String> namesBox = new JComboBox<String>(classNames);
-
-		lPanel.add(new JLabel("Select the class to list: "));
-		lPanel.add(namesBox);
-
-		int entered = -1;
-		entered = JOptionPane.showConfirmDialog(this, lPanel, "List Class", JOptionPane.OK_CANCEL_OPTION);
-
-	    if (namesBox.getSelectedItem() != null && entered == 0) {
-	        UMLClass umlClass = diagram.getClassByName(namesBox.getSelectedItem().toString());
-	        if (umlClass != null) {
-	            JOptionPane.showMessageDialog(this, umlClass.toString(), "Class Information", JOptionPane.INFORMATION_MESSAGE);
-	        } else {
-	            JOptionPane.showMessageDialog(this, "Class '" + namesBox.getSelectedItem().toString() + "' not found.", "Error", JOptionPane.ERROR_MESSAGE);
-	        }
-	    }
-	}
 
     /**
      * Lists all classes in the UML diagram.
@@ -1368,10 +1331,9 @@ public class UMLGui extends JFrame implements ActionListener {
 		BufferedImage bImg = new BufferedImage(classPanelContainer.getWidth(), classPanelContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D cg = bImg.createGraphics();
 		classPanelContainer.paintAll(cg);
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
 		try {
-			if (ImageIO.write(bImg, "png", new File("./GUIOutput.png"))) {
-				
-			}
+			ImageIO.write(bImg, "jpg", new File(timestamp + "GUIOutput.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

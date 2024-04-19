@@ -37,12 +37,12 @@ jobs:
         min-coverage-changed-files: 0
         title: Code Coverage
 
-    - name: Fail PR if overall coverage is less than 0%
-      if: ${{ steps.JaCoCo.outputs.coverage-overall < 0.0 }}
+    - name: Fail PR if overall coverage is less than 100%
+      if: ${{ steps.JaCoCo.outputs.coverage-overall < 1.0 }}
       uses: actions/github-script@v6
       with:
         script: |
-          core.setFailed('Overall coverage is less than 0%!')
+          core.setFailed('Overall coverage is less than 100%!')
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph

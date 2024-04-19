@@ -1,7 +1,5 @@
 package com.classuml.Model;
 
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -169,23 +167,6 @@ public interface UMLStructure {
      * @return true if the parameter was successfully deleted, false otherwise.
      */
     boolean deleteParameter(String className, String methodName, String parameterName);
-
-    /**
-     * Saves the UML diagram to a JSON file.
-     *
-     * @param fileName The name of the file to which the diagram will be saved.
-     * @return True if the diagram is successfully saved, false otherwise.
-     * @throws IOException if an I/O error occurs while saving the file.
-     */
-    boolean saveToJSON(String fileName) throws IOException;
-
-    /**
-     * Loads a UML diagram from a JSON file.
-     *
-     * @param fileName The name of the file from which the diagram will be loaded.
-     * @return True if the diagram is successfully loaded, false otherwise.
-     */
-    boolean loadFromJSON(String fileName);
 
     /**
      * Clears all classes and relationships from the UML structure.
