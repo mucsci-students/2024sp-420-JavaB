@@ -7,8 +7,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
-import javafx.util.Pair;
-import java.util.Optional;
 
 import com.classuml.Model.*;
 
@@ -267,24 +265,24 @@ public class guiView extends JComponent {
                 for(Relationship relate: relationships){
                     //Pair is used to keep the values of both the points in the middle of each class, 
                     //and the slope and yInt for the line equation
-                    Pair<Point[], int[]> line1 = lineEquation(relate);
+                    Point[] mids1 = getClassesMidPoints(relate);
+                    double[] line1 = lineEquation(mids1);
 
                     for(Relationship relate2: relationships){
                         if(relate != relate2){
-                            Pair<Point[], int[]> line2 = lineEquation(relate2);
-                            int[] equation1 = line1.getValue();
-                            int[] equation2 = line2.getValue();
+                            
+                            Point[] mids2 = getClassesMidPoints(relate2);
+                            double[] line2 = lineEquation(mids2);
 
 
                             //Optional<Integer> is used in case the value found is null
-                            Optional<Integer> intersectX = Optional.of((equation2[1] - equation1[1]) / (equation2[0] - equation1[0]));
-                            Optional<Integer> intersectY = Optional.empty();
-                            if(intersectX.isPresent()){
-                                intersectY = Optional.of((equation1[0] * intersectX.get()) + equation1[1]);
-                            }
-                            
-                            if(intersectY.isPresent()){
-                                //need to rerout the relationship with the longer distance
+                            if((line2[0] - line1[0]) != 0){
+                                double intersectX = (line2[1] - line1[1]) / (line1[0] - line2[0]);
+                                double intersectY = (line1[0] * intersectX) + line1[1];
+                                
+                                if(intersecting(mids1, mids2, intersectX, intersectY)){
+                                    System.out.println("hello");
+                                }
                             }
                         }
                         
@@ -383,13 +381,11 @@ public class guiView extends JComponent {
         }
     }
 
-    public Pair<Point[], int[]> lineEquation(Relationship relate){
-                    Point[] mids = getClassesMidPoints(relate);
-                    int slope = (mids[1].y - mids[0].y) / (mids[1].x - mids[0].x);
-                    int yInt = mids[0].y - (mids[0].x * slope);
+    public double[] lineEquation(Point[] mids){
+                    double slope = ((double)mids[1].y - (double)mids[0].y) / ((double)mids[1].x - (double)mids[0].x);
+                    double yInt = (double)mids[0].y - ((double)mids[0].x * slope);
                     
-                    int[] equation = {slope, yInt};
-                    return new Pair<Point[],int[]>(mids, equation);
+                    return new double[] {slope, yInt};
     }
 
     public Point[] getClassesMidPoints(Relationship relate){
@@ -412,6 +408,22 @@ public class guiView extends JComponent {
                         return mids;
                     }
                     return null;
+    }
+
+    public boolean intersecting(Point[] mids1, Point[] mids2, double intersectX, double intersectY){
+        if(intersectX >= Math.min(mids1[0].x, mids1[1].x)
+            && intersectX <= Math.max(mids1[0].x, mids1[1].x)
+            && intersectX >= Math.min(mids2[0].x, mids2[1].x)
+            && intersectX <= Math.max(mids2[0].x, mids2[1].x)){
+                if(intersectY >= Math.min(mids1[0].y, mids1[1].y)
+                    && intersectY <= Math.max(mids1[0].y, mids1[1].y)
+                    && intersectY >= Math.min(mids2[0].y, mids2[1].y)
+                    && intersectY <= Math.max(mids2[0].y, mids2[1].y)){
+                        return true;
+                    }
+
+            }
+        return false;
     }
 
     /**

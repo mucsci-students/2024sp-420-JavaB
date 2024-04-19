@@ -1162,18 +1162,11 @@ public class UMLGui extends JFrame implements ActionListener {
 						JOptionPane.showMessageDialog(this, "Failed to add relationship. Ensure both classes exist.",
 								"Error Adding Relationship", JOptionPane.ERROR_MESSAGE);
 					}
-				} else {
-					JOptionPane.showMessageDialog(this,
-							"Invalid relationship type. Please enter a number between 1 and 5.", "Invalid Type",
-							JOptionPane.WARNING_MESSAGE);
 				}
 			} catch (NumberFormatException e) {
 				JOptionPane.showMessageDialog(this, "The relationship type must be a valid number.", "Invalid Type",
 						JOptionPane.ERROR_MESSAGE);
 			}
-		} else {
-			JOptionPane.showMessageDialog(this, "Source class, destination class, and relationship type are required.",
-					"Invalid Input", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
@@ -1270,32 +1263,31 @@ public class UMLGui extends JFrame implements ActionListener {
 
 
 		int entered = -1;
-		entered = JOptionPane.showConfirmDialog(this, cPanel, "Delete Relationship", JOptionPane.OK_CANCEL_OPTION);
+		entered = JOptionPane.showConfirmDialog(this, cPanel, "Change Relationship Type", JOptionPane.OK_CANCEL_OPTION);
 
 		
 		String sourceClass = selected.getSource();
 		String destinationClass = selected.getDestination();
 
-		try {
-			if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3 && entered == 0 && relateBox.getSelectedItem() != null) { // Validate the input range
-				boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
-				if (typeChanged) {
-					changeComponent();
+		
+			if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3 && entered == 0 && relateBox.getSelectedItem() != null && entered == 0) { // Validate the input range
+				try {
+					boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
+					if (typeChanged) {
+						changeComponent();
 					
-				} else {
-					JOptionPane.showMessageDialog(this, "Failed to change relationship type.", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			} else {
-				JOptionPane.showMessageDialog(this, "Invalid relationship type selected.", "Error",
+					} else {
+						JOptionPane.showMessageDialog(this, "Failed to change relationship type.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(this, "The relationship type must be a valid number between 1 and 5.",
+						"Invalid Input", JOptionPane.ERROR_MESSAGE);
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(this, "An error occurred: " + ex.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
-		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(this, "The relationship type must be a valid number between 1 and 5.",
-					"Invalid Input", JOptionPane.ERROR_MESSAGE);
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, "An error occurred: " + ex.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -1362,11 +1354,13 @@ public class UMLGui extends JFrame implements ActionListener {
 
 	private void undo(){
 		diagram.undo();
+		changeComponent();
 		
 	}
 
 	private void redo(){
 		diagram.redo();
+		changeComponent();
 		
 	}
 
