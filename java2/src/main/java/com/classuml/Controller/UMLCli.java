@@ -969,11 +969,10 @@ public class UMLCli {
 	}
 
 	/**
-	 * This first version of the function just outputs what lcs has.
-	 * @TODO: Store all text output to the console by UMLEditor into an ArrayList<String>
-	 * 		from which I can just pass that arraylist as parameter to createImageFromString. 
+	 * Outputs the class's and their methods and fields and relationships to a JPG file.
 	 */
-	protected static void CLIOutputAsImage() {
+	protected static void CLIOutputAsImage() 
+	{
         // Create a StringBuilder to hold the content
         StringBuilder stringToRasterize = new StringBuilder();
         
@@ -983,17 +982,21 @@ public class UMLCli {
         for (UMLClass umlClass : classes) 
 		{
 			stringToRasterize.append("\n" + umlClass.getName() + ":");
-	        for (Field field : umlClass.getFields()) {
+	        for (Field field : umlClass.getFields()) 
+			{
 	            stringToRasterize.append("\n  --" + field.getName() + ": " + field.getType());
 	        }
-	        for (Method method : umlClass.getMethods()) {
+	        for (Method method : umlClass.getMethods()) 
+			{
 	            stringToRasterize.append("\n  +" + method.getName() + "(");
 	            // Print method parameters
 	            List<Parameter> params = method.getParameters();
-	            for (int i = 0; i < params.size(); i++) {
+	            for (int i = 0; i < params.size(); i++) 
+				{
 	                Parameter param = params.get(i);
 	                stringToRasterize.append(param.getName() + ": " + param.getType());
-	                if (i < params.size() - 1) {
+	                if (i < params.size() - 1) 
+					{
 	                    stringToRasterize.append(", ");
 	                }
 	            }
@@ -1003,9 +1006,32 @@ public class UMLCli {
 
 		// Listing the relationships
 		stringToRasterize.append("\n\nRelationships:");
-		for (Relationship relationship : umlDiagram.getRelationships()) {
-			stringToRasterize.append("\n  " + relationship.getSource() + " --> " + relationship.getDestination() +
-				"    " + relationship.getTypeAsString(relationship.getType()));
+		String arrowDraw = "";
+		for (Relationship relationship : umlDiagram.getRelationships()) 
+		{
+			stringToRasterize.append("\n    ");
+			stringToRasterize.append(relationship.getSource());
+			switch(relationship.getType())
+			{
+				case 1: // Aggregation
+					arrowDraw = "————◇";
+					break;
+				case 2: // Composition
+					arrowDraw = "————◆";
+					break;
+				case 3: // Inheritance
+					arrowDraw = "————▷";
+					break;
+				case 4: // Realization
+					arrowDraw = "----▷";
+					break;
+				default:
+					arrowDraw = " ";
+			}
+			stringToRasterize.append(arrowDraw);
+			stringToRasterize.append(relationship.getDestination());
+			//stringToRasterize.append("\n  " + relationship.getSource() + " --> " + relationship.getDestination() +
+			//	"    " + relationship.getTypeAsString(relationship.getType()));
 		}
 
         // Generate an image from the string content
@@ -1014,10 +1040,13 @@ public class UMLCli {
 
         // Save the image to a file
         File outputFile = new File(timestamp + "CLIOutput.jpg");
-        try {
+        try 
+		{
             ImageIO.write(image, "jpg", outputFile);
             System.out.println("Image saved to: " + outputFile.getAbsolutePath());
-        } catch (IOException e) {
+        } 
+		catch (IOException e) 
+		{
             e.printStackTrace();
         }
     }
