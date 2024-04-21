@@ -9,6 +9,8 @@ public class Relationship {
     private String destination;
     private int relationType;
 
+    public boolean isRerouted;
+
    
     /**
      * Constructs a Relationship object with specified attributes.
