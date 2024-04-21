@@ -258,156 +258,262 @@ public class guiView extends JComponent {
         }
         drawArrows(g);
     }
+
+
+    /*
+     * Draws the arrows for the relationships, allows for arrows to
+     * avoid each other by rerouting one of them
+     */
     private void drawArrows(Graphics g){
         if (this.relationships != null){
 
-            if(relationships.size() > 1){
-                for(Relationship relate: relationships){
-                    //Pair is used to keep the values of both the points in the middle of each class, 
-                    //and the slope and yInt for the line equation
-                    Point[] mids1 = getClassesMidPoints(relate);
-                    double[] line1 = lineEquation(mids1);
-
-                    for(Relationship relate2: relationships){
-                        if(relate != relate2){
-                            
-                            Point[] mids2 = getClassesMidPoints(relate2);
-                            double[] line2 = lineEquation(mids2);
-
-
-                            //Optional<Integer> is used in case the value found is null
-                            if((line2[0] - line1[0]) != 0){
-                                double intersectX = (line2[1] - line1[1]) / (line1[0] - line2[0]);
-                                double intersectY = (line1[0] * intersectX) + line1[1];
-                                
-                                if(intersecting(mids1, mids2, intersectX, intersectY)){
-                                    System.out.println("hello");
-                                }
-                            }
-                        }
-                        
-                    }
-
-                }
-            }
-
             for (Relationship rel : relationships){
-                UMLClass c1 = new UMLClass();
-                UMLClass c2 = new UMLClass();
-                for (UMLClass cls : classes){
-                    if (cls.getName().equals(rel.getSource())){
-                        c1 = cls;
-                    }
-                    if (cls.getName().equals(rel.getDestination())){
-                        c2 = cls;
+                if(relationships.size() > 1){
+                    for(Relationship rel2: relationships){
+                        boolean temp = checkArrows(rel, rel2, g);
+                        if(temp == true && rel2.isRerouted == false){
+                            rel.isRerouted = temp;
+                            reroutArrow(rel, rel2, g); 
+                        }else
+                        {
+                            rel.isRerouted = false;
+                        }
                     }
                 }
-                if (rel.getType() == 1){
-                    ArrowAggregationBuidler aggArrow = new ArrowAggregationBuidler();
-                    if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        aggArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
-                                                ,false, false, false);
-                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        aggArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
-                                                ,true , false, false);
-                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
-                                                ,false, true, false);
-                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
-                                                ,false, false, true);
-                    }else{
 
-                    }
-                    
+                if(rel.isRerouted == true){
+                    continue;   //the new arrow will already be drawn, so skip drawing this one
                 }
-                if (rel.getType() == 2){
-                    ArrowCompositionBuidler compArrow = new ArrowCompositionBuidler();
-                    if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        compArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2) 
-                                                ,false, false, false);
-                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        compArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
-                                                ,true, false, false);
-                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
-                                                ,false, true, false);
-                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
-                                                ,false, false, true);
-                    }else{
 
-                    }
-                }
-                if (rel.getType() == 3){
-                    ArrowInheritanceBuidler inhertArrow = new ArrowInheritanceBuidler();
-                    if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        inhertArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
-                                                ,false, false, false);
-                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
-                                                ,true, false, false);
-                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
-                                                ,false, true, false);
-                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
-                                                ,false, false, true);
-                    }else{
-
-                    }
-                }
-                if (rel.getType() == 4){
-                    ArrowRealizationBuidler realArrow = new ArrowRealizationBuidler();
-                    if(c1.position.x + c1.uniformWidth < c2.position.x){
-                        realArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
-                                                ,false, false, false);
-                    }else if (c1.position.x > c2.position.x + c2.uniformWidth){
-                        realArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
-                                                ,true, false, false);
-                    }else if (c1.position.y + c1.totalHeight < c2.position.y){
-                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
-                                                ,false, true, false);
-                    }else if (c1.position.y > c2.position.y + c2.totalHeight){
-                        realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
-                                                ,false, false, true);
-                    }else{
-
-                    }
-                }
+                drawType(rel, g);
             }
-
-            
         }
     }
 
-    public double[] lineEquation(Point[] mids){
-                    double slope = ((double)mids[1].y - (double)mids[0].y) / ((double)mids[1].x - (double)mids[0].x);
-                    double yInt = (double)mids[0].y - ((double)mids[0].x * slope);
+
+    /*
+     * Draws the specific type of arrow for the relationship
+     */
+    public void drawType(Relationship rel, Graphics g){
+        UMLClass c1 = getSourceFromRelationship(rel);
+        UMLClass c2 = getDestinationFromRelationship(rel);
+
+        if (rel.getType() == 1){
+            ArrowAggregationBuidler aggArrow = new ArrowAggregationBuidler();
+            if(c1.position.x + c1.uniformWidth < c2.position.x){
+                aggArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
+                                        ,false, false, false);
+            }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                aggArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                        ,true , false, false);
+            }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                        ,false, true, false);
+            }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                aggArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                        ,false, false, true);
+            }else{
+
+            }
+            
+        }
+        if (rel.getType() == 2){
+            ArrowCompositionBuidler compArrow = new ArrowCompositionBuidler();
+            if(c1.position.x + c1.uniformWidth < c2.position.x){
+                compArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2) 
+                                        ,false, false, false);
+            }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                compArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                        ,true, false, false);
+            }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                        ,false, true, false);
+            }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                compArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                        ,false, false, true);
+            }else{
+
+            }
+        }
+        if (rel.getType() == 3){
+            ArrowInheritanceBuidler inhertArrow = new ArrowInheritanceBuidler();
+            if(c1.position.x + c1.uniformWidth < c2.position.x){
+                inhertArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
+                                        ,false, false, false);
+            }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                inhertArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                        ,true, false, false);
+            }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                        ,false, true, false);
+            }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                inhertArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                        ,false, false, true);
+            }else{
+
+            }
+        }
+        if (rel.getType() == 4){
+            ArrowRealizationBuidler realArrow = new ArrowRealizationBuidler();
+            if(c1.position.x + c1.uniformWidth < c2.position.x){
+                realArrow.drawArrowBody(g, c1.position.x + c1.uniformWidth, c1.position.y + (c1.totalHeight/2), c2.position.x, c2.position.y + (c2.totalHeight/2)
+                                        ,false, false, false);
+            }else if (c1.position.x > c2.position.x + c2.uniformWidth){
+                realArrow.drawArrowBody(g, c1.position.x, c1.position.y + (c1.totalHeight/2), c2.position.x + c2.uniformWidth, c2.position.y + (c2.totalHeight/2)
+                                        ,true, false, false);
+            }else if (c1.position.y + c1.totalHeight < c2.position.y){
+                realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y + c1.totalHeight, c2.position.x + (c2.uniformWidth/2), c2.position.y
+                                        ,false, true, false);
+            }else if (c1.position.y > c2.position.y + c2.totalHeight){
+                realArrow.drawArrowBody(g, c1.position.x + (c1.uniformWidth/2), c1.position.y, c2.position.x + (c2.uniformWidth/2), c2.position.y + c2.totalHeight
+                                        ,false, false, true);
+            }else{
+
+            }
+        }
+    }
+
+
+    /*
+     * Is used for detecting if arrows are crossing each other,
+     * will rerout one arrow if paths are crossing
+     */
+    public boolean checkArrows(Relationship relate, Relationship relate2, Graphics g){
+        //mids are the middle points of the GUI class boxes
+        Point[] mids1 = getClassesMidPoints(relate);
+        double[] line1 = lineEquation(mids1);
+
                     
-                    return new double[] {slope, yInt};
+        if(relate != relate2){
+                            
+            Point[] mids2 = getClassesMidPoints(relate2);
+            double[] line2 = lineEquation(mids2);
+
+
+            //Optional<Integer> is used in case the value found is null
+            if((line2[0] - line1[0]) != 0){
+                double intersectX = (line2[1] - line1[1]) / (line1[0] - line2[0]);
+                double intersectY = (line1[0] * intersectX) + line1[1];
+                                
+                if(intersecting(mids1, mids2, intersectX, intersectY)){
+                    double x1 = Math.max((double)mids1[0].x, (double)mids1[1].x) - Math.min((double)mids1[0].x, (double)mids1[1].x);
+                    double y1 = Math.max((double)mids1[0].y, (double)mids1[1].y) - Math.min((double)mids1[0].y, (double)mids1[1].y);
+                    double distance1 = Math.sqrt((x1 * x1) + (y1 * y1));
+
+                    double x2 = Math.max((double)mids1[0].x, (double)mids1[1].x) - Math.min((double)mids1[0].x, (double)mids1[1].x);
+                    double y2 = Math.max((double)mids1[0].y, (double)mids1[1].y) - Math.min((double)mids1[0].y, (double)mids1[1].y);
+                    double distance2 = Math.sqrt((x2 * x2) + (y2 * y2));
+                    if(distance1 >= distance2){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public void reroutArrow(Relationship relate, Relationship toAvoidRelate, Graphics g){
+        UMLClass c1 = getSourceFromRelationship(relate);
+        UMLClass c2 = getDestinationFromRelationship(relate);
+        Point[] mids1 = getClassesMidPoints(relate);
+
+        UMLClass toAvoidC1 = getSourceFromRelationship(toAvoidRelate);
+        UMLClass toAvoidC2 = getDestinationFromRelationship(toAvoidRelate);
+        
+        
+        double closerTo1 = Math.sqrt(Math.pow(toAvoidC1.position.x - c2.position.x,2) + Math.pow(toAvoidC1.position.y - c2.position.y,2));
+        double closerTo2 = Math.sqrt(Math.pow(toAvoidC2.position.x - c2.position.x,2) + Math.pow(toAvoidC2.position.y - c2.position.y,2));
+
+        
+            
+                        
+                            if(closerTo1 <= closerTo2){//closer to source if true
+                                drawRerout(c1, c2, toAvoidC1, toAvoidC2, mids1, g);
+                            }else{
+                                drawRerout(c1, c2, toAvoidC2, toAvoidC1, mids1, g);
+                            }
+                        
+                        
+            
+    }
+
+    public void drawRerout(UMLClass c1, UMLClass c2, UMLClass closer, UMLClass farther, Point[]mids1, Graphics g){
+        int greaterY = Math.max(closer.position.y + closer.totalHeight + 20, mids1[0].y);
+        int greaterX = Math.max(closer.position.x, c1.position.x);
+        int lesserY = Math.min(c1.position.y, (closer.position.y - 20));
+
+        if(closer.position.y >= farther.position.y){//avoiding source is higher than destination
+            if(greaterY >= mids1[0].y + (c1.totalHeight / 2) ){
+             if(greaterX != c1.position.x){
+                 g.drawLine(mids1[0].x, mids1[0].y + (c1.totalHeight / 2), mids1[0].x, greaterY);
+                 g.drawLine(mids1[0].x, greaterY, c1.position.x + c1.uniformWidth, greaterY);
+             }else{
+                 g.drawLine(mids1[0].x, mids1[0].y + (c1.totalHeight / 2), mids1[0].x, greaterY);
+                 g.drawLine(mids1[0].x, greaterY, c1.position.x, greaterY);
+             } 
+         }
+         //draw line from class 1 around avoidclass1 
+         if(greaterX != c1.position.x){
+             g.drawLine(c1.position.x + c1.uniformWidth, greaterY, greaterX + closer.uniformWidth + 20, greaterY );
+             if(greaterX >= c2.position.x){
+                 g.drawLine(greaterX + closer.uniformWidth + 20, greaterY, greaterX + closer.uniformWidth + 20, closer.position.y - 20);
+             }
+             
+             //draw relationship line from this point on
+         }else{
+             //line should wrap around it's left side
+             g.drawLine(c1.position.x, greaterY, closer.position.x - 20, greaterY);
+             if(closer.position.x <= c2.position.x){
+                 g.drawLine(closer.position.x - 20, greaterY, closer.position.x - 20, closer.position.y - 20);
+             }
+             //draw relationship line from this point on0
+         } 
+         }else{
+             if(closer.position.y <= c1.position.y){
+                 if(greaterX != c1.position.x){
+                     g.drawLine(mids1[0].x, c1.position.y, mids1[0].x, closer.position.y - 20);
+                     g.drawLine(mids1[0].x, closer.position.y - 20, c1.position.x + c1.uniformWidth, closer.position.y - 20);
+                 }else{
+                     g.drawLine(mids1[0].x, c1.position.y, mids1[0].x, closer.position.y - 20);
+                     g.drawLine(mids1[0].x, closer.position.y - 20, c1.position.x, closer.position.y - 20);
+                 } 
+             }
+             if(greaterX!= c1.position.x){
+                 g.drawLine(c1.position.x + c1.uniformWidth, lesserY, closer.position.x + closer.uniformWidth + 20, lesserY);
+                 if(greaterX >= c2.position.x){
+                     g.drawLine(closer.position.x + closer.uniformWidth + 20, lesserY, closer.position.x + closer.uniformWidth + 20, closer.position.y + 20);
+                 }
+                 //draw relationship line from here
+             }else{
+
+             }
+         }
+    }
+
+
+    public double[] lineEquation(Point[] mids){
+        double slope = ((double)mids[1].y - (double)mids[0].y) / ((double)mids[1].x - (double)mids[0].x);
+        double yInt = (double)mids[0].y - ((double)mids[0].x * slope);
+                    
+        return new double[] {slope, yInt};
     }
 
     public Point[] getClassesMidPoints(Relationship relate){
-            UMLClass c1 = null;
-                    UMLClass c2 = null;
-                    Point c1Mid;
-                    Point c2Mid;
-                    for(UMLClass c: classes){
-                        if(c.getName().equalsIgnoreCase(relate.getSource())){
-                            c1 = c;
-                        }
-                        if(c.getName().equalsIgnoreCase(relate.getDestination())){
-                            c2 = c;
-                        }
-                    }
-                    if(c1 != null && c2 != null){
-                        c1Mid = new Point(c1.position.x + (c1.uniformWidth / 2), c1.position.y + (c1.totalHeight/2));
-                        c2Mid = new Point(c2.position.x + (c2.uniformWidth / 2), c2.position.y + (c2.totalHeight/2));
-                        Point[] mids = {c1Mid, c2Mid};
-                        return mids;
-                    }
-                    return null;
+        UMLClass c1 = getSourceFromRelationship(relate);
+        UMLClass c2 = getDestinationFromRelationship(relate);
+        Point c1Mid;
+        Point c2Mid;
+                    
+        if(c1 != null && c2 != null){
+            c1Mid = new Point(c1.position.x + (c1.uniformWidth / 2), c1.position.y + (c1.totalHeight/2));
+            c2Mid = new Point(c2.position.x + (c2.uniformWidth / 2), c2.position.y + (c2.totalHeight/2));
+            Point[] mids = {c1Mid, c2Mid};
+            return mids;
+        }
+        return null;
     }
 
     public boolean intersecting(Point[] mids1, Point[] mids2, double intersectX, double intersectY){
@@ -627,5 +733,25 @@ public class guiView extends JComponent {
             maxWidth = Math.max(maxWidth, fm.stringWidth(prefix + item.toString().split(",")[0].trim()));
         }
         return maxWidth;
+    }
+
+    private UMLClass getSourceFromRelationship(Relationship rel){
+        
+        for (UMLClass cls : classes){
+            if (cls.getName().equals(rel.getSource())){
+                return cls;
+            }
+        }
+        return null;
+    }
+
+    private UMLClass getDestinationFromRelationship(Relationship rel){
+        
+        for (UMLClass cls : classes){
+            if (cls.getName().equals(rel.getDestination())){
+                return cls;
+            }
+        }
+        return null;
     }
 }
