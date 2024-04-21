@@ -65,13 +65,9 @@ public class UMLGui extends JFrame implements ActionListener {
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
 	private Rectangle windowDimensions;
-	private static int prefMaxWidth = 800;
+	public static int prefMaxWidth = 800;
 	private static int prefMaxHeight = 800;
 	Timer timer;
-
-	public int getPrefMaxWidth(){
-		return prefMaxWidth;
-	}
 	
     /**
      * Constructs the UMLGui frame and initializes the GUI components, including

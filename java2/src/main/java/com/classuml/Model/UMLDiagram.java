@@ -117,7 +117,7 @@ public class UMLDiagram implements UMLStructure {
 				// If overlapping, adjust x and y
 				x += 75;
 				pos = new Point(x, y);
-				if (x > gui.getPrefMaxWidth()) { // assuming a maximum x value of 500
+				if (x > gui.prefMaxWidth) { // assuming a maximum x value of 500
 					x = 20;
 					y += 40; // move to the next row
 				}
