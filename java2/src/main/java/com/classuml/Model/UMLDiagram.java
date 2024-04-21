@@ -19,6 +19,9 @@ public class UMLDiagram implements UMLStructure {
 
 	private transient UMLGui gui;
 
+	private int x = -55;
+	private int y = 20;
+
 	public UMLDiagram(UMLDiagram diagram2)
 	{
 		this.gui = diagram2.getGui();
@@ -108,8 +111,7 @@ public class UMLDiagram implements UMLStructure {
 			memento.popUndo();
 	        return false; // Class already exists or invalid name      
 	    }
-		int x = 20;
-		int y = 20;
+		x += 75;
 		Point pos = new Point(x, y);
 		if(!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className, pos));
