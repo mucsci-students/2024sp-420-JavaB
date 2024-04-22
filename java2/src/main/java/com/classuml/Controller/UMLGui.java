@@ -184,6 +184,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		addMenuItem(fileMenu, "Load", "load", 'O');
 		addMenuItem(fileMenu, "Clear", "clear", 'Q');
 		addMenuItem(fileMenu, "Help", "help", 'H');
+		addMenuItem(fileMenu, "Quit", "quit");
 
 		// Class Menu
 		JMenu classMenu = new JMenu("Class");
@@ -354,6 +355,8 @@ public class UMLGui extends JFrame implements ActionListener {
 		case "clear":
 			clearGui();
 			break;
+		case "quit":
+			quitGui();
 		case "snapshot":
 			try {
 				getSnapshotImage();
@@ -1290,6 +1293,10 @@ public class UMLGui extends JFrame implements ActionListener {
 		diagram.undo();
 		changeComponent();
 		
+	}
+
+	private void quitGui(){
+		System.exit(0);
 	}
 
 	private void redo(){
