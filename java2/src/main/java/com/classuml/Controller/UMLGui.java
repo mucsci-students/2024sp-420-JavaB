@@ -182,6 +182,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		JMenu fileMenu = new JMenu("File");
 		addMenuItem(fileMenu, "Save", "save", 'S');
 		addMenuItem(fileMenu, "Load", "load", 'O');
+		addMenuItem(fileMenu, "Clear", "clear", 'Q');
 		addMenuItem(fileMenu, "Help", "help", 'H');
 
 		// Class Menu
@@ -350,6 +351,9 @@ public class UMLGui extends JFrame implements ActionListener {
         case "redo":
             redo();
             break;
+		case "clear":
+			clearGui();
+			break;
 		case "snapshot":
 			try {
 				getSnapshotImage();
@@ -1277,6 +1281,10 @@ public class UMLGui extends JFrame implements ActionListener {
     /**   INTERFACES   **/
 /**************************************************************************************************************************************/
 
+	private void clearGui(){
+		diagram.clear();
+		changeComponent();
+	}
 
 	private void undo(){
 		diagram.undo();
@@ -1415,6 +1423,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	            JOptionPane.showMessageDialog(null, "Cannot read the selected file.", "Load Error", JOptionPane.ERROR_MESSAGE);
 	            return;
 	        }
+			clearGui();
 
 	        Gson gson = new Gson();
 	        try (FileReader reader = new FileReader(filePath)) {
