@@ -19,6 +19,9 @@ public class UMLDiagram implements UMLStructure {
 
 	private transient UMLGui gui;
 
+	private int x = 20;
+	private int y = 20;
+
 	public UMLDiagram(UMLDiagram diagram2)
 	{
 		this.gui = diagram2.getGui();
@@ -108,9 +111,18 @@ public class UMLDiagram implements UMLStructure {
 			memento.popUndo();
 	        return false; // Class already exists or invalid name      
 	    }
-		int x = 20;
-		int y = 20;
 		Point pos = new Point(x, y);
+		for (UMLClass c : classNameMapToName.values()) {
+			if (Math.abs(c.position.getX() - pos.getX()) < 100 && Math.abs(c.position.getY() - pos.getY()) < 100) {
+				// If overlapping, adjust x and y
+				x += 75;
+				pos = new Point(x, y);
+				if (x > gui.prefMaxWidth) { // assuming a maximum x value of 500
+					x = 20;
+					y += 40; // move to the next row
+				}
+			}
+		}
 		if(!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className, pos));
 	    }

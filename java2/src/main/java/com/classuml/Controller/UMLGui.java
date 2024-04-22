@@ -65,7 +65,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
 	private Rectangle windowDimensions;
-	private static int prefMaxWidth = 800;
+	public static int prefMaxWidth = 800;
 	private static int prefMaxHeight = 800;
 	Timer timer;
 	
@@ -215,9 +215,6 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		// Interface Menu
 		JMenu interfaceMenu = new JMenu("Interface");
-		addMenuItem(interfaceMenu, "List Class", "listClass");
-		addMenuItem(interfaceMenu, "List Relationships", "listRelationships");
-		addMenuItem(interfaceMenu, "List Classes", "listClasses", 'L');
 		addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
         addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
 		addMenuItem(interfaceMenu, "Snapshot Diagram", "snapshot");
@@ -337,12 +334,6 @@ public class UMLGui extends JFrame implements ActionListener {
 			break;
 		case "changeType":
 			changeType();
-			break;
-		case "listClasses":
-			listClasses();
-			break;
-		case "listRelationships":
-			listRelationships();
 			break;
 		case "save":
 			saveDiagram();
@@ -1286,34 +1277,6 @@ public class UMLGui extends JFrame implements ActionListener {
     /**   INTERFACES   **/
 /**************************************************************************************************************************************/
 
-
-    /**
-     * Lists all classes in the UML diagram.
-     * Displays the names of all classes currently in the diagram.
-     */
-	private void listClasses() {
-	    // Assuming diagram.getClasses() method exists and returns a list of UMLClass objects
-	    ArrayList<UMLClass> classes = diagram.getClasses();
-	    StringBuilder classList = new StringBuilder("Classes:\n");
-	    for (UMLClass umlClass : classes) {
-	        classList.append(umlClass.getName()).append("\n");
-	    }
-	    JOptionPane.showMessageDialog(this, classList.toString(), "List of Classes", JOptionPane.INFORMATION_MESSAGE);
-	}
-
-    /**
-     * Lists all relationships in the UML diagram.
-     * Displays information about all relationships currently in the diagram.
-     */
-	private void listRelationships() {
-	    // Assuming diagram.getRelationships() method exists and returns a list of Relationship objects
-	    ArrayList<Relationship> relationships = diagram.getRelationships();
-	    StringBuilder relationshipList = new StringBuilder("Relationships:\n");
-	    for (Relationship relationship : relationships) {
-	        relationshipList.append(relationship.toString()).append("\n");
-	    }
-	    JOptionPane.showMessageDialog(this, relationshipList.toString(), "List of Relationships", JOptionPane.INFORMATION_MESSAGE);
-	}
 
 	private void undo(){
 		diagram.undo();
