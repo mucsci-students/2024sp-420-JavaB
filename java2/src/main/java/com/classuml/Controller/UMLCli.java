@@ -1010,10 +1010,10 @@ public class UMLCli {
 
         // Generate an image from the string content
         BufferedImage image = createImageFromString(stringToRasterize.toString());
-		String timestamp = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 
         // Save the image to a file
-        File outputFile = new File(timestamp + "CLIOutput.jpg");
+        File outputFile = new File(timestamp + "-CLIOutput.jpg");
         try {
             ImageIO.write(image, "jpg", outputFile);
             System.out.println("Image saved to: " + outputFile.getAbsolutePath());

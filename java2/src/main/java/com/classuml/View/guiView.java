@@ -667,23 +667,32 @@ public class guiView extends JComponent {
         int localX = (int)c.position.getX();
         int localY = (int)c.position.getY();
         localY = drawItem(g, "Class: " + c.getName(), localX, localY, true, c);
-
+    
         if(c.getFields().size() > 0){
             String fieldsText = "";
             for (Field field : c.getFields()) {
                 fieldsText += "+ " + field.getName() + ": " + field.getType();
-                if (c.getMethods().size() > 1){
+                if (c.getFields().size() > 1){
                     fieldsText += "\n";
                 }
             }
             localY = drawItem(g, fieldsText, localX, localY, false, c);
         }
-
-
+    
+    
         if (c.getMethods().size() > 0) {
             String methodsText = "";
             for (Method method : c.getMethods()) {
                 methodsText += "+ " + method.getName() + "() : " + method.getReturnType();
+                if (method.getParameters().size() > 0) {
+                    methodsText += "\n";
+                    for (Parameter parameter : method.getParameters()) {
+                        methodsText += "  - " + parameter.getName() + ": " + parameter.getType();
+                        if (method.getParameters().size() > 1) {
+                            methodsText += "\n";
+                        }
+                    }
+                }
                 if (c.getMethods().size() > 1){
                     methodsText += "\n";
                 }
@@ -691,7 +700,7 @@ public class guiView extends JComponent {
             localY = drawItem(g, methodsText, localX, localY, false, c);
         }
         c.totalHeight = localY - c.position.y;
-    } 
+    }
 
     /**
      * Calculates the maximum width needed for the component's text content.
