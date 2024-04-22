@@ -72,5 +72,9 @@ public class Memento
     {
         statesRedo.clear();
     }
+    public void clearUndo()
+    {
+        statesUndo.clear();
+    }
     
 }
