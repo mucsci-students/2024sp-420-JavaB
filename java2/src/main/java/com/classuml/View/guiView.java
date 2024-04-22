@@ -560,13 +560,26 @@ public class guiView extends JComponent {
         lastPoint = null;
         addMouseListener(new MouseAdapter() {
             @Override
+            public void mouseClicked(MouseEvent e) {
+                
+            }
+            @Override
             public void mousePressed(MouseEvent e) {
-                lastPoint = e.getPoint();
+                for(UMLClass c: classes){
+                    if(withinPosition(e, c)){
+                        c.isClicked = true;
+                        lastPoint = e.getPoint();
+                    }
+                }
+                
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                lastPoint = null;
+                for(UMLClass c: classes){
+                    c.isClicked = false;
+                    lastPoint = null;
+                }
             }
         });
 
@@ -611,7 +624,7 @@ public class guiView extends JComponent {
      */
     private void handleDrag(MouseEvent e) {
         for(UMLClass c: classes){
-            if (lastPoint != null && withinPosition(e, c)) {
+            if (lastPoint != null && c.isClicked) {
                 int dx = e.getX() - lastPoint.x;
                 int dy = e.getY() - lastPoint.y;
 
@@ -634,10 +647,10 @@ public class guiView extends JComponent {
     }
 
     private boolean withinPosition(MouseEvent e, UMLClass c){
-        if(e.getX() >= c.position.getX()
-            && e.getX() <= (c.position.getX() + c.uniformWidth)
-            && e.getY() >= c.position.getY()
-            && e.getY() <= (c.position.getY() + c.totalHeight)){
+        if(e.getX() >= c.position.x
+            && e.getX() <= (c.position.x + c.uniformWidth)
+            && e.getY() >= c.position.y
+            && e.getY() <= (c.position.y + c.totalHeight)){
                 return true;
             }
             else{

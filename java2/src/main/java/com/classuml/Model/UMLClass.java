@@ -15,6 +15,7 @@ public class UMLClass {
 	private ArrayList<Field> fields;
 	private ArrayList<Method> methods;
 	public Point position;
+	public boolean isClicked;
 
 	public FontMetrics fm;
     public int uniformWidth = -1; // Cached width for uniform drawing
