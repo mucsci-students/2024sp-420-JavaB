@@ -1,11 +1,23 @@
 package com.classuml.Controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+
 import jline.console.ConsoleReader;
+
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.*;
 
 import com.classuml.Model.*;
 import com.google.gson.Gson;
@@ -23,6 +35,8 @@ public class UMLCli {
 	// UMLDiagram object to store the UML diagram
 	private static final UMLDiagram umlDiagram = new UMLDiagram();
 
+	private static final UMLCompleter generalCompleter = new UMLCompleter();
+
 	
 /**************************************************************************************************************************************/
     /**   MENU DISPLAY   **/
@@ -32,7 +46,7 @@ public class UMLCli {
 	public static void launch() throws IOException {
 
 	reader = getConsoleReader();
-	reader.addCompleter(new UMLCompleter());
+	reader.addCompleter(generalCompleter);
 
 	System.out.println("Welcome to NRDS UML Editor!");
 
@@ -147,6 +161,11 @@ public class UMLCli {
 	  case "redo":
 	    redo();
 	    break;
+	  case "snapshot":
+	  case "saveasimage":
+	  case "si":
+		CLIOutputAsImage();
+		break;
       default:
         System.out.println("Invalid choice. Please enter a valid command.");
         break;
@@ -183,6 +202,8 @@ public class UMLCli {
 		System.out.println("ListClasses (lcs)- List all classes.");
 		System.out.println("ListClass (lc)- List contents of a specified class.");
 		System.out.println("ListRelationships (lr)- List all relationships.");
+		System.out.println("SaveAsImage (si) - Outputs listing of classes, fields, methods, and relationships as a .jpg.");
+		System.out.println("  ");
 		System.out.println("Save (s)- Save diagram to JSON file.");
 		System.out.println("Load (lo)- Load diagram from JSON file.");
 		System.out.println("Menu (m)- Display main menu.");
@@ -192,6 +213,47 @@ public class UMLCli {
 		System.out.println("Redo - goes back to state before previous undo.");
 		System.out.println("  ");
     }
+
+	private static UMLCompleter setClassCompleter(){
+		ArrayList<UMLClass> clsList = umlDiagram.getClasses();
+		ArrayList<String> clsSet = new ArrayList<>();
+		for(UMLClass cls : clsList){
+			clsSet.add(cls.getName());
+		}
+		UMLCompleter classCompleter = new UMLCompleter(clsSet);
+		return classCompleter;
+	}
+
+	private static UMLCompleter setMethodCompleter(UMLClass cls){
+		ArrayList<Method> methList = cls.getMethods();
+		ArrayList<String> methSet = new ArrayList<>();
+		for(Method meth : methList){
+			methSet.add(meth.getName());
+		}
+		UMLCompleter methodCompleter = new UMLCompleter(methSet);
+		return methodCompleter;
+
+	}
+
+	private static UMLCompleter setFieldCompleter(UMLClass cls){
+		ArrayList<Field> fieldList = cls.getFields();
+		ArrayList<String> fieldSet = new ArrayList<>();
+		for(Field field : fieldList){
+			fieldSet.add(field.getName());
+		}
+		UMLCompleter fieldCompleter = new UMLCompleter(fieldSet);
+		return fieldCompleter;
+	}
+
+	private static UMLCompleter setParamCompleter(Method meth){
+		ArrayList<Parameter> paramList = (ArrayList<Parameter>) meth.getParameters();
+		ArrayList<String> paramSet = new ArrayList<>();
+		for(Parameter param : paramList){
+			paramSet.add(param.getName());
+		}
+		UMLCompleter paramCompleter = new UMLCompleter(paramSet);
+		return paramCompleter;
+	}
 
 	private static ConsoleReader getConsoleReader() throws IOException {
 		ConsoleReader creader = new ConsoleReader();
@@ -246,6 +308,10 @@ public class UMLCli {
 
 	// Method to delete a class
 	protected static void deleteClass() throws IOException {
+		UMLCompleter deleteCompleter = setClassCompleter();
+		reader.removeCompleter(generalCompleter);
+		reader.addCompleter(deleteCompleter);
+		
 		System.out.println("Enter the name of the class to delete: ");
 		String className = getReaderValue();
 		boolean success = umlDiagram.deleteClass(className);
@@ -254,10 +320,17 @@ public class UMLCli {
 		} else {
 			System.out.println("Failed to delete class " + className + ". Class may not exist.");
 		}
+		reader.removeCompleter(deleteCompleter);
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to rename a class
 	protected static void renameClass() throws IOException {
+
+		UMLCompleter renameCompleter = setClassCompleter();
+		reader.removeCompleter(generalCompleter);
+		reader.addCompleter(renameCompleter);
+
 		System.out.println("Enter the current name of the class: ");
 		String oldName = getReaderValue();
 		System.out.print("Enter the new name of the class: ");
@@ -269,6 +342,8 @@ public class UMLCli {
 			System.out.println(
 					"Failed to rename class " + oldName + ". Class may not exist or new name may already be in use.");
 		}
+		reader.removeCompleter(renameCompleter);
+		reader.addCompleter(generalCompleter);
 	}
 	
 /**************************************************************************************************************************************/
@@ -277,10 +352,22 @@ public class UMLCli {
 
 	// Method to add a parameter to a class
   protected static void addParameter() throws IOException {
+
+	UMLCompleter classCompleter = setClassCompleter();
+	reader.removeCompleter(generalCompleter);
+	reader.addCompleter(classCompleter);
+
     System.out.println("Enter the name of the class to add parameter to: ");
     String className = getReaderValue();
+
+	UMLClass cls = umlDiagram.getClassByName(className);
+	UMLCompleter methodCompleter = setMethodCompleter(cls);
+	reader.removeCompleter(classCompleter);
+	reader.addCompleter(methodCompleter);
+
     System.out.print("Enter the name of the method to add a parameter: ");
     String methodName = getReaderValue();
+	reader.removeCompleter(methodCompleter);
     System.out.print("Enter the parameter name: ");
     String paramName = getReaderValue();
     System.out.print("Enter the name of parameter type: ");
@@ -291,49 +378,106 @@ public class UMLCli {
     } else {
       System.out.println("Failed to add parameter to class " + className + ". Class or method may not exist.");
     }
+	reader.addCompleter(generalCompleter);
   }
 
   // Method to delete a parameter from a class
   protected static void deleteParameter() throws IOException {
+
+	UMLCompleter classCompleter = setClassCompleter();
+	reader.addCompleter(classCompleter);
+	reader.removeCompleter(generalCompleter);
+
     System.out.println("Enter the name of the class to delete parameter from: ");
+
     String className = getReaderValue();
+	reader.removeCompleter(classCompleter);
+	UMLClass cls = umlDiagram.getClassByName(className);
+	UMLCompleter methodCompleter = setMethodCompleter(cls);
+	reader.addCompleter(methodCompleter);
+
     System.out.println("Enter the name of the method to to delete parameter from: ");
+
     String methodName = getReaderValue();
+	reader.removeCompleter(methodCompleter);
+	Method meth = cls.getMethod(methodName);
+	UMLCompleter paramCompleter = setParamCompleter(meth);
+	reader.addCompleter(paramCompleter);
+
     System.out.print("Enter the name of the parameter to delete: ");
     String paramName = getReaderValue();
+	reader.removeCompleter(paramCompleter);
     boolean success = umlDiagram.deleteParameter(className, methodName, paramName);
     if (success) {
         System.out.println("Parameter " + paramName + " deleted from class " + className + " successfully.");
     } else {
         System.out.println("Failed to delete parameter from class " + className + ". Class or method may not exist.");
     }
+	reader.addCompleter(generalCompleter);
   }
 
   // Method to rename a parameter in a class
   protected static void renameParameter() throws IOException {
-      System.out.println("Enter the name of the class containing the parameter: ");
-      String className = getReaderValue();
-      System.out.println("Enter the name of the method to to delete parameter from: ");
-      String methodName = getReaderValue();
-      System.out.print("Enter the current name of the parameter: ");
-      String oldParamName = getReaderValue();
-      System.out.print("Enter the new name of the parameter: ");
-      String newParamName = getReaderValue();
-      boolean success = umlDiagram.renameParameter(className, methodName, oldParamName, newParamName);
-      if (success) {
-          System.out.println("Parameter " + oldParamName + " renamed to " + newParamName + " in class " + className + " successfully.");
-      } else {
-          System.out.println("Failed to rename Parameter in class " + className + ". Class or Parameter may not exist, or new name may already be in use.");
-      }
+
+	UMLCompleter classCompleter = setClassCompleter();
+	reader.addCompleter(classCompleter);
+	reader.removeCompleter(generalCompleter);
+
+    System.out.println("Enter the name of the class containing the parameter: ");
+
+    String className = getReaderValue();
+	reader.removeCompleter(classCompleter);
+	UMLClass cls = umlDiagram.getClassByName(className);
+	UMLCompleter methodCompleter = setMethodCompleter(cls);
+	reader.addCompleter(methodCompleter);
+
+    System.out.println("Enter the name of the method to to delete parameter from: ");
+
+    String methodName = getReaderValue();
+	reader.removeCompleter(methodCompleter);
+	Method meth = cls.getMethod(methodName);
+	UMLCompleter paramCompleter = setParamCompleter(meth);
+	reader.addCompleter(paramCompleter);
+
+    System.out.print("Enter the current name of the parameter: ");
+    String oldParamName = getReaderValue();
+	reader.removeCompleter(paramCompleter);
+    System.out.print("Enter the new name of the parameter: ");
+    String newParamName = getReaderValue();
+    boolean success = umlDiagram.renameParameter(className, methodName, oldParamName, newParamName);
+    if (success) {
+      System.out.println("Parameter " + oldParamName + " renamed to " + newParamName + " in class " + className + " successfully.");
+    } else {
+      System.out.println("Failed to rename Parameter in class " + className + ". Class or Parameter may not exist, or new name may already be in use.");
+    }
+	reader.addCompleter(generalCompleter);
   }
   
 	protected static void replaceParams() throws IOException {
-		System.out.println("Enter the name of the class containing the parameters to be replaced: ");
+
+	UMLCompleter classCompleter = setClassCompleter();
+	reader.addCompleter(classCompleter);
+	reader.removeCompleter(generalCompleter);
+
+	System.out.println("Enter the name of the class containing the parameters to be replaced: ");
+
     String className = getReaderValue();
+	reader.removeCompleter(classCompleter);
+	UMLClass cls = umlDiagram.getClassByName(className);
+	UMLCompleter methodCompleter = setMethodCompleter(cls);
+	reader.addCompleter(methodCompleter);
+
     System.out.println("Enter the name of the method to to replace parameters in: ");
+
     String methodName = getReaderValue();
+	reader.removeCompleter(methodCompleter);
+	Method meth = cls.getMethod(methodName);
+	UMLCompleter paramCompleter = setParamCompleter(meth);
+	reader.addCompleter(paramCompleter);
+
 		System.out.println("Please type the name and type of the first param in the format: name type");
 		String paramList = getReaderValue();
+		reader.removeCompleter(paramCompleter);
 		boolean done = false;
 		while(!done)
 		{
@@ -368,6 +512,7 @@ public class UMLCli {
 			System.out.println("Parameters failed to be completely replaced, class or method may not exist, or duplicate names might've been listed.");
 			umlDiagram.clearParameters(className, methodName);
 		}
+		reader.addCompleter(generalCompleter);
 	}
 	
     
@@ -378,8 +523,14 @@ public class UMLCli {
 
 	// Method to add an attribute to a class
 	protected static void addField() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the class to add field to: ");
 		String className = getReaderValue();
+		reader.removeCompleter(classCompleter);
 		System.out.print("Enter the name of the field: ");
 		String fieldName = getReaderValue();
 		System.out.print("Enter the type of the field: ");
@@ -390,14 +541,26 @@ public class UMLCli {
 		} else {
 			System.out.println("Failed to add field to class " + className + ". Class may not exist.");
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to delete an attribute from a class
 	protected static void deleteField() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the class to delete field from: ");
+		
 		String className = getReaderValue();
+		UMLClass cls = umlDiagram.getClassByName(className);
+		UMLCompleter fieldCompleter = setFieldCompleter(cls);
+		reader.addCompleter(fieldCompleter);
+
 		System.out.print("Enter the name of the field to delete: ");
 		String fieldName = getReaderValue();
+		reader.removeCompleter(fieldCompleter);
 		boolean success = umlDiagram.deleteField(className, fieldName);
 		if (success) {
 			System.out.println("Field " + fieldName + " deleted from class " + className + " successfully.");
@@ -405,14 +568,26 @@ public class UMLCli {
 			System.out.println(
 					"Failed to delete field from class " + className + ". Class or field may not exist.");
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to rename an attribute in a class
 	protected static void renameField() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the class containing the field: ");
+
 		String className = getReaderValue();
+		UMLClass cls = umlDiagram.getClassByName(className);
+		UMLCompleter fieldCompleter = setFieldCompleter(cls);
+		reader.addCompleter(fieldCompleter);
+
 		System.out.print("Enter the current name of the field: ");
 		String oldFieldName = getReaderValue();
+		reader.removeCompleter(fieldCompleter);
 		System.out.print("Enter the new name of the field: ");
 		String newFieldName = getReaderValue();
 		boolean success = umlDiagram.renameField(className, oldFieldName, newFieldName);
@@ -423,6 +598,7 @@ public class UMLCli {
 			System.out.println("Failed to rename field in class " + className
 					+ ". Class or field may not exist, or new name may already be in use.");
 		}
+		reader.addCompleter(generalCompleter);
 	}
 	
 	
@@ -433,8 +609,15 @@ public class UMLCli {
 
 	// Method to add a method to a class
 	protected static void addMethod() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the class to add method to: ");
+
 		String className = getReaderValue();
+		reader.removeCompleter(classCompleter);
 		System.out.print("Enter the name of the method: ");
 		String methodName = getReaderValue();
 		System.out.print("Enter the return type of the method: ");
@@ -445,28 +628,54 @@ public class UMLCli {
 		} else {
 			System.out.println("Failed to add method to class " + className + ". Class may not exist.");
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to delete a method from a class
 	protected static void deleteMethod() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the class to delete method from: ");
+
 		String className = getReaderValue();
+		UMLClass cls = umlDiagram.getClassByName(className);
+		UMLCompleter methodCompleter = setMethodCompleter(cls);
+		reader.removeCompleter(classCompleter);
+		reader.addCompleter(methodCompleter);
+		
 		System.out.print("Enter the name of the method to delete: ");
 		String methodName = getReaderValue();
+		reader.removeCompleter(methodCompleter);
 		boolean success = umlDiagram.deleteMethod(className, methodName);
 		if (success) {
 			System.out.println("Method " + methodName + " deleted from class " + className + " successfully.");
 		} else {
 			System.out.println("Failed to delete method from class " + className + ". Class or method may not exist.");
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to rename a method in a class
 	protected static void renameMethod() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the class containing the method: ");
+
 		String className = getReaderValue();
+		UMLClass cls = umlDiagram.getClassByName(className);
+		UMLCompleter methodCompleter = setMethodCompleter(cls);
+		reader.removeCompleter(classCompleter);
+		reader.addCompleter(methodCompleter);
+
 		System.out.print("Enter the current name of the method: ");
 		String oldMethodName = getReaderValue();
+		reader.removeCompleter(methodCompleter);
 		System.out.print("Enter the new name of the method: ");
 		String newMethodName = getReaderValue();
 		boolean success = umlDiagram.renameMethod(className, oldMethodName, newMethodName);
@@ -477,6 +686,7 @@ public class UMLCli {
 			System.out.println("Failed to rename method in class " + className
 					+ ". Class or method may not exist, or new name may already be in use.");
 		}
+		reader.addCompleter(generalCompleter);
 	} 
 
 /**************************************************************************************************************************************/
@@ -485,10 +695,16 @@ public class UMLCli {
 
 	// Method to add a relationship to a class
 	protected static void addRelationship() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the source class: ");
 		String sourceClass = getReaderValue();
 		System.out.println("Enter the name of the destination class: ");
 		String destinationClass = getReaderValue();
+		reader.removeCompleter(classCompleter);
 		System.out.println(
 				"Choose a relationship type (Enter a number): \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
 		int type = Integer.parseInt(getReaderValue());
@@ -499,14 +715,21 @@ public class UMLCli {
 		} else {
 			System.out.println("Failed to add relationship.");
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to delete a relationship between classes
 	protected static void deleteRelationship() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the first class in the relationship: ");
 		String class1 = getReaderValue();
 		System.out.print("Enter the name of the second class in the relationship: ");
 		String class2 = getReaderValue();
+		reader.removeCompleter(classCompleter);
 
 		boolean success = umlDiagram.deleteRelationship(class1, class2);
 		if (success) {
@@ -514,14 +737,21 @@ public class UMLCli {
 		} else {
 			System.out.println("Failed to delete relationship between " + class1 + " and " + class2 + ".");
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to change the type of an existing relationship
 	protected static void changeType() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 		System.out.println("Enter the name of the first class in the relationship: ");
 		String class1 = getReaderValue();
 		System.out.print("Enter the name of the second class in the relationship: ");
 		String class2 = getReaderValue();
+		reader.removeCompleter(classCompleter);
 		System.out.println(
 				"Enter the number for the relationship type: \n1. Aggregation\n2. Composition\n3. Inheritance\n4. Realization\n");
 		int type = Integer.parseInt(getReaderValue());
@@ -537,6 +767,7 @@ public class UMLCli {
 				System.out.println("Failed to change type. Relationship has to exist.");
 			}
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 /**************************************************************************************************************************************/
@@ -546,6 +777,7 @@ public class UMLCli {
 	
 	// Method to save the UML diagram to a JSON file
 	protected static void saveDiagram() throws IOException {
+		reader.removeCompleter(generalCompleter);
 		System.out.print("Enter the file name to save the diagram (JSON format): ");
 		String filePath = getReaderValue().trim();
 		if(!filePath.contains(".json")){
@@ -598,6 +830,7 @@ public class UMLCli {
 		} catch (IOException e) {
 			System.out.println("Failed to save diagram to " + filePath + ": " + e.getMessage());
 		}
+		reader.addCompleter(generalCompleter);
 	}
 
 	
@@ -608,6 +841,7 @@ public class UMLCli {
 	
 	// Method to load a UML diagram from a JSON file
 	protected static void loadDiagram() throws IOException {
+		reader.removeCompleter(generalCompleter);
         System.out.print("Enter the file name to load the diagram (JSON format): ");
         String filePath = getReaderValue().trim();
 		if (!filePath.contains(".json")){
@@ -673,6 +907,7 @@ public class UMLCli {
         } catch (IOException e) {
             System.out.println("Failed to load diagram from " + filePath + ": " + e.getMessage());
         }
+		reader.addCompleter(generalCompleter);
     }
 
 /**************************************************************************************************************************************/
@@ -686,13 +921,18 @@ public class UMLCli {
 		for (UMLClass umlClass : classes) {
 			System.out.println("- " + umlClass.getName());
 		}
-
 	}
 
 	protected static void listClassContents() throws IOException {
+
+		UMLCompleter classCompleter = setClassCompleter();
+		reader.addCompleter(classCompleter);
+		reader.removeCompleter(generalCompleter);
+
 	    System.out.print("Enter the name of the class to list its contents: ");
 	    String className = getReaderValue();
 	    UMLClass umlClass = umlDiagram.getClassNameMapToName().get(className);
+		reader.removeCompleter(classCompleter);
 
 	    if (umlClass != null) {
 	        System.out.println("Fields of class " + className + ":");
@@ -716,6 +956,7 @@ public class UMLCli {
 	    } else {
 	        System.out.println("Class " + className + " does not exist.");
 	    }
+		reader.addCompleter(generalCompleter);
 	}
 
 	// Method to list all relationships in the UML diagram
@@ -726,6 +967,103 @@ public class UMLCli {
 			System.out.println("  " + relationship.getSource() + " --> " + relationship.getDestination());
 		}
 	}
+
+	/**
+	 * This first version of the function just outputs what lcs has.
+	 * @TODO: Store all text output to the console by UMLEditor into an ArrayList<String>
+	 * 		from which I can just pass that arraylist as parameter to createImageFromString. 
+	 */
+	protected static void CLIOutputAsImage() {
+        // Create a StringBuilder to hold the content
+        StringBuilder stringToRasterize = new StringBuilder();
+        
+		// Listing the classes and their fields and methods.
+		ArrayList<UMLClass> classes = umlDiagram.getClasses();
+        stringToRasterize.append("Classes: ");
+        for (UMLClass umlClass : classes) 
+		{
+			stringToRasterize.append("\n" + umlClass.getName() + ":");
+	        for (Field field : umlClass.getFields()) {
+	            stringToRasterize.append("\n  --" + field.getName() + ": " + field.getType());
+	        }
+	        for (Method method : umlClass.getMethods()) {
+	            stringToRasterize.append("\n  +" + method.getName() + "(");
+	            // Print method parameters
+	            List<Parameter> params = method.getParameters();
+	            for (int i = 0; i < params.size(); i++) {
+	                Parameter param = params.get(i);
+	                stringToRasterize.append(param.getName() + ": " + param.getType());
+	                if (i < params.size() - 1) {
+	                    stringToRasterize.append(", ");
+	                }
+	            }
+	            stringToRasterize.append("): " + method.getReturnType());
+	        }
+        }
+
+		// Listing the relationships
+		stringToRasterize.append("\n\nRelationships:");
+		for (Relationship relationship : umlDiagram.getRelationships()) {
+			stringToRasterize.append("\n  " + relationship.getSource() + " --> " + relationship.getDestination() +
+				"    " + relationship.getTypeAsString(relationship.getType()));
+		}
+
+        // Generate an image from the string content
+        BufferedImage image = createImageFromString(stringToRasterize.toString());
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+
+        // Save the image to a file
+        File outputFile = new File(timestamp + "-CLIOutput.jpg");
+        try {
+            ImageIO.write(image, "jpg", outputFile);
+            System.out.println("Image saved to: " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+	/**
+	 * Creates a Buffered image from a String, which is important 
+	 * for the Export as Image user story.
+	 * @param content The giant string to put into the picture, ideally in
+	 * 	the future being an ArrayList<String> of all cli output.
+	 * @return A buffered image that we write to a JPEG file in CLIOutputAsImage().
+	 */
+    private static BufferedImage createImageFromString(String content) {
+		// Set font and color
+		Font font = new Font("Arial", Font.PLAIN, 16);
+		int lineHeight = font.getSize(); // Get the height of a single line
+	
+		// Split the content into separate lines
+		String[] lines = content.split("\n");
+	
+		// Calculate the total height required for all lines
+		int totalHeight = lines.length * lineHeight;
+	
+		// Set the image dimensions
+		int width = 480; // Arbitrary width.
+		int height = totalHeight + 40; // Add some padding at the top
+	
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = image.createGraphics();
+		g2d.setColor(Color.WHITE);
+		g2d.fillRect(0, 0, width, height);
+	
+		g2d.setFont(font);
+		g2d.setColor(Color.BLACK);
+	
+		// Draw each line
+		int y = 30;
+		for (String line : lines) {
+			g2d.drawString(line, 20, y);
+			y += lineHeight; // Move to the next line
+		}
+	
+		g2d.dispose(); // Clean up graphics resources
+	
+		return image;
+	}
+	
 
 	
 /**************************************************************************************************************************************/
@@ -743,13 +1081,12 @@ public class UMLCli {
 		System.out.println("   Arguments: Name of the class to delete\n");
 		System.out.println("3. RenameClass - Rename a class");
 		System.out.println("   Arguments: Current name of the class, New name for the class\n");
-		System.out.println("4. AddField - Add an fieldto a class");
+		System.out.println("4. AddField - Add an field to a class");
 		System.out.println("   Arguments: Name of the class, Name of the field, Type of the field\n");
 		System.out.println("5. DeleteField - Delete an field from a class");
 		System.out.println("   Arguments: Name of the class, Name of the field to delete\n");
 		System.out.println("6. RenameField - Rename an field in a class");
-		System.out.println(
-				"   Arguments: Name of the class, Current name of the field, New name for the field\n");
+		System.out.println("   Arguments: Name of the class, Current name of the field, New name for the field\n");
 		System.out.println("7. AddMethod - Add a method to a class");
 		System.out.println("   Arguments: Name of the class, Name of the method, Return type of the method\n");
 		System.out.println("8. RemoveMethod - Delete a method from a class");
@@ -761,19 +1098,19 @@ public class UMLCli {
 		System.out.println("11. DeleteRelationship - Delete a relationship between classes");
 		System.out.println("    Arguments: Name of the first class, Name of the second class\n");
 		System.out.println("12. ChangeType - Delete a relationship between classes");
-		System.out.println(
-				"    Arguments: Name of the first class, Name of the second class, New selection for attribute\n");
+		System.out.println("    Arguments: Name of the first class, Name of the second class, New selection for attribute\n");
 		System.out.println("13. ListClasses - List all classes\n");
 		System.out.println("14. ListRelationships - List all relationships\n");
 		System.out.println("15. ListClass - List contents of a specified class");
 		System.out.println("    Arguments: Name of the class to list its contents\n");
-		System.out.println("16. Save - Save diagram to JSON file");
+		System.out.println("16. SaveAsImage - Outputs listing of classes, fields, methods, and relationships as a .jpg.");
+		System.out.println("17. Save - Save diagram to JSON file");
 		System.out.println("    Arguments: File path to save the diagram (JSON format)\n");
-		System.out.println("17. Load - Load diagram from JSON file");
+		System.out.println("18. Load - Load diagram from JSON file");
 		System.out.println("    Arguments: File path to load the diagram (JSON format)\n");
-		System.out.println("18. Menu - Displays Main menu\n");
-		System.out.println("19. Help - Displays detailed information of program\n");
-		System.out.println("20. Exit - Exits program\n");
+		System.out.println("19. Menu - Displays Main menu\n");
+		System.out.println("20. Help - Displays detailed information of program\n");
+		System.out.println("21. Exit - Exits program\n");
 
 	}
 
@@ -841,6 +1178,7 @@ public class UMLCli {
 	            ListRelationships -   List all relationships
 	            ListClass -           List contents of a specified class
 	            Arguments:            Name of the class to list its contents
+				SaveAsImage -         Outputs listing of classes, fields, methods, and relationships as a .jpg.
 
 	            Save -                Save diagram to JSON file
 	            Arguments:            File path to save the diagram (JSON format)

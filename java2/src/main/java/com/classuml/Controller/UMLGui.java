@@ -1,8 +1,12 @@
 package com.classuml.Controller;
 
-import java.awt.Toolkit;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.IllegalComponentStateException;
+import java.awt.image.BufferedImage;
+import java.awt.AWTException;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -10,9 +14,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -27,7 +34,9 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.imageio.*;
 
 import com.classuml.Model.*;
 import com.classuml.View.guiView;
@@ -39,6 +48,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 
 
 // Assuming UMLDiagram and related classes are in the Model package
@@ -54,18 +64,34 @@ public class UMLGui extends JFrame implements ActionListener {
 	private guiView view = new guiView(diagram.getClasses(), diagram.getRelationships());
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
-	
+	private Rectangle windowDimensions;
+	public static int prefMaxWidth = 800;
+	private static int prefMaxHeight = 800;
+	Timer timer;
 	
     /**
      * Constructs the UMLGui frame and initializes the GUI components, including
      * setting up the menu bar, class panel container, and scroll pane. It also
      * maximizes the window and sets the diagram GUI linkage.
+     * @throws AWTException 
      */
-	public UMLGui() {
+	public UMLGui() throws AWTException {
 		super("UML Diagram Editor");
 		initializeGUI();
 		diagram.setGui(this);
+		timer = new Timer(1000, timerActionListener);
+        timer.start();
 	}  
+
+	private ActionListener timerActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// Restart the timer
+			timer.restart();
+			// Call the updatePreferredDimensions method
+			updatePreferredDimensions();
+		}
+	};
 
 /**************************************************************************************************************************************/
     /**   GUI FRAME SET-UPS   **/
@@ -76,10 +102,9 @@ public class UMLGui extends JFrame implements ActionListener {
      * the menu bar, class panel container for displaying classes, and a scroll pane
      * for navigation. It also calls methods to update the diagram view and populate
      * class components based on the current state of the diagram.
+     * @throws AWTException 
      */
-	public void initializeGUI() {   
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    setSize(screenSize);
+	public void initializeGUI() throws AWTException {
 	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new BorderLayout());
@@ -88,16 +113,54 @@ public class UMLGui extends JFrame implements ActionListener {
 	    setJMenuBar(createMenuBar());	   
 
 	    classPanelContainer = new JPanel();
-	    classPanelContainer.setLayout(new BorderLayout());
+		classPanelContainer.setBorder(BorderFactory.createLineBorder(Color.red));
+		classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
 	    scrollPane = new JScrollPane(classPanelContainer);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		classPanelContainer.setLayout(new BorderLayout());
 	    add(scrollPane, BorderLayout.CENTER);
+		setSize(300,300);
+		setVisible(true);
 	    
-	    // Now it's safe to call updateDiagramView
-	    updateDiagramView();
 	    
 	    // Maximize the window
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+	}
+
+	public void updatePreferredDimensions() {
+		int maxWidth = prefMaxWidth;
+		int maxHeight = prefMaxHeight;
+
+		for (UMLClass umlClass : diagram.getClasses()) {
+			Point position = umlClass.position;
+			maxWidth = Math.max(maxWidth, position.x + 50);
+			maxHeight = Math.max(maxHeight, position.y + 50);
+		}
+
+		if (maxWidth > prefMaxWidth || maxHeight > prefMaxHeight) {
+			prefMaxWidth = maxWidth + 50;
+			prefMaxHeight = maxHeight + 50;
+			classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
+			classPanelContainer.revalidate();
+			classPanelContainer.repaint();
+		}
+
+		// Add null checks for the String objects being used
+		String[] classNames = getClassNames();
+		if (classNames != null) {
+			for (String className : classNames) {
+				if (className != null) {
+					UMLClass umlClass = diagram.getClassByName(className);
+					if (umlClass != null) {
+						Point position = umlClass.position;
+						maxWidth = Math.max(maxWidth, position.x + 50);
+						maxHeight = Math.max(maxHeight, position.y + 50);
+					}
+				}
+			}
+		}
 	}
 
 /**************************************************************************************************************************************/
@@ -119,6 +182,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		JMenu fileMenu = new JMenu("File");
 		addMenuItem(fileMenu, "Save", "save", 'S');
 		addMenuItem(fileMenu, "Load", "load", 'O');
+		addMenuItem(fileMenu, "Clear", "clear", 'Q');
 		addMenuItem(fileMenu, "Help", "help", 'H');
 
 		// Class Menu
@@ -152,11 +216,9 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		// Interface Menu
 		JMenu interfaceMenu = new JMenu("Interface");
-		addMenuItem(interfaceMenu, "List Class", "listClass");
-		addMenuItem(interfaceMenu, "List Relationships", "listRelationships");
-		addMenuItem(interfaceMenu, "List Classes", "listClasses", 'L');
 		addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
         addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
+		addMenuItem(interfaceMenu, "Snapshot Diagram", "snapshot");
 
 		// Adding menus to menu bar
 		menuBar.add(fileMenu);
@@ -191,22 +253,29 @@ public class UMLGui extends JFrame implements ActionListener {
 		menu.add(menuItem);
 	}
 
-    /**
-     * Updates the display of the UML diagram to reflect the current state. This
-     * method can be called after any modification to the diagram to refresh the
-     * visual representation shown in the GUI.
-     */
-	private void updateDiagramView() {
-        classPanelContainer.removeAll(); // Remove all existing components
-
-        // Rebuild the components based on the current state of the 'diagram' object
-        guiView classView = new guiView(diagram.getClasses(), diagram.getRelationships());
-        classPanelContainer.add(classView);
-        
-
-        classPanelContainer.revalidate();
-        classPanelContainer.repaint();
-    }
+	/**
+	 * Finds the window dimensions to snapshot the screen. This does not
+	 * capture the internal canvas, only what the monitor sees, so I can't 
+	 * unfortunately take a snapshot of the entire UML canvas if the window
+	 * showing it is smaller and needs to display a scroll bar to see the
+	 * whole thing.
+	 */
+	public void recalculateWindowDimForSnapshot()
+	{
+		Point frameLocation;
+		try
+		{
+			frameLocation = this.getLocationOnScreen();
+		}
+		catch (IllegalComponentStateException e)
+		{
+			frameLocation = new Point();
+		}
+		int frameX = frameLocation.x;
+		int frameY = frameLocation.y;
+		windowDimensions = classPanelContainer.getBounds();
+		windowDimensions.setLocation(frameX, frameY);
+	}
 
     /**
      * Handles action events generated by menu item selections. Based on the action
@@ -267,15 +336,6 @@ public class UMLGui extends JFrame implements ActionListener {
 		case "changeType":
 			changeType();
 			break;
-		case "listClass":
-			listClass();
-			break;
-		case "listClasses":
-			listClasses();
-			break;
-		case "listRelationships":
-			listRelationships();
-			break;
 		case "save":
 			saveDiagram();
 			break;
@@ -291,8 +351,17 @@ public class UMLGui extends JFrame implements ActionListener {
         case "redo":
             redo();
             break;
-        } 
-		updateDiagramView();
+		case "clear":
+			clearGui();
+			break;
+		case "snapshot":
+			try {
+				getSnapshotImage();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			break; 
+        }
 	}
 
 
@@ -322,7 +391,7 @@ public class UMLGui extends JFrame implements ActionListener {
 					// Update the diagram view to reflect the new class
 					changeComponent();
 
-					updateDiagramView();
+					
 				} else {
 					// Class already exists
 					JOptionPane.showMessageDialog(this, "Class '" + className + "' already exists.",
@@ -369,7 +438,7 @@ public class UMLGui extends JFrame implements ActionListener {
 					if (renamed) {
 						changeComponent();
 
-						updateDiagramView();
+						
 					} else {
 						JOptionPane.showMessageDialog(this,
 								"Failed to rename class. Class may not exist or new name may already be in use.",
@@ -402,7 +471,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (deleted) {
 					changeComponent();
 
-					updateDiagramView();
+					
 					JOptionPane.showMessageDialog(this, "Class deleted successfully.", "Class Deleted",
 							JOptionPane.INFORMATION_MESSAGE);
 				} else {
@@ -467,7 +536,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (added) {
 					changeComponent();
 
-					updateDiagramView();
+					
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to add field.", "Error Adding Field",
 							JOptionPane.ERROR_MESSAGE);
@@ -525,7 +594,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (renamed) {
 					changeComponent();
 
-					updateDiagramView();
+					
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to rename field.", "Error Renaming Field",
 							JOptionPane.ERROR_MESSAGE);
@@ -577,7 +646,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (deleted) {
 					changeComponent();
 
-					updateDiagramView();
+					
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to delete field.", "Error Deleting Field",
 							JOptionPane.ERROR_MESSAGE);
@@ -636,7 +705,7 @@ public class UMLGui extends JFrame implements ActionListener {
 						if (added) {
 							changeComponent();
 
-							updateDiagramView();
+							
 						} else {
 							JOptionPane.showMessageDialog(this, "Failed to add method to class. Class may not exist.",
 									"Error Adding Method", JOptionPane.ERROR_MESSAGE);
@@ -695,7 +764,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (renamed) {
 					changeComponent();
 
-					updateDiagramView();
+					
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to rename method.", "Error Renaming Method",
 							JOptionPane.ERROR_MESSAGE);
@@ -747,7 +816,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				if (deleted) {
 					changeComponent();
 
-					updateDiagramView();
+					
 				} else {
 					JOptionPane.showMessageDialog(this, "Failed to delete method.", "Error Deleting Method",
 							JOptionPane.ERROR_MESSAGE);
@@ -820,7 +889,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	            if (success) {
 	                changeComponent();
 
-	                updateDiagramView();
+	                
 	            } else {
 	                JOptionPane.showMessageDialog(this, "Failed to add parameter. Check if class and method exist, and parameter doesn't already exist.", "Error", JOptionPane.ERROR_MESSAGE);
 	            }
@@ -889,7 +958,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	        if (success) {
 	            changeComponent();
 
-	            updateDiagramView();
+	            
 	        } else {
 	            JOptionPane.showMessageDialog(this, "Failed to rename parameter. Ensure the old parameter exists and the new name is unique within its method.", "Error", JOptionPane.ERROR_MESSAGE);
 	        }
@@ -951,7 +1020,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	        if (success) {
 	            changeComponent();
 
-	            updateDiagramView();
+	            
 	        } else {
 	            JOptionPane.showMessageDialog(this, "Failed to delete parameter. Ensure the method and parameter exist.", "Error", JOptionPane.ERROR_MESSAGE);
 	        }
@@ -1001,7 +1070,7 @@ public class UMLGui extends JFrame implements ActionListener {
 			}
 	
 			diagram.replaceParameters(namesBox.getSelectedItem().toString(), methName.getText(), paramNames, paramTypes);
-			updateDiagramView();
+			changeComponent();
 		}
 	}
 
@@ -1073,23 +1142,16 @@ public class UMLGui extends JFrame implements ActionListener {
 					boolean added = diagram.addRelationship(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
 					if (added) {
 						changeComponent();
-						updateDiagramView();
+						
 					} else {
 						JOptionPane.showMessageDialog(this, "Failed to add relationship. Ensure both classes exist.",
 								"Error Adding Relationship", JOptionPane.ERROR_MESSAGE);
 					}
-				} else {
-					JOptionPane.showMessageDialog(this,
-							"Invalid relationship type. Please enter a number between 1 and 5.", "Invalid Type",
-							JOptionPane.WARNING_MESSAGE);
 				}
 			} catch (NumberFormatException e) {
 				JOptionPane.showMessageDialog(this, "The relationship type must be a valid number.", "Invalid Type",
 						JOptionPane.ERROR_MESSAGE);
 			}
-		} else {
-			JOptionPane.showMessageDialog(this, "Source class, destination class, and relationship type are required.",
-					"Invalid Input", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
@@ -1129,7 +1191,7 @@ public class UMLGui extends JFrame implements ActionListener {
 					if (deleted) {
 						// Update the diagram view to reflect the change
 						changeComponent();
-						updateDiagramView();
+						
 					} else {
 						// Inform the user if the relationship couldn't be deleted (e.g., because it
 						// doesn't exist)
@@ -1186,32 +1248,31 @@ public class UMLGui extends JFrame implements ActionListener {
 
 
 		int entered = -1;
-		entered = JOptionPane.showConfirmDialog(this, cPanel, "Delete Relationship", JOptionPane.OK_CANCEL_OPTION);
+		entered = JOptionPane.showConfirmDialog(this, cPanel, "Change Relationship Type", JOptionPane.OK_CANCEL_OPTION);
 
 		
 		String sourceClass = selected.getSource();
 		String destinationClass = selected.getDestination();
 
-		try {
-			if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3 && entered == 0 && relateBox.getSelectedItem() != null) { // Validate the input range
-				boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
-				if (typeChanged) {
-					changeComponent();
-					updateDiagramView();
-				} else {
-					JOptionPane.showMessageDialog(this, "Failed to change relationship type.", "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			} else {
-				JOptionPane.showMessageDialog(this, "Invalid relationship type selected.", "Error",
+		
+			if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3 && entered == 0 && relateBox.getSelectedItem() != null && entered == 0) { // Validate the input range
+				try {
+					boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
+					if (typeChanged) {
+						changeComponent();
+					
+					} else {
+						JOptionPane.showMessageDialog(this, "Failed to change relationship type.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(this, "The relationship type must be a valid number between 1 and 5.",
+						"Invalid Input", JOptionPane.ERROR_MESSAGE);
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(this, "An error occurred: " + ex.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
-		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(this, "The relationship type must be a valid number between 1 and 5.",
-					"Invalid Input", JOptionPane.ERROR_MESSAGE);
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, "An error occurred: " + ex.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -1220,70 +1281,33 @@ public class UMLGui extends JFrame implements ActionListener {
     /**   INTERFACES   **/
 /**************************************************************************************************************************************/
 
-	
-    /**
-     * Lists the contents of a specified class.
-     * Prompts the user for the class name and displays its contents including fields, methods, and relationships.
-     * Shows an error message if the class is not found.
-     */
-	private void listClass() {
-		JPanel lPanel = new JPanel();
-		lPanel.setLayout(new BoxLayout(lPanel, BoxLayout.Y_AXIS));
-		String[] classNames = getClassNames();
-		JComboBox<String> namesBox = new JComboBox<String>(classNames);
-
-		lPanel.add(new JLabel("Select the class to list: "));
-		lPanel.add(namesBox);
-
-		int entered = -1;
-		entered = JOptionPane.showConfirmDialog(this, lPanel, "List Class", JOptionPane.OK_CANCEL_OPTION);
-
-	    if (namesBox.getSelectedItem() != null && entered == 0) {
-	        UMLClass umlClass = diagram.getClassByName(namesBox.getSelectedItem().toString());
-	        if (umlClass != null) {
-	            JOptionPane.showMessageDialog(this, umlClass.toString(), "Class Information", JOptionPane.INFORMATION_MESSAGE);
-	        } else {
-	            JOptionPane.showMessageDialog(this, "Class '" + namesBox.getSelectedItem().toString() + "' not found.", "Error", JOptionPane.ERROR_MESSAGE);
-	        }
-	    }
-	}
-
-    /**
-     * Lists all classes in the UML diagram.
-     * Displays the names of all classes currently in the diagram.
-     */
-	private void listClasses() {
-	    // Assuming diagram.getClasses() method exists and returns a list of UMLClass objects
-	    ArrayList<UMLClass> classes = diagram.getClasses();
-	    StringBuilder classList = new StringBuilder("Classes:\n");
-	    for (UMLClass umlClass : classes) {
-	        classList.append(umlClass.getName()).append("\n");
-	    }
-	    JOptionPane.showMessageDialog(this, classList.toString(), "List of Classes", JOptionPane.INFORMATION_MESSAGE);
-	}
-
-    /**
-     * Lists all relationships in the UML diagram.
-     * Displays information about all relationships currently in the diagram.
-     */
-	private void listRelationships() {
-	    // Assuming diagram.getRelationships() method exists and returns a list of Relationship objects
-	    ArrayList<Relationship> relationships = diagram.getRelationships();
-	    StringBuilder relationshipList = new StringBuilder("Relationships:\n");
-	    for (Relationship relationship : relationships) {
-	        relationshipList.append(relationship.toString()).append("\n");
-	    }
-	    JOptionPane.showMessageDialog(this, relationshipList.toString(), "List of Relationships", JOptionPane.INFORMATION_MESSAGE);
+	private void clearGui(){
+		diagram.clear();
+		changeComponent();
 	}
 
 	private void undo(){
 		diagram.undo();
-		updateDiagramView();
+		changeComponent();
+		
 	}
 
 	private void redo(){
 		diagram.redo();
-		updateDiagramView();
+		changeComponent();
+		
+	}
+
+	public void getSnapshotImage() throws IOException {
+		BufferedImage bImg = new BufferedImage(classPanelContainer.getWidth(), classPanelContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D cg = bImg.createGraphics();
+		classPanelContainer.paintAll(cg);
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+		try {
+			ImageIO.write(bImg, "jpg", new File(timestamp + "-GUIOutput.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	
@@ -1387,7 +1411,7 @@ public class UMLGui extends JFrame implements ActionListener {
      * the current diagram state. This includes reconstructing the classes, fields, methods, parameters, and
      * relationships as defined in the JSON file.
      */
-	private static void loadDiagram() {
+	private void loadDiagram() {
 	    JFileChooser fileChooser = new JFileChooser();
 	    FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
 	    fileChooser.setFileFilter(filter);
@@ -1399,6 +1423,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	            JOptionPane.showMessageDialog(null, "Cannot read the selected file.", "Load Error", JOptionPane.ERROR_MESSAGE);
 	            return;
 	        }
+			clearGui();
 
 	        Gson gson = new Gson();
 	        try (FileReader reader = new FileReader(filePath)) {
@@ -1470,6 +1495,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	                    diagram.addRelationship(source, destination, type);
 	                }
 	            }
+				changeComponent();
 
 	        } catch (FileNotFoundException e) {
 	            JOptionPane.showMessageDialog(null, "File not found: " + filePath, "Load Error", JOptionPane.ERROR_MESSAGE);
@@ -1518,6 +1544,8 @@ public class UMLGui extends JFrame implements ActionListener {
 
 	    classPanelContainer.revalidate();
 	    classPanelContainer.repaint();
+		
+		recalculateWindowDimForSnapshot();
 	}
 
 	
@@ -1547,7 +1575,13 @@ public class UMLGui extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-		SwingUtilities.invokeLater(() -> new UMLGui().setVisible(true));
+		SwingUtilities.invokeLater(() -> {
+			try {
+				new UMLGui().setVisible(true);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 }

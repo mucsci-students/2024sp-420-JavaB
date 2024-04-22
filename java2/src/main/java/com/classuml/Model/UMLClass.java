@@ -15,6 +15,7 @@ public class UMLClass {
 	private ArrayList<Field> fields;
 	private ArrayList<Method> methods;
 	public Point position;
+	public boolean isClicked;
 
 	public FontMetrics fm;
     public int uniformWidth = -1; // Cached width for uniform drawing
@@ -127,14 +128,6 @@ public class UMLClass {
 	}
 
 	/**
-	 * Sets the fields of the UML class.
-	 * @param classField ArrayList containing fields to be set.
-	 */
-	public void setField(ArrayList<Field> classField) {
-		fields = classField;
-	}
-
-	/**
 	 * Retrieves the field with the given name.
 	 * @param name The name of the field to retrieve.
 	 * @return The field object if found, otherwise null.
@@ -192,7 +185,7 @@ public class UMLClass {
 		if(original == null || original == "" || newName == null || newName == "") {
 			return false;
 		}
-		if(!containsField(original) && containsMethod(newName)) {
+		if(containsField(newName)) {
 			return false;
 		}
 		for(Field fld : fields) {
@@ -242,9 +235,6 @@ public class UMLClass {
 		if(name == null || name == "") {
 			return false;
 		}
-		if(!containsField(name)) {
-			return false;
-		}
 		for(Field fld : fields) {
 			if(fld.getName().equals(name)) {
 				return fields.remove(fld);
@@ -252,25 +242,6 @@ public class UMLClass {
 		}
 		return false;
 	}
-
-	/**
-	 * Deletes all fields from the class.
-	 *
-	 * This method removes all fields from the class.
-	 * If the class does not contain any fields, the deletion fails.
-	 *
-	 * @return true if all fields are successfully deleted, false otherwise
-	 */
-
-	public boolean deleteField() {
-		if(fields.isEmpty()) {
-			return false;
-		}
-
-		fields.clear();
-		return true;
-	}
-
 
 	/*******************************************************************************************************/
                        /**   METHOD   **/
@@ -305,16 +276,6 @@ public class UMLClass {
 	public ArrayList<Method> getMethods() {
 		return methods;
 	}
-
-	/**
-	 * Sets the methods of the class.
-	 *
-	 * @param m the new list of methods
-	 */
-	public void setMethods(ArrayList<Method> m) {
-		methods = m;
-	}
-
 	/**
 	 * Retrieves the method with the specified name.
 	 *
@@ -345,7 +306,7 @@ public class UMLClass {
 	 * @return true if the method is successfully added, false otherwise
 	 */
 	public boolean addMethod(String name, String type) {
-		if(name == null || name == "" || type == null || type == "") {
+		if((name == null || name == "") || (type == null || type == "")) {
 			return false;
 		}
 		if(containsMethod(name)) {
@@ -428,23 +389,6 @@ public class UMLClass {
 		return false;	
 	}
 
-	/**
-	 * Deletes a method from the class.
-	 *
-	 * This method removes the method with the specified name from the class.
-	 * If the name is null or an empty string, or if the method with the given name
-	 * does not exist in the class, the deletion fails.
-	 *
-	 * @return true if the method is successfully deleted, false otherwise
-	 */
-	public boolean deleteMethods() {
-		if(methods.isEmpty()) {
-			return false;
-		}
-
-		methods.clear();
-		return true;
-	}
 
 	/****************************** Parameters *****************************************************************/
 
@@ -469,15 +413,6 @@ public class UMLClass {
 	    return false;
 	}
 
-	public boolean renameParameter(String methodName, String oldParameterName, String newParameterName) {
-	    Method method = getMethodByName(methodName);
-	    if (method != null) {
-	        return method.renameParameter(oldParameterName, newParameterName);
-	    }
-	    return false;
-	}
-
- 
 	/** 
 	 * Deletes a parameter from a method in the class.
 	 *
@@ -510,28 +445,6 @@ public class UMLClass {
 	}
 
 	/**
-	 * Changes the type of a parameter in a method in the class.
-	 *
-	 * This method changes the type of the parameter with the specified name to the
-	 * new type in the method with the given name. If the method does not exist or
-	 * if either the method name, parameter name, or new parameter type is null or
-	 * an empty string, the operation fails.
-	 *
-	 * @param methodName the name of the method containing the parameter whose type will be changed
-	 * @param parameterName the name of the parameter whose type will be changed
-	 * @param newParamType the new type for the parameter
-	 * @return true if the parameter type is successfully changed, false otherwise
-	 */
-	public boolean changeParamType(String methodName, String parameterName, String newParamType){
-		for(Method method : methods){
-			if(method.getName().equals(methodName)){
-				return method.changeParameterType(parameterName, newParamType);
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Removes all parameters from a method in the class.
 	 *
 	 * This method removes all parameters from the method with the specified name.
@@ -548,63 +461,5 @@ public class UMLClass {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Retrieves a string representation of all methods in the class.
-	 *
-	 * @return a string containing information about all methods in the class
-	 */
-	public String printMethods() {
-		return " Methods:  " + methods;
-	}
-
-	/**
-	 * Retrieves a string representation of all fields in the class.
-	 *
-	 * @return a string containing information about all fields in the class
-	 */
-	public String printFiled() {
-		return "Field:  " + fields;
-	}
-
-
-	/**
-	 * Returns a string representation of the class including its fields and methods.
-	 *
-	 * @return a string representation of the class
-	 */
-	@Override
-	public String toString() {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("Class Name: ").append(className).append("\nFields:\n");
-
-	    if (fields.isEmpty()) {
-	        sb.append("  [No fields]\n");
-	    } else {
-	        for (Field field : fields) {
-	            sb.append("  ").append(field.getType()).append(" ").append(field.getName()).append("\n");
-	        }
-	    }
-
-	    sb.append("Methods:\n");
-	    if (methods.isEmpty()) {
-	        sb.append("  [No methods]\n");
-	    } else {
-	        for (Method method : methods) {
-	            sb.append("  ").append(method.getReturnType()).append(" ").append(method.getName()).append("(");
-	            List<Parameter> params = method.getParameters();
-	            for (int i = 0; i < params.size(); i++) {
-	                Parameter param = params.get(i);
-	                sb.append(param.getType()).append(" ").append(param.getName());
-	                if (i < params.size() - 1) {
-	                    sb.append(", ");
-	                }
-	            }
-	            sb.append(")\n");
-	        }
-	    }
-
-	    return sb.toString();
 	}
 }

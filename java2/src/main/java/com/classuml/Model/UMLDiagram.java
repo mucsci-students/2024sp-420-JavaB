@@ -2,13 +2,6 @@ package com.classuml.Model;
 
 import com.classuml.Controller.UMLCli;
 import com.classuml.Controller.UMLGui;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +19,9 @@ public class UMLDiagram implements UMLStructure {
 
 	private transient UMLGui gui;
 
-	public UMLDiagram(UMLGui gui) {
-		this.gui = gui;
-	}
+	private int x = 20;
+	private int y = 20;
+
 	public UMLDiagram(UMLDiagram diagram2)
 	{
 		this.gui = diagram2.getGui();
@@ -114,13 +107,22 @@ public class UMLDiagram implements UMLStructure {
 	public boolean addClass(String className) {
 		memento.clearRedo();
 		saveState();
-	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)) {    	
+	    if (className == null || className.isEmpty() || classNameMapToName.containsKey(className)||!(Character.isLetter(className.charAt(0)))) {    	
 			memento.popUndo();
 	        return false; // Class already exists or invalid name      
 	    }
-		int x = 20;
-		int y = 20;
 		Point pos = new Point(x, y);
+		for (UMLClass c : classNameMapToName.values()) {
+			if (Math.abs(c.position.getX() - pos.getX()) < 100 && Math.abs(c.position.getY() - pos.getY()) < 100) {
+				// If overlapping, adjust x and y
+				x += 75;
+				pos = new Point(x, y);
+				if (x > gui.prefMaxWidth) { // assuming a maximum x value of 500
+					x = 20;
+					y += 40; // move to the next row
+				}
+			}
+		}
 		if(!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className, pos));
 	    }
@@ -166,7 +168,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 		
-		    if (newName == null || newName.isEmpty()) {
+		    if (newName == null || newName.isEmpty()||!(Character.isLetter(newName.charAt(0)))) {
 				memento.popUndo();
 		        return false; // New name cannot be null or empty
 		    }
@@ -296,7 +298,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    UMLClass umlClass = this.getClassByName(className); // Assuming getClassByName is implemented correctly
-	    if (umlClass != null) {
+	    if (umlClass != null&& fieldName != null && (Character.isLetter(fieldName.charAt(0)))) {
 			if(umlClass.addField(fieldName, fieldType))// Corrected to match UMLClass's method signature
 				return true;
 			memento.popUndo();
@@ -353,7 +355,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    // Check for null or empty new attribute name, or if the class does not exist
-	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)) {
+	    if (newAttributeName == null || newAttributeName.isEmpty() || !classNameMapToName.containsKey(className)||!(Character.isLetter(newAttributeName.charAt(0)))) {
 			memento.popUndo();
 	        return false;
 	    }
@@ -391,7 +393,7 @@ public class UMLDiagram implements UMLStructure {
 	public boolean addMethod(String className, String methodName, String methodType) {
 		memento.clearRedo();
 		saveState();
-		if (classNameMapToName.containsKey(className)) {
+		if (classNameMapToName.containsKey(className)&&(Character.isLetter(methodName.charAt(0)))) {
 			if(classNameMapToName.get(className).addMethod(methodName, methodType))
 				return true;
 			memento.popUndo();
@@ -422,7 +424,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    if (classNameMapToName.containsKey(className) && originalName != null && newName != null) {
-			if(classNameMapToName.get(className).renameMethod(originalName, newName))
+			if(classNameMapToName.get(className).renameMethod(originalName, newName)&&(Character.isLetter(newName.charAt(0))))
 				return true;
 			memento.popUndo();
 	        return false;
@@ -449,7 +451,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    UMLClass targetClass = classNameMapToName.get(className);
-	    if (targetClass == null) {
+	    if (targetClass == null||!(Character.isLetter(parameterName.charAt(0)))) {
 			memento.popUndo();
 	        return false; // Class not found
 	    }
@@ -478,7 +480,7 @@ public class UMLDiagram implements UMLStructure {
 		memento.clearRedo();
 		saveState();
 	    UMLClass umlClass = getClassByName(className);
-	    if (umlClass != null) {
+	    if (umlClass != null&&newParameterName != null &&newParameterName.length()!= 0 && (Character.isLetter(newParameterName.charAt(0)))) {
 	        Method method = umlClass.getMethodByName(methodName);
 	        if (method != null) {
 				if(method.renameParameter(oldParameterName, newParameterName))
@@ -611,55 +613,14 @@ public class UMLDiagram implements UMLStructure {
 		memento.saveState(state);
 		return true;
 	}
-	public boolean clearState()
-	{
-		memento.clearStates();
-		return false;
-	}
-	/**
-	 * Saves the UML diagram as a JSON file.
-	 *
-	 * @param fileName The name of the JSON file to save.
-	 * @return true if the diagram was successfully saved, false if an error
-	 *         occurred during the process.
-	 * @throws IOException if an I/O error occurs while writing to the file.
-	 */
- 
-	public boolean saveToJSON(String fileName) throws IOException {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		try (FileWriter writer = new FileWriter(fileName)) {
-			gson.toJson(this, writer);
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
 
-	/**
-	 * Loads a UML diagram from a JSON file.
-	 *
-	 * @param fileName The name of the JSON file to load.
-	 * @return true if the diagram was successfully loaded, false if an error
-	 *         occurred during the process.
-	 */
-
-	public boolean loadFromJSON(String fileName) {
-		Gson gson = new Gson();
-		try (FileReader reader = new FileReader(fileName)) {
-			gson.fromJson(reader, UMLDiagram.class);
-			return true; // Loading successful
-		} catch (IOException | JsonSyntaxException e) {
-			e.printStackTrace();
-			return false; // Loading failed
-		}
-	}
 	/**
      * Clears all classes and relationships from the UML diagram.
      */
 
 	public void clear() {
 		memento.clearRedo();
+		memento.clearUndo();
 		saveState();
 		classNameMapToName.clear();
 		classMapToRelation.clear();

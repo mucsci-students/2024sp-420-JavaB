@@ -18,4 +18,9 @@ public class fieldTest {
     public void testToString() {
         assertEquals("\n    Name: fieldName,\n    Type: String", field.toString());
     }
+    @Test
+    public void testEqualsFalse()
+    {
+        assertFalse(field.equals(null));
+    }
 }

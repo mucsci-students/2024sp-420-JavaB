@@ -13,9 +13,11 @@ Save and load to standar JSON format.
 # State to run the program:
 
 # Design Patterns Used
-- Memento is implemented in our redo/undo.
-- Observer is implemented in our tab completion.
-- Builder is implemented in our relationship arrows.
+- Memento is implemented in our redo/undo for storing and retrieving each state of the program.
+- Command is used for the UMLDiagram and UMLCli where the cli calls the functions from the diagram.
+- Builder is implemented in our relationship arrows all the different arrows have different builders.
+- Strategy is implemented in our snapshot.
+- Adaptater is implemented in our jlinereader in the cli which allows for interaction with the tab completer.
 - MVC is implemented throughout our project.
 
 # 1.Requirements: 
