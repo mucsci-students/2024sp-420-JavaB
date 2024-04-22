@@ -1294,9 +1294,9 @@ public class UMLGui extends JFrame implements ActionListener {
 		BufferedImage bImg = new BufferedImage(classPanelContainer.getWidth(), classPanelContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D cg = bImg.createGraphics();
 		classPanelContainer.paintAll(cg);
-		String timestamp = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 		try {
-			ImageIO.write(bImg, "jpg", new File(timestamp + "GUIOutput.jpg"));
+			ImageIO.write(bImg, "jpg", new File(timestamp + "-GUIOutput.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1403,7 +1403,7 @@ public class UMLGui extends JFrame implements ActionListener {
      * the current diagram state. This includes reconstructing the classes, fields, methods, parameters, and
      * relationships as defined in the JSON file.
      */
-	private static void loadDiagram() {
+	private void loadDiagram() {
 	    JFileChooser fileChooser = new JFileChooser();
 	    FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Files", "json");
 	    fileChooser.setFileFilter(filter);
@@ -1486,6 +1486,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	                    diagram.addRelationship(source, destination, type);
 	                }
 	            }
+				changeComponent();
 
 	        } catch (FileNotFoundException e) {
 	            JOptionPane.showMessageDialog(null, "File not found: " + filePath, "Load Error", JOptionPane.ERROR_MESSAGE);
