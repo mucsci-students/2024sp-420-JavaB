@@ -65,8 +65,9 @@ public class UMLGui extends JFrame implements ActionListener {
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
 	private Rectangle windowDimensions;
-	public static int prefMaxWidth = 800;
-	private static int prefMaxHeight = 800;
+	public static int prefMaxWidth = 200;
+	private static int prefMaxHeight = 200;
+	private static boolean isSaved = false;
 	Timer timer;
 	
     /**
@@ -79,7 +80,10 @@ public class UMLGui extends JFrame implements ActionListener {
 		super("UML Diagram Editor");
 		initializeGUI();
 		diagram.setGui(this);
-		timer = new Timer(1000, timerActionListener);
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		System.setProperty( "apple.awt.application.appearance", "system" );
+		System.setProperty("apple.awt.application.name", "UML Editor");
+		timer = new Timer(150, timerActionListener);
         timer.start();
 	}  
 
@@ -113,7 +117,6 @@ public class UMLGui extends JFrame implements ActionListener {
 	    setJMenuBar(createMenuBar());	   
 
 	    classPanelContainer = new JPanel();
-		classPanelContainer.setBorder(BorderFactory.createLineBorder(Color.red));
 		classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
 	    scrollPane = new JScrollPane(classPanelContainer);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -130,37 +133,21 @@ public class UMLGui extends JFrame implements ActionListener {
 	}
 
 	public void updatePreferredDimensions() {
-		int maxWidth = prefMaxWidth;
-		int maxHeight = prefMaxHeight;
-
+		int maxWidth = 50;
+		int maxHeight = 50;
+	
 		for (UMLClass umlClass : diagram.getClasses()) {
 			Point position = umlClass.position;
 			maxWidth = Math.max(maxWidth, position.x + 50);
 			maxHeight = Math.max(maxHeight, position.y + 50);
 		}
-
-		if (maxWidth > prefMaxWidth || maxHeight > prefMaxHeight) {
-			prefMaxWidth = maxWidth + 50;
-			prefMaxHeight = maxHeight + 50;
-			classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
-			classPanelContainer.revalidate();
-			classPanelContainer.repaint();
-		}
-
-		// Add null checks for the String objects being used
-		String[] classNames = getClassNames();
-		if (classNames != null) {
-			for (String className : classNames) {
-				if (className != null) {
-					UMLClass umlClass = diagram.getClassByName(className);
-					if (umlClass != null) {
-						Point position = umlClass.position;
-						maxWidth = Math.max(maxWidth, position.x + 50);
-						maxHeight = Math.max(maxHeight, position.y + 50);
-					}
-				}
-			}
-		}
+	
+		prefMaxWidth = maxWidth;
+		prefMaxHeight = maxHeight;
+	
+		classPanelContainer.setPreferredSize(new Dimension(prefMaxWidth, prefMaxHeight));
+		classPanelContainer.revalidate();
+		classPanelContainer.repaint();
 	}
 
 /**************************************************************************************************************************************/
@@ -291,69 +278,90 @@ public class UMLGui extends JFrame implements ActionListener {
 		switch (e.getActionCommand()) {
 		case "addClass":
 			addClass();
+			isSaved = false;
 			break;
 		case "renameClass":
 			renameClass();
+			isSaved = false;
 			break;
 		case "deleteClass":
 			deleteClass();
+			isSaved = false;
 			break;
 		case "addField":
 			addField();
+			isSaved = false;
 			break;
 		case "renameField":
 			renameField();
+			isSaved = false;
 			break;
 		case "deleteField":
 			deleteField();
+			isSaved = false;
 			break;
 		case "addMethod":
 			addMethod();
+			isSaved = false;
 			break;
 		case "renameMethod":
 			renameMethod();
+			isSaved = false;
 			break;
 		case "deleteMethod":
 			deleteMethod();
+			isSaved = false;
 			break;
 		case "addParameter":
 			addParameter();
+			isSaved = false;
 			break;
 		case "renameParameter":
 			renameParameter();
+			isSaved = false;
 			break;
 		case "deleteParameter":
 			deleteParameter();
+			isSaved = false;
 			break;
 		case "replaceParameters":
 			replaceParameters();
+			isSaved = false;
 			break;
 		case "addRelationship":
 			addRelationship();
+			isSaved = false;
 			break;
 		case "deleteRelationship":
 			deleteRelationship();
+			isSaved = false;
 			break;
 		case "changeType":
 			changeType();
+			isSaved = false;
 			break;
 		case "save":
 			saveDiagram();
+			isSaved = true;
 			break;
 		case "load":
 			loadDiagram();
+			isSaved = false;
 			break;
 		case "help":
 			showHelp();
 			break;
 		case "undo":
             undo();
+			isSaved = false;
             break;
         case "redo":
             redo();
+			isSaved = false;
             break;
 		case "clear":
 			clearGui();
+			isSaved = false;
 			break;
 		case "quit":
 			quitGui();
@@ -397,7 +405,7 @@ public class UMLGui extends JFrame implements ActionListener {
 					
 				} else {
 					// Class already exists
-					JOptionPane.showMessageDialog(this, "Class '" + className + "' already exists.",
+					JOptionPane.showMessageDialog(this, "Class '" + className + "' is invalid.",
 							"Error Adding Class", JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception ex) {
@@ -1285,8 +1293,24 @@ public class UMLGui extends JFrame implements ActionListener {
 /**************************************************************************************************************************************/
 
 	private void clearGui(){
-		diagram.clear();
-		changeComponent();
+		if (!isSaved) {
+			int response = JOptionPane.showConfirmDialog(
+				null,
+				"The diagram has unsaved changes. Do you want to save before quitting?",
+				"Unsaved Changes",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+	
+			if (response == JOptionPane.YES_OPTION) {
+				saveDiagram();
+			} else if (response == JOptionPane.CANCEL_OPTION) {
+
+			}
+		}
+		else{
+			diagram.clear();
+			changeComponent();
+		}
 	}
 
 	private void undo(){
@@ -1295,7 +1319,22 @@ public class UMLGui extends JFrame implements ActionListener {
 		
 	}
 
-	private void quitGui(){
+	private void quitGui() {
+		if (!isSaved) {
+			int response = JOptionPane.showConfirmDialog(
+				null,
+				"The diagram has unsaved changes. Do you want to save before clearing?",
+				"Unsaved Changes",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+	
+			if (response == JOptionPane.YES_OPTION) {
+				saveDiagram();
+			} else if (response == JOptionPane.CANCEL_OPTION) {
+				// Do nothing, just exit the method
+				return;
+			}
+		}
 		System.exit(0);
 	}
 
@@ -1403,6 +1442,7 @@ public class UMLGui extends JFrame implements ActionListener {
                 gson.toJson(jsonDiagram, writer);
             } catch (IOException e) {
             }
+			isSaved = true;
         }
     }
 

@@ -26,6 +26,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.awt.Point;
+
 public class UMLCli {
 	// Scanner object for user input
 	//private static final Scanner scanner = new Scanner(System.in);
@@ -48,7 +50,7 @@ public class UMLCli {
 	reader = getConsoleReader();
 	reader.addCompleter(generalCompleter);
 
-	System.out.println("Welcome to NRDS UML Editor!");
+	System.out.println("Welcome to JAVA2 UML Editor!");
 
 	boolean exit = false; 
 
@@ -59,6 +61,7 @@ public class UMLCli {
 	while (!exit) {
 
     String choice = getUserChoice();
+	choice.trim();
 
     // Perform actions based on user choice
     switch (choice) {
@@ -264,11 +267,23 @@ public class UMLCli {
 	// Get user choice
 	private static String getUserChoice() throws IOException {
 		//return scanner.nextLine().toLowerCase().trim();
-		return reader.readLine().toLowerCase().trim();
+		String c = reader.readLine();
+		if (c == null) {
+			// Handle end of input
+			System.out.println("End of input detected. Exiting program.");
+			System.exit(0);
+		}
+		return c.toLowerCase().trim();
 	}
 
 	private static String getReaderValue() throws IOException {
-		return reader.readLine();
+		String c = reader.readLine();
+		if (c == null) {
+			// Handle end of input
+			System.out.println("End of input detected. Exiting program.");
+			System.exit(0);
+		}
+		return c.trim();
 	}
 
 	//Calls undo.
@@ -777,61 +792,70 @@ public class UMLCli {
 	
 	// Method to save the UML diagram to a JSON file
 	protected static void saveDiagram() throws IOException {
-		reader.removeCompleter(generalCompleter);
-		System.out.print("Enter the file name to save the diagram (JSON format): ");
-		String filePath = getReaderValue().trim();
-		if(!filePath.contains(".json")){
-			filePath += ".json";
-		}
-		try (FileWriter writer = new FileWriter(filePath)) {
-			JsonObject jsonDiagram = new JsonObject();
+    reader.removeCompleter(generalCompleter);
+    System.out.print("Enter the file name to save the diagram (JSON format): ");
+    String filePath = getReaderValue().trim();
+    if (!filePath.contains(".json")) {
+        filePath += ".json";
+    }
+    try (FileWriter writer = new FileWriter(filePath)) {
+        JsonObject jsonDiagram = new JsonObject();
 
-			// Convert classes to JSON array
-			JsonArray jsonClasses = new JsonArray();
-			for (UMLClass umlClass : umlDiagram.getClasses()) {
-				JsonObject jsonClass = new JsonObject();
-				jsonClass.addProperty("name", umlClass.getName());
+        // Convert classes to JSON array
+        JsonArray jsonClasses = new JsonArray();
+        for (UMLClass umlClass : umlDiagram.getClasses()) {
+            JsonObject jsonClass = new JsonObject();
+            jsonClass.addProperty("name", umlClass.getName());
 
-				JsonArray jsonFields = new JsonArray();
-				for (Field field : umlClass.getFields()) {
-					JsonObject jsonField = new JsonObject();
-					jsonField.addProperty("name", field.getName());
-					jsonField.addProperty("type", field.getType());
-					jsonFields.add(jsonField);
-				}
-				jsonClass.add("attributes", jsonFields);
+            // Add the position property
+            Point pos = umlClass.position;
+            JsonObject position = new JsonObject();
+            position.addProperty("x", pos.x);
+            position.addProperty("y", pos.y);
+            jsonClass.add("position", position);
 
-				JsonArray jsonMethods = new JsonArray();
-				for (Method method : umlClass.getMethods()) {
-					JsonObject jsonMethod = new JsonObject();
-					jsonMethod.addProperty("name", method.getName());
-					jsonMethod.addProperty("returnType", method.getType());
-					jsonMethods.add(jsonMethod);
-				}
-				jsonClass.add("methods", jsonMethods);
+            // Convert fields to JSON array
+            JsonArray jsonFields = new JsonArray();
+            for (Field field : umlClass.getFields()) {
+                JsonObject jsonField = new JsonObject();
+                jsonField.addProperty("name", field.getName());
+                jsonField.addProperty("type", field.getType());
+                jsonFields.add(jsonField);
+            }
+            jsonClass.add("attributes", jsonFields);
 
-				jsonClasses.add(jsonClass);
-			}
-			jsonDiagram.add("classes", jsonClasses);
+            // Convert methods to JSON array
+            JsonArray jsonMethods = new JsonArray();
+            for (Method method : umlClass.getMethods()) {
+                JsonObject jsonMethod = new JsonObject();
+                jsonMethod.addProperty("name", method.getName());
+                jsonMethod.addProperty("returnType", method.getType());
+                jsonMethods.add(jsonMethod);
+            }
+            jsonClass.add("methods", jsonMethods);
 
-			// Convert relationships to JSON array
-			JsonArray jsonRelationships = new JsonArray();
-			for (Relationship relationship : umlDiagram.getRelationships()) {
-				JsonObject jsonRelationship = new JsonObject();
-				jsonRelationship.addProperty("source", relationship.getSource());
-				jsonRelationship.addProperty("destination", relationship.getDestination());
-				jsonRelationship.addProperty("type", relationship.getType());
-				jsonRelationships.add(jsonRelationship);
-			}
-			jsonDiagram.add("relationships", jsonRelationships);
+            jsonClasses.add(jsonClass);
+        }
+        jsonDiagram.add("classes", jsonClasses);
 
-			gson.toJson(jsonDiagram, writer);
-			System.out.println("Diagram saved successfully to " + filePath + ".");
-		} catch (IOException e) {
-			System.out.println("Failed to save diagram to " + filePath + ": " + e.getMessage());
-		}
-		reader.addCompleter(generalCompleter);
-	}
+        // Convert relationships to JSON array
+        JsonArray jsonRelationships = new JsonArray();
+        for (Relationship relationship : umlDiagram.getRelationships()) {
+            JsonObject jsonRelationship = new JsonObject();
+            jsonRelationship.addProperty("source", relationship.getSource());
+            jsonRelationship.addProperty("destination", relationship.getDestination());
+            jsonRelationship.addProperty("type", relationship.getType());
+            jsonRelationships.add(jsonRelationship);
+        }
+        jsonDiagram.add("relationships", jsonRelationships);
+
+        gson.toJson(jsonDiagram, writer);
+        System.out.println("Diagram saved successfully to " + filePath + ".");
+    } catch (IOException e) {
+        System.out.println("Failed to save diagram to " + filePath + ": " + e.getMessage());
+    }
+    reader.addCompleter(generalCompleter);
+}
 
 	
 /**************************************************************************************************************************************/
@@ -842,73 +866,82 @@ public class UMLCli {
 	// Method to load a UML diagram from a JSON file
 	protected static void loadDiagram() throws IOException {
 		reader.removeCompleter(generalCompleter);
-        System.out.print("Enter the file name to load the diagram (JSON format): ");
-        String filePath = getReaderValue().trim();
-		if (!filePath.contains(".json")){
+		System.out.print("Enter the file name to load the diagram (JSON format): ");
+		String filePath = getReaderValue().trim();
+		if (!filePath.contains(".json")) {
 			filePath += ".json";
 		}
-        try (FileReader reader = new FileReader(filePath)) {
-            JsonObject jsonDiagram = gson.fromJson(reader, JsonObject.class);
+		try (FileReader reader = new FileReader(filePath)) {
+			JsonObject jsonDiagram = gson.fromJson(reader, JsonObject.class);
+	
+			// Clear existing diagram
+			umlDiagram.clear();
+	
+			// Load classes
+			JsonArray jsonClasses = jsonDiagram.getAsJsonArray("classes");
+			for (JsonElement element : jsonClasses) {
+				JsonObject jsonClass = element.getAsJsonObject();
+				String className = jsonClass.get("name").getAsString();
+				umlDiagram.addClass(className);
+				// Load the position
+				JsonObject jsonPosition = jsonClass.get("position").getAsJsonObject();
+				int x = jsonPosition.get("x").getAsInt();
+				int y = jsonPosition.get("y").getAsInt();
+				Point position = new Point(x, y);
+											
+				// Create a Point object
+				umlDiagram.setPosition(className, position);
+	
+				// Load attributes
+				JsonArray jsonFields = jsonClass.getAsJsonArray("attributes");
+				for (JsonElement fieldElement : jsonFields) {
+					JsonObject jsonField = fieldElement.getAsJsonObject();
+					String fieldName = jsonField.get("name").getAsString();
+					String fieldType = jsonField.get("type").getAsString();
+					umlDiagram.getClassByName(className).addField(fieldName, fieldType);
+				}
+	
+				// Load methods
+				JsonArray jsonMethods = jsonClass.getAsJsonArray("methods");
+				for (JsonElement methodElement : jsonMethods) {
+					JsonObject jsonMethod = methodElement.getAsJsonObject();
+					String methodName = jsonMethod.get("name").getAsString();
+					String methodType = jsonMethod.get("returnType").getAsString();
+					umlDiagram.getClassByName(className).addMethod(methodName, methodType);
+				}
+			}
+	
+// Load relationships
+JsonArray jsonRelationships = jsonDiagram.getAsJsonArray("relationships");
+for (JsonElement element : jsonRelationships) {
+	JsonObject jsonRelationship = element.getAsJsonObject();
+	String source = jsonRelationship.get("source").getAsString();
+	String destination = jsonRelationship.get("destination").getAsString();
+	String tempType = jsonRelationship.get("type").getAsString();
+	int type = Integer.parseInt(tempType);
+	if (tempType.equals("Aggregation")) {
+		type = 1;
+	}
+	else if (tempType.equals("Composition")){
+		type = 2;
+	}
+	else if (tempType.equals("Inheritance")) {
+		type = 3;
+	}
+	else if (tempType.equals("Realization")) {
+		type = 4;
+	}
+	
+	umlDiagram.addRelationship(source, destination, type);
+}
 
-            // Clear existing diagram
-            umlDiagram.clear();
-
-            // Load classes
-            JsonArray jsonClasses = jsonDiagram.getAsJsonArray("classes");
-            for (JsonElement element : jsonClasses) {
-                JsonObject jsonClass = element.getAsJsonObject();
-                String className = jsonClass.get("name").getAsString();
-                umlDiagram.addClass(className);
-
-                // Load attributes
-                JsonArray jsonAttributes = jsonClass.getAsJsonArray("attributes");
-                for (JsonElement attrElement : jsonAttributes) {
-                    JsonObject jsonAttribute = attrElement.getAsJsonObject();
-                    String attributeName = jsonAttribute.get("name").getAsString();
-                    String attributeType = jsonAttribute.get("type").getAsString();
-                    umlDiagram.addField(className, attributeName, attributeType);
-                }
-
-                // Load methods
-                JsonArray jsonMethods = jsonClass.getAsJsonArray("methods");
-                for (JsonElement methodElement : jsonMethods) {
-                    JsonObject jsonMethod = methodElement.getAsJsonObject();
-                    String methodName = jsonMethod.get("name").getAsString();
-                    String returnType = jsonMethod.get("returnType").getAsString();
-                    umlDiagram.addMethod(className, methodName, returnType);
-                }
-            }
-
-            // Load relationships
-            JsonArray jsonRelationships = jsonDiagram.getAsJsonArray("relationships");
-            for (JsonElement element : jsonRelationships) {
-                JsonObject jsonRelationship = element.getAsJsonObject();
-                String source = jsonRelationship.get("source").getAsString();
-                String destination = jsonRelationship.get("destination").getAsString();
-                String tempType = jsonRelationship.get("type").getAsString();
-                int type = Integer.parseInt(tempType);
-                if (tempType.equals("Aggregation")) {
-                	type = 1;
-                }
-                else if (tempType.equals("Composition")){
-                	type = 2;
-                }
-                else if (tempType.equals("Inheritance")) {
-                	type = 3;
-                }
-                else if (tempType.equals("Realization")) {
-                	type = 4;
-                }
-                
-                umlDiagram.addRelationship(source, destination, type);
-            }
-
-            System.out.println("Diagram loaded successfully from " + filePath + ".");
-        } catch (IOException e) {
-            System.out.println("Failed to load diagram from " + filePath + ": " + e.getMessage());
-        }
+	
+			System.out.println("Diagram loaded successfully from " + filePath + ".");
+		} catch (IOException e) {
+			System.out.println("Failed to load diagram from " + filePath + ": " + e.getMessage());
+		}
 		reader.addCompleter(generalCompleter);
-    }
+	}
 
 /**************************************************************************************************************************************/
     /**   INTERFACES   **/

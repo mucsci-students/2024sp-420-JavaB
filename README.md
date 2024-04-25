@@ -32,13 +32,17 @@ Save and load to standar JSON format.
 - Make sure you run all of the following commands from the java2 directory
 - mvn clean install
 - mvn clean package spring-boot:repackage
-# Slashes are backwards on linux machines
+# Windows Commands
 - To run the gui use java -jar .\target\java-1.0-SNAPSHOT.jar
 - To run the cli use java -jar .\target\java-1.0-SNAPSHOT.jar cli
+# Linux Commands
+- To run the gui use java -jar ./target/java-1.0-SNAPSHOT.jar
+- To run the cli use java -jar ./target/java-1.0-SNAPSHOT.jar cli
+# Testing
 - To run the tests use mvn clean test
 - Run specific tests by using "mvn test -Dtest=TestClassName#MethodName" where TestClassName is the name of the file you want to run and Methodname is the name of the test you want to run, you can also use * as the MethodName to run all tests of that class.
 
-# 3. Testing code coverage
+# 3. Code Coverage
 - In the java2 director run mvn clean jacoco:prepare-agent install jacoco:report
 - As well as mvn jacoco:report
 - Then open 2024sp-420-JavaB\java2\target\site\jacoco\index.html in your web browser to find the total test coverage.

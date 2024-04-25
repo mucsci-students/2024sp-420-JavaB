@@ -666,7 +666,7 @@ public class guiView extends JComponent {
     private void drawComponentContent(Graphics g, UMLClass c) {
         int localX = (int)c.position.getX();
         int localY = (int)c.position.getY();
-        localY = drawItem(g, "Class: " + c.getName(), localX, localY, true, c);
+        localY = drawItem(g, c.getName(), localX, localY, true, c);
     
         if(c.getFields().size() > 0){
             String fieldsText = "";
@@ -709,7 +709,7 @@ public class guiView extends JComponent {
      * @return The maximum text width.
      */
     private int calculateMaxTextWidth(UMLClass c) {
-        int maxWidth = c.fm.stringWidth("Class: " + c.getName());
+        int maxWidth = c.fm.stringWidth(c.getName());
         maxWidth = Math.max(maxWidth, calculateWidthForField(c.fm, c.getFields(), "Field: "));
         maxWidth = Math.max(maxWidth, calculateWidthForMethod(c.fm, c.getMethods(), "Method: "));
         return maxWidth + padding * 2;
