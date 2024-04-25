@@ -6,7 +6,6 @@ import java.awt.IllegalComponentStateException;
 import java.awt.image.BufferedImage;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -499,13 +497,13 @@ public class UMLGui extends JFrame implements ActionListener {
 		return classNames;
 	}
 
-	private String[] returnTypes(){
-		return new String[] {"void", "int", "double", "boolean", "string", "object"};
-	}
+	// private String[] returnTypes(){
+	// 	return new String[] {"void", "int", "double", "boolean", "string", "object"};
+	// }
 
-	private String[] attributeTypes(){
-		return new String[] {"int", "double", "boolean", "string"};
-	}
+	// private String[] attributeTypes(){
+	// 	return new String[] {"int", "double", "boolean", "string"};
+	// }
 
 /**************************************************************************************************************************************/
     /**   FIELDS   **/
@@ -521,7 +519,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		String[] classNames = getClassNames();
 		JComboBox<String>namesBox = new JComboBox<String>(classNames);
 		JTextField fieldName = new JTextField();
-		JComboBox<String> fieldType = new JComboBox<String>(attributeTypes());
+		JTextField fieldType = new JTextField();
 
 		JPanel oPanel = new JPanel();
 		oPanel.setLayout(new BoxLayout(oPanel, BoxLayout.Y_AXIS));
@@ -539,7 +537,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		if (namesBox.getSelectedItem() != null && fieldName != null && fieldType != null && entered == 0) {
 			try {
 				String objName = namesBox.getSelectedItem().toString();
-				boolean added = diagram.addField(objName, fieldName.getText(), fieldType.getSelectedItem().toString());
+				boolean added = diagram.addField(objName, fieldName.getText(), fieldType.getText());
 				if (added) {
 					changeComponent();
 
@@ -689,7 +687,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		String [] classNames = getClassNames();
 		JComboBox<String> namesBox = new JComboBox<String>(classNames);
 		JTextField methName = new JTextField();
-		JComboBox<String> methType = new JComboBox<String>(returnTypes());
+		JTextField methType = new JTextField();
 
 		JPanel mPanel = new JPanel();
 		mPanel.setLayout(new BoxLayout(mPanel, BoxLayout.Y_AXIS));
@@ -708,7 +706,7 @@ public class UMLGui extends JFrame implements ActionListener {
 			if (methName != null && methType != null) {
 					try {
 						String objName = namesBox.getSelectedItem().toString();
-						boolean added = diagram.addMethod(objName, methName.getText(), methType.getSelectedItem().toString());
+						boolean added = diagram.addMethod(objName, methName.getText(), methType.getText());
 						if (added) {
 							changeComponent();
 
@@ -863,7 +861,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		String[] methNames = getClassMethods(namesBox.getSelectedItem().toString());
 		JComboBox<String> methBox = new JComboBox<String>(methNames);
 		JTextField newName = new JTextField();
-		JComboBox<String> attType = new JComboBox<String>(attributeTypes()); 
+		JTextField attType = new JTextField(); 
 
 		namesBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
@@ -889,10 +887,10 @@ public class UMLGui extends JFrame implements ActionListener {
 		entered = JOptionPane.showConfirmDialog(this, pPanel, "Add Parameter", JOptionPane.OK_CANCEL_OPTION);
 		
 
-	    if (namesBox.getSelectedItem() != null && methBox.getSelectedItem() != null && newName.toString() != null && attType.getSelectedItem() != null && entered == 0) {
+	    if (namesBox.getSelectedItem() != null && methBox.getSelectedItem() != null && newName.toString() != null && attType != null && entered == 0) {
 	        try {
 				String objName = namesBox.getSelectedItem().toString();
-	            boolean success = diagram.addParameter(objName, methBox.getSelectedItem().toString(), newName.getText(), attType.getSelectedItem().toString());
+	            boolean success = diagram.addParameter(objName, methBox.getSelectedItem().toString(), newName.getText(), attType.getText());
 	            if (success) {
 	                changeComponent();
 
@@ -1060,7 +1058,7 @@ public class UMLGui extends JFrame implements ActionListener {
 				JPanel pPanelInner = new JPanel();
 				pPanelInner.setLayout(new BoxLayout(pPanelInner, BoxLayout.Y_AXIS));
 				JTextField paramName = new JTextField();
-				JComboBox<String> attType = new JComboBox<String>(attributeTypes());
+				JTextField attType = new JTextField();
 				pPanelInner.add(new JLabel("Enter parameter name: "));
 				pPanelInner.add(paramName);
 				pPanelInner.add(new JLabel("Select parameter type: "));
@@ -1070,7 +1068,7 @@ public class UMLGui extends JFrame implements ActionListener {
 	
 				if (entered == 0 && paramName.getText() != null) {
 					paramNames[i] = paramName.getText();
-					paramTypes[i] = attType.getSelectedItem().toString();
+					paramTypes[i] = attType.toString();
 				} else {
 					return;
 				}
