@@ -63,10 +63,17 @@ public class UMLGui extends JFrame implements ActionListener {
 	private JPanel classPanelContainer;
 	private JScrollPane scrollPane;
 	private Rectangle windowDimensions;
-	public static int prefMaxWidth = 200;
-	private static int prefMaxHeight = 200;
+	public static int prefMaxWidth = 800;
+	private static int prefMaxHeight = 800;
 	private static boolean isSaved = false;
 	Timer timer;
+
+	JMenu fileMenu = new JMenu("File");
+	JMenu classMenu = new JMenu("Class");
+	JMenu attributeMenu = new JMenu("Attribute");
+	JMenu parameterMenu = new JMenu("Parameters");
+	JMenu relationshipMenu = new JMenu("Relationship");
+	JMenu interfaceMenu = new JMenu("Interface");
 	
     /**
      * Constructs the UMLGui frame and initializes the GUI components, including
@@ -164,7 +171,6 @@ public class UMLGui extends JFrame implements ActionListener {
 		JMenuBar menuBar = new JMenuBar();
 
 		// File Menu
-		JMenu fileMenu = new JMenu("File");
 		addMenuItem(fileMenu, "Save", "save", 'S');
 		addMenuItem(fileMenu, "Load", "load", 'O');
 		addMenuItem(fileMenu, "Clear", "clear", 'Q');
@@ -172,13 +178,11 @@ public class UMLGui extends JFrame implements ActionListener {
 		addMenuItem(fileMenu, "Quit", "quit");
 
 		// Class Menu
-		JMenu classMenu = new JMenu("Class");
 		addMenuItem(classMenu, "Add Class", "addClass", 'C');
 		addMenuItem(classMenu, "Rename Class", "renameClass");
 		addMenuItem(classMenu, "Delete Class", "deleteClass");
 
 		// Attribute Menu
-		JMenu attributeMenu = new JMenu("Attribute");
 		addMenuItem(attributeMenu, "Add Field", "addField", 'F');
 		addMenuItem(attributeMenu, "Rename Field", "renameField");
 		addMenuItem(attributeMenu, "Delete Field", "deleteField");
@@ -187,21 +191,20 @@ public class UMLGui extends JFrame implements ActionListener {
 		addMenuItem(attributeMenu, "Rename Method", "renameMethod");
 		addMenuItem(attributeMenu, "Delete Method", "deleteMethod");
 		
-		addMenuItem(attributeMenu, "Add Parameter", "addParameter", 'P');
-		addMenuItem(attributeMenu, "Rename Parameter", "renameParameter");
-		addMenuItem(attributeMenu, "Delete Parameter", "deleteParameter");
-		addMenuItem(attributeMenu, "Replace Parameters", "replaceParameters");
-
-
+		addMenuItem(parameterMenu, "Add Parameter", "addParameter", 'P');
+		addMenuItem(parameterMenu, "Rename Parameter", "renameParameter");
+		addMenuItem(parameterMenu, "Delete Parameter", "deleteParameter");
+		addMenuItem(parameterMenu, "Replace Parameters", "replaceParameters");
 
 		// Relationship Menu
-		JMenu relationshipMenu = new JMenu("Relationship");
 		addMenuItem(relationshipMenu, "Add Relationship", "addRelationship", 'R');
 		addMenuItem(relationshipMenu, "Delete Relationship", "deleteRelationship");
 		addMenuItem(relationshipMenu, "Change Type", "changeType");
+		attributeMenu.setEnabled(false);
+		relationshipMenu.setEnabled(false);
+		parameterMenu.setEnabled(false);
 
 		// Interface Menu
-		JMenu interfaceMenu = new JMenu("Interface");
 		addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
         addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
 		addMenuItem(interfaceMenu, "Snapshot Diagram", "snapshot");
@@ -210,6 +213,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		menuBar.add(fileMenu);
 		menuBar.add(classMenu);
 		menuBar.add(attributeMenu);
+		menuBar.add(parameterMenu);
 		menuBar.add(relationshipMenu);
 		menuBar.add(interfaceMenu);
 
@@ -367,6 +371,27 @@ public class UMLGui extends JFrame implements ActionListener {
 			getSnapshotImage();
 			break; 
         }
+		if (diagram.getClasses().size() > 0){
+			attributeMenu.setEnabled(true);
+		}
+		else {
+			attributeMenu.setEnabled(false);
+		}
+		if (diagram.getClasses().size() > 1){
+			relationshipMenu.setEnabled(true);
+		}
+		else{
+			relationshipMenu.setEnabled(false);
+		}
+		for( UMLClass c : diagram.getClasses()){
+			if (c.getMethods().size() > 0){
+				parameterMenu.setEnabled(true);
+				break;
+			}
+			else{
+				parameterMenu.setEnabled(false);
+			}
+		}
 	}
 
 
