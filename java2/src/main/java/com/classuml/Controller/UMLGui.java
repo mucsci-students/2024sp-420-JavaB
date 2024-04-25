@@ -366,11 +366,7 @@ public class UMLGui extends JFrame implements ActionListener {
 		case "quit":
 			quitGui();
 		case "snapshot":
-			try {
-				getSnapshotImage();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			getSnapshotImage();
 			break; 
         }
 	}
@@ -1344,15 +1340,26 @@ public class UMLGui extends JFrame implements ActionListener {
 		
 	}
 
-	public void getSnapshotImage() throws IOException {
+	public void getSnapshotImage() {
 		BufferedImage bImg = new BufferedImage(classPanelContainer.getWidth(), classPanelContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D cg = bImg.createGraphics();
 		classPanelContainer.paintAll(cg);
-		String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-		try {
-			ImageIO.write(bImg, "jpg", new File(timestamp + "-GUIOutput.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
+	
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Save snapshot");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileChooser.setSelectedFile(new File("GUIOutput.jpg"));
+	
+		int userSelection = fileChooser.showSaveDialog(null);
+	
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+			File fileToSave = fileChooser.getSelectedFile();
+			String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+			try {
+				ImageIO.write(bImg, "jpg", new File(fileToSave.getParent() + "/" + timestamp + "-" + fileToSave.getName()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
