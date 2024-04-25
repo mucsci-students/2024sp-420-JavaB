@@ -1298,7 +1298,8 @@ public class UMLGui extends JFrame implements ActionListener {
 			if (response == JOptionPane.YES_OPTION) {
 				saveDiagram();
 			} else if (response == JOptionPane.CANCEL_OPTION) {
-
+				diagram.clear();
+				changeComponent();
 			}
 		}
 		else{
@@ -1439,7 +1440,20 @@ public class UMLGui extends JFrame implements ActionListener {
                     JsonObject jsonRelationship = new JsonObject();
                     jsonRelationship.addProperty("source", relationship.getSource());
                     jsonRelationship.addProperty("destination", relationship.getDestination());
-                    jsonRelationship.addProperty("type", relationship.getType());
+					String t = "";
+					if (relationship.getType() == 1){
+						t = "Aggregation";
+					}
+					if (relationship.getType() == 2){
+						t = "Composition";
+					}
+					if (relationship.getType() == 3){
+						t = "Inheritance";
+					}
+					if (relationship.getType() == 4){
+						t = "Realization";
+					}
+                    jsonRelationship.addProperty("type", t);
                     jsonRelationships.add(jsonRelationship);
                 }
                 jsonDiagram.add("relationships", jsonRelationships);
@@ -1475,7 +1489,6 @@ public class UMLGui extends JFrame implements ActionListener {
 	            JOptionPane.showMessageDialog(null, "Cannot read the selected file.", "Load Error", JOptionPane.ERROR_MESSAGE);
 	            return;
 	        }
-			clearGui();
 
 	        Gson gson = new Gson();
 	        try (FileReader reader = new FileReader(filePath)) {
@@ -1543,8 +1556,21 @@ public class UMLGui extends JFrame implements ActionListener {
 	                    JsonObject jsonRelationship = relationElement.getAsJsonObject();
 	                    String source = jsonRelationship.get("source").getAsString();
 	                    String destination = jsonRelationship.get("destination").getAsString();
-	                    int type = jsonRelationship.get("type").getAsInt();
-	                    diagram.addRelationship(source, destination, type);
+	                    String type = jsonRelationship.get("type").getAsString();
+						int type2 = 0;
+						if (type.equals("Aggregation")) {
+							type2 = 1;
+						}
+						else if (type.equals("Composition")){
+							type2 = 2;
+						}
+						else if (type.equals("Inheritance")) {
+							type2 = 3;
+						}
+						else if (type.equals("Realization")) {
+							type2 = 4;
+						}
+	                    diagram.addRelationship(source, destination, type2);
 	                }
 	            }
 				changeComponent();

@@ -844,7 +844,20 @@ public class UMLCli {
             JsonObject jsonRelationship = new JsonObject();
             jsonRelationship.addProperty("source", relationship.getSource());
             jsonRelationship.addProperty("destination", relationship.getDestination());
-            jsonRelationship.addProperty("type", relationship.getType());
+			String t = "";
+			if (relationship.getType() == 1){
+				t = "Aggregation";
+			}
+			if (relationship.getType() == 2){
+				t = "Composition";
+			}
+			if (relationship.getType() == 3){
+				t = "Inheritance";
+			}
+			if (relationship.getType() == 4){
+				t = "Realization";
+			}
+            jsonRelationship.addProperty("type", t);
             jsonRelationships.add(jsonRelationship);
         }
         jsonDiagram.add("relationships", jsonRelationships);
@@ -918,7 +931,7 @@ for (JsonElement element : jsonRelationships) {
 	String source = jsonRelationship.get("source").getAsString();
 	String destination = jsonRelationship.get("destination").getAsString();
 	String tempType = jsonRelationship.get("type").getAsString();
-	int type = Integer.parseInt(tempType);
+	int type = 0;
 	if (tempType.equals("Aggregation")) {
 		type = 1;
 	}
