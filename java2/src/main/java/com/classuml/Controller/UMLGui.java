@@ -1415,6 +1415,8 @@ public class UMLGui extends JFrame implements ActionListener {
 			diagram.clear();
 			changeComponent();
 		}
+		prefMaxHeight = 800;
+		prefMaxWidth = 800;
 	}
 
 	private void undo(){
