@@ -45,6 +45,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyEvent;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -74,6 +77,30 @@ public class UMLGui extends JFrame implements ActionListener {
 	JMenu parameterMenu = new JMenu("Parameters");
 	JMenu relationshipMenu = new JMenu("Relationship");
 	JMenu interfaceMenu = new JMenu("Interface");
+
+	//JMenu Item
+	JMenuItem saveItem = addMenuItem(fileMenu, "Save", "save", 'S');
+	JMenuItem loadItem = addMenuItem(fileMenu, "Load", "load", 'O');
+	JMenuItem clearItem = addMenuItem(fileMenu, "Clear", "clear", 'Q');
+	JMenuItem helpItem = addMenuItem(fileMenu, "Help", "help", 'H');
+	JMenuItem quitItem = addMenuItem(fileMenu, "Quit", "quit");
+	JMenuItem addClassItem = addMenuItem(classMenu, "Add Class", "addClass", 'C');
+	JMenuItem renClassItem = addMenuItem(classMenu, "Rename Class", "renameClass");
+	JMenuItem delClassItem = addMenuItem(classMenu, "Delete Class", "deleteClass");
+	JMenuItem addAttItem = addMenuItem(attributeMenu, "Add Field", "addField", 'F');
+	JMenuItem renAttItem = addMenuItem(attributeMenu, "Rename Field", "renameField");
+	JMenuItem delAttItem = addMenuItem(attributeMenu, "Delete Field", "deleteField");
+	JMenuItem addMethItem = addMenuItem(attributeMenu, "Add Method", "addMethod", 'M');
+	JMenuItem renMethItem = addMenuItem(attributeMenu, "Rename Method", "renameMethod");
+	JMenuItem delMethItem = addMenuItem(attributeMenu, "Delete Method", "deleteMethod");
+	JMenuItem addParItem = addMenuItem(parameterMenu, "Add Parameter", "addParameter", 'P');
+	JMenuItem renParItem = addMenuItem(parameterMenu, "Rename Parameter", "renameParameter");
+	JMenuItem delParItem = addMenuItem(parameterMenu, "Delete Parameter", "deleteParameter");
+	JMenuItem repParItem = addMenuItem(parameterMenu, "Replace Parameters", "replaceParameters");
+	JMenuItem addRelItem = addMenuItem(relationshipMenu, "Add Relationship", "addRelationship", 'R');
+	JMenuItem delRelItem = addMenuItem(relationshipMenu, "Delete Relationship", "deleteRelationship");
+	JMenuItem chgRelItem = addMenuItem(relationshipMenu, "Change Type", "changeType");
+	
 	
     /**
      * Constructs the UMLGui frame and initializes the GUI components, including
@@ -171,43 +198,58 @@ public class UMLGui extends JFrame implements ActionListener {
 		JMenuBar menuBar = new JMenuBar();
 
 		// File Menu
-		addMenuItem(fileMenu, "Save", "save", 'S');
-		addMenuItem(fileMenu, "Load", "load", 'O');
-		addMenuItem(fileMenu, "Clear", "clear", 'Q');
-		addMenuItem(fileMenu, "Help", "help", 'H');
-		addMenuItem(fileMenu, "Quit", "quit");
+		fileMenu.add(saveItem);
+		fileMenu.add(loadItem);
+		fileMenu.add(clearItem);
+		fileMenu.add(helpItem);
+		fileMenu.add(quitItem);
+		
 
 		// Class Menu
-		addMenuItem(classMenu, "Add Class", "addClass", 'C');
-		addMenuItem(classMenu, "Rename Class", "renameClass");
-		addMenuItem(classMenu, "Delete Class", "deleteClass");
+		classMenu.add(addClassItem);
+		classMenu.add(renClassItem);
+		classMenu.add(delClassItem);
 
 		// Attribute Menu
-		addMenuItem(attributeMenu, "Add Field", "addField", 'F');
-		addMenuItem(attributeMenu, "Rename Field", "renameField");
-		addMenuItem(attributeMenu, "Delete Field", "deleteField");
+		attributeMenu.add(addAttItem);
+		attributeMenu.add(renAttItem);
+		attributeMenu.add(delAttItem);
 		
-		addMenuItem(attributeMenu, "Add Method", "addMethod", 'M');		
-		addMenuItem(attributeMenu, "Rename Method", "renameMethod");
-		addMenuItem(attributeMenu, "Delete Method", "deleteMethod");
+		attributeMenu.add(addMethItem);
+		attributeMenu.add(renMethItem);
+		attributeMenu.add(delMethItem);
 		
-		addMenuItem(parameterMenu, "Add Parameter", "addParameter", 'P');
-		addMenuItem(parameterMenu, "Rename Parameter", "renameParameter");
-		addMenuItem(parameterMenu, "Delete Parameter", "deleteParameter");
-		addMenuItem(parameterMenu, "Replace Parameters", "replaceParameters");
+		parameterMenu.add(addParItem);
+		parameterMenu.add(renParItem);
+		parameterMenu.add(delParItem);
+		parameterMenu.add(repParItem);
 
 		// Relationship Menu
-		addMenuItem(relationshipMenu, "Add Relationship", "addRelationship", 'R');
-		addMenuItem(relationshipMenu, "Delete Relationship", "deleteRelationship");
-		addMenuItem(relationshipMenu, "Change Type", "changeType");
+		relationshipMenu.add(addRelItem);
+		relationshipMenu.add(delRelItem);
+		relationshipMenu.add(chgRelItem);
 		attributeMenu.setEnabled(false);
 		relationshipMenu.setEnabled(false);
 		parameterMenu.setEnabled(false);
+		delClassItem.setEnabled(false);
+		renClassItem.setEnabled(false);
+		delAttItem.setEnabled(false);
+		renAttItem.setEnabled(false);
+		renMethItem.setEnabled(false);
+		delMethItem.setEnabled(false);
+		delParItem.setEnabled(false);
+		renParItem.setEnabled(false);
+		repParItem.setEnabled(false);
+		delRelItem.setEnabled(false);
+		chgRelItem.setEnabled(false);
 
 		// Interface Menu
-		addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
-        addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
-		addMenuItem(interfaceMenu, "Snapshot Diagram", "snapshot");
+		JMenuItem u = addMenuItem(interfaceMenu, "Undo", "undo", 'Z');
+        JMenuItem r = addMenuItem(interfaceMenu, "Redo", "redo", 'Y');
+		JMenuItem s = addMenuItem(interfaceMenu, "Snapshot Diagram", "snapshot");
+		interfaceMenu.add(u);
+		interfaceMenu.add(r);
+		interfaceMenu.add(s);
 
 		// Adding menus to menu bar
 		menuBar.add(fileMenu);
@@ -228,19 +270,19 @@ public class UMLGui extends JFrame implements ActionListener {
      * @param title The text of the menu item.
      * @param actionCommand The command that identifies the action associated with the menu item.
      */
-	private void addMenuItem(JMenu menu, String title, String actionCommand) {
+	private JMenuItem addMenuItem(JMenu menu, String title, String actionCommand) {
 		JMenuItem menuItem = new JMenuItem(title);
 		menuItem.setActionCommand(actionCommand);
 		menuItem.addActionListener(this);
-		menu.add(menuItem);
+		return menuItem;
 	}
 
-	private void addMenuItem(JMenu menu, String title, String actionCommand, int controlChar) {
+	private JMenuItem addMenuItem(JMenu menu, String title, String actionCommand, int controlChar) {
 		JMenuItem menuItem = new JMenuItem(title);
 		menuItem.setActionCommand(actionCommand);
 		menuItem.addActionListener(this);
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(controlChar, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-		menu.add(menuItem);
+		return menuItem;
 	}
 
 	/**
@@ -373,6 +415,8 @@ public class UMLGui extends JFrame implements ActionListener {
         }
 		if (diagram.getClasses().size() > 0){
 			attributeMenu.setEnabled(true);
+			delClassItem.setEnabled(true);
+			renClassItem.setEnabled(true);
 		}
 		else {
 			attributeMenu.setEnabled(false);
@@ -386,11 +430,49 @@ public class UMLGui extends JFrame implements ActionListener {
 		for( UMLClass c : diagram.getClasses()){
 			if (c.getMethods().size() > 0){
 				parameterMenu.setEnabled(true);
+				renMethItem.setEnabled(true);
+				delMethItem.setEnabled(true);
 				break;
 			}
 			else{
 				parameterMenu.setEnabled(false);
+				delMethItem.setEnabled(false);
+				renMethItem.setEnabled(false);
 			}
+		}
+		for(UMLClass c : diagram.getClasses()){
+			if(c.getFields().size() > 0){
+				delAttItem.setEnabled(true);
+				renAttItem.setEnabled(true);
+				break;
+			}
+			else{
+				delAttItem.setEnabled(false);
+				renAttItem.setEnabled(false);
+			}
+		}
+		for (UMLClass c : diagram.getClasses()){
+			for(Method m : c.getMethods()){
+				if (m.getParameters().size() > 0){
+					delParItem.setEnabled(true);
+					renParItem.setEnabled(true);
+					repParItem.setEnabled(true);
+					break;
+				}
+				else{
+					delParItem.setEnabled(false);
+					renParItem.setEnabled(false);
+					repParItem.setEnabled(false);
+				}
+			}
+		}
+		if (diagram.getRelationships().size() > 0){
+			delRelItem.setEnabled(true);
+			chgRelItem.setEnabled(true);
+		}
+		else{
+			delRelItem.setEnabled(false);
+			chgRelItem.setEnabled(false);
 		}
 	}
 
@@ -602,8 +684,6 @@ public class UMLGui extends JFrame implements ActionListener {
 				for(String fName: newFNames){
 					fieldsBox.addItem(fName);
 				}
-				
-				
 			}
 		});
 
@@ -652,11 +732,13 @@ public class UMLGui extends JFrame implements ActionListener {
 		JComboBox<String> fieldsBox = new JComboBox<String>(fieldNames);
 		
 		namesBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e){
-				String[] newFNames = getClassFields(namesBox.getSelectedItem().toString());
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String selectedClassName = (String) namesBox.getSelectedItem();
+				String[] fieldNames = getClassFields(selectedClassName);
 				fieldsBox.removeAllItems();
-				for(String fName : newFNames){
-					fieldsBox.addItem(fName);
+				for (String fieldName : fieldNames) {
+					fieldsBox.addItem(fieldName);
 				}
 			}
 		});
@@ -948,20 +1030,22 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		namesBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				String[] newMNames = getClassMethods(namesBox.getSelectedItem().toString());
 				methBox.removeAllItems();
+				String[] newMNames = getClassMethods(namesBox.getSelectedItem().toString());
 				for(String methName: newMNames){
 					methBox.addItem(methName);
 				}
-				methBox.setSelectedItem(newMNames[0]);
+				if(newMNames.length > 0) {
+					methBox.setSelectedItem(newMNames[0]);
+				}
 			}
 		});
-
+		
 		methBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				if(methBox.getSelectedItem() != null){
-					String[] newPnames = getMethodParams(namesBox.getSelectedItem().toString(),methBox.getSelectedItem().toString());
+				if(methBox.getSelectedItem()!= null){
 					paramBox.removeAllItems();
+					String[] newPnames = getMethodParams(namesBox.getSelectedItem().toString(),methBox.getSelectedItem().toString());
 					for(String newParam: newPnames){
 						paramBox.addItem(newParam);
 					}
@@ -1014,22 +1098,20 @@ public class UMLGui extends JFrame implements ActionListener {
 
 		namesBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				String[] newMNames = getClassMethods(namesBox.getSelectedItem().toString());
 				methBox.removeAllItems();
+				String[] newMNames = getClassMethods(namesBox.getSelectedItem().toString());
 				for(String methName: newMNames){
 					methBox.addItem(methName);
 				}
 			}
 		});
-
+		
 		methBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){
-				if(methBox.getSelectedItem() != null){
-					String[] newPnames = getMethodParams(namesBox.getSelectedItem().toString(),methBox.getSelectedItem().toString());
-					paramBox.removeAllItems();
-					for(String newParam: newPnames){
-						paramBox.addItem(newParam);
-					}
+				paramBox.removeAllItems();
+				String[] newPNames = getMethodParams(namesBox.getSelectedItem().toString(), methBox.getSelectedItem().toString());
+				for(String paramName: newPNames){
+					paramBox.addItem(paramName);
 				}
 			}
 		});
@@ -1322,9 +1404,11 @@ public class UMLGui extends JFrame implements ActionListener {
 	
 			if (response == JOptionPane.YES_OPTION) {
 				saveDiagram();
-			} else if (response == JOptionPane.CANCEL_OPTION) {
+			} else if (response == JOptionPane.NO_OPTION) {
 				diagram.clear();
 				changeComponent();
+			} else if (response == JOptionPane.CANCEL_OPTION){
+
 			}
 		}
 		else{
