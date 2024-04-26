@@ -1451,8 +1451,31 @@ public class UMLGui extends JFrame implements ActionListener {
 	}
 
 	public void getSnapshotImage() {
-		BufferedImage bImg = new BufferedImage(classPanelContainer.getWidth(), classPanelContainer.getHeight(), BufferedImage.TYPE_INT_RGB);
+		int minX = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		if (diagram.getClasses().size() > 0){
+			for (UMLClass c : diagram.getClasses()){
+				int x = c.position.x;
+				int y = c.position.y;
+				if (x < minX) minX = x;
+				if (x > maxX) maxX = x;
+				if (y < minY) minY = y;
+				if (y > maxY) maxY = y;
+			}
+		}
+		else{
+			JOptionPane.showMessageDialog(null, "No diagram to snapshot", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+	
+		int width = maxX - minX + 100; // +100 for the 50px offset on both sides
+		int height = maxY - minY + 100; // +100 for the 50px offset on both sides
+	
+		BufferedImage bImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D cg = bImg.createGraphics();
+		cg.translate(-minX + 50, -minY + 50); // set the offset
 		classPanelContainer.paintAll(cg);
 	
 		JFileChooser fileChooser = new JFileChooser();
