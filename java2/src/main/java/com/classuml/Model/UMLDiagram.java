@@ -124,8 +124,13 @@ public class UMLDiagram implements UMLStructure {
 		// 		}
 		// 	}
 		// }
-		x += 150;
 		pos.x = x;
+		x += 150;
+		if (x > gui.prefMaxWidth){
+			x = 20;
+			y += 50;
+		}
+		pos.y = y;
 		if(!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className, pos));
 	    }
