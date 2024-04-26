@@ -172,6 +172,19 @@ public class UMLGui extends JFrame implements ActionListener {
 			Point position = umlClass.position;
 			maxWidth = Math.max(maxWidth, position.x + 50);
 			maxHeight = Math.max(maxHeight, position.y + 50);
+			if (umlClass.position.x < 0){
+				int xOffset = -umlClass.position.x;
+				for(UMLClass c : diagram.getClasses()){
+					c.position = new Point(c.position.x + xOffset, c.position.y);
+				}
+			}
+			if (umlClass.position.y < 0){
+				int yOffset = -umlClass.position.y;
+				for(UMLClass c : diagram.getClasses()){
+					c.position = new Point(c.position.x, c.position.y + yOffset);
+				}
+			}
+			
 		}
 	
 		prefMaxWidth = maxWidth;

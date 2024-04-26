@@ -112,17 +112,25 @@ public class UMLDiagram implements UMLStructure {
 	        return false; // Class already exists or invalid name      
 	    }
 		Point pos = new Point(x, y);
-		for (UMLClass c : classNameMapToName.values()) {
-			if (Math.abs(c.position.getX() - pos.getX()) < 100 && Math.abs(c.position.getY() - pos.getY()) < 100) {
-				// If overlapping, adjust x and y
-				x += 75;
-				pos = new Point(x, y);
-				if (x > gui.prefMaxWidth) { // assuming a maximum x value of 500
-					x = 20;
-					y += 40; // move to the next row
-				}
-			}
+		// for (UMLClass c : classNameMapToName.values()) {
+		// 	if (Math.abs(c.position.x - pos.x) < 50 && Math.abs(c.position.y - pos.y) < 50) {
+		// 		// If overlapping, adjust x and y
+		// 		x += 100;
+		// 		pos = new Point(x, y);
+		// 		if (x > gui.prefMaxWidth) { // assuming a maximum x value of 500
+		// 			System.out.println(gui.prefMaxWidth);
+		// 			x = 20;
+		// 			y += 40; // move to the next row
+		// 		}
+		// 	}
+		// }
+		pos.x = x;
+		x += 150;
+		if (x > gui.prefMaxWidth){
+			x = 20;
+			y += 50;
 		}
+		pos.y = y;
 		if(!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className, pos));
 	    }
