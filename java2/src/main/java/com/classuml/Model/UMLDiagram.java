@@ -619,8 +619,8 @@ public class UMLDiagram implements UMLStructure {
      */
 
 	public void clear() {
-		memento.clearRedo();
-		memento.clearUndo();
+		//memento.clearRedo();
+		//memento.clearUndo();
 		saveState();
 		classNameMapToName.clear();
 		classMapToRelation.clear();
