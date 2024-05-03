@@ -32,7 +32,7 @@ public class Relationship {
     }
     
     // A method to get a string representation of the relationship type
-    public static String getTypeAsString(int relationType) {
+    public String getTypeAsString(int relationType) {
         switch (relationType) {
             case 1:
                 return "Aggregation";

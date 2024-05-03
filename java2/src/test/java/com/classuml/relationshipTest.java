@@ -1,17 +1,10 @@
 package com.classuml;
 
 import com.classuml.Model.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class relationshipTest {
-    private Relationship relationship;
-
-    @BeforeEach
-    void setUp() {
-        relationship = new Relationship("SourceClass", "DestinationClass", 1);
-    }
 
     /**
      * Tests the constructor and getter methods of the {@link Relationship} class.

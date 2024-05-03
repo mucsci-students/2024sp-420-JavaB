@@ -45,9 +45,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.KeyEvent;
-
 import java.awt.Point;
 import java.awt.Rectangle;
 
