@@ -13,13 +13,21 @@ import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.ImageIcon;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Window;
 import java.awt.image.*;
 
 import com.classuml.Model.*;
+import com.classuml.View.guiView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -38,6 +46,9 @@ public class UMLCli {
 	private static final UMLDiagram umlDiagram = new UMLDiagram();
 
 	private static final UMLCompleter generalCompleter = new UMLCompleter();
+
+	private static JPanel classPanelContainer = new JPanel();
+	private static guiView view = new guiView(umlDiagram.getClasses(), umlDiagram.getRelationships());
 
 	
 /**************************************************************************************************************************************/
@@ -79,6 +90,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for AddClass: classname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "deleteclass":
 			case "dc":
@@ -92,6 +104,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for DeleteClass: classname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "renameclass":
 			case "rc":
@@ -108,6 +121,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for RenameClass: oldclassname newclassname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "addparameter":
 			case "ap":
@@ -130,6 +144,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for AddParameter: classname methodname parametername parametertype");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "deleteparameter":
 			case "dp":
@@ -149,6 +164,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for DeleteParameter: classname methodname parametername");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "renameparameter":
 			case "rp":
@@ -171,6 +187,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for RenameParameter: classname methodname oldparametername newparametername");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "replaceparams":
 			case "replaceparameters":
@@ -187,6 +204,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for ReplaceParameters: classname methodname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "addfield":
 			case "af":
@@ -206,6 +224,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for AddField: classname fieldname fieldtype");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "renamefield":
 			case "rf":
@@ -225,6 +244,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for RenameField: classname oldfieldname newfieldname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "deletefield":
 			case "df":
@@ -241,6 +261,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for DeleteField: classname fieldname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "addmethod":
 			case "am":
@@ -260,6 +281,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for AddMethod: classname methodname returntype");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "deletemethod":
 			case "dm":
@@ -276,6 +298,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for DeleteMethod: classname methodname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "renamemethod":
 			case "rm":
@@ -295,6 +318,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for RenameMethod: classname oldmethodname newmethodname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "addrelationship":
 			case "ar":
@@ -316,6 +340,7 @@ public class UMLCli {
 					System.out.println("    1 for Aggregation, 2 for Composition, 3 for Inheritance, 4 for Realization");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "deleterelationship":
 			case "dr":
@@ -332,6 +357,7 @@ public class UMLCli {
 					System.out.println("Need the following arguments for DeleteRelationship: sourceclassname destinationclassname");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "changetype":
 			case "changerelationshiptype":
@@ -354,6 +380,7 @@ public class UMLCli {
 					System.out.println("    1 for Aggregation, 2 for Composition, 3 for Inheritance, 4 for Realization");
 					System.out.println("Please enter a valid command:");
 				}
+				changeComponent();
 				break;
 			case "listclasses":
 			case "lcs":
@@ -545,6 +572,14 @@ public class UMLCli {
 		} else {
 			System.out.println("There was nothing to redo!");
 		}
+	}
+
+	private static void changeComponent() {
+		classPanelContainer.remove(view);
+		view.updateContents(umlDiagram.getClasses(), umlDiagram.getRelationships());
+		classPanelContainer.add(view);
+	    classPanelContainer.revalidate();
+	    classPanelContainer.repaint();
 	}
 
 /**************************************************************************************************************************************/
@@ -2226,7 +2261,7 @@ public class UMLCli {
 	 * I will edit this Friday such that it shows the graphical representation of this CLI diagram.
 	 * If I fail to do that pull request by Friday evening, then at least we will get partial credit.
 	 */
-	protected static void CLIOutputAsImage() {
+	/*protected static void CLIOutputAsImage() {
         // Create a StringBuilder to hold the content
         StringBuilder stringToRasterize = new StringBuilder();
         
@@ -2273,7 +2308,7 @@ public class UMLCli {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 	/**
 	 * Creates a Buffered image from a String, which is important 
@@ -2282,7 +2317,7 @@ public class UMLCli {
 	 * 	the future being an ArrayList<String> of all cli output.
 	 * @return A buffered image that we write to a JPEG file in CLIOutputAsImage().
 	 */
-    private static BufferedImage createImageFromString(String content) {
+    /*private static BufferedImage createImageFromString(String content) {
 		// Set font and color
 		Font font = new Font("Arial", Font.PLAIN, 16);
 		int lineHeight = font.getSize(); // Get the height of a single line
@@ -2315,8 +2350,47 @@ public class UMLCli {
 		g2d.dispose(); // Clean up graphics resources
 	
 		return image;
-	}
+	}*/
 	
+	protected static void CLIOutputAsImage() {
+		// Setting the scene dimensions
+		int minX = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		if (umlDiagram.getClasses().size() > 0) {
+			for (UMLClass c : umlDiagram.getClasses()) {
+				int x = c.position.x;
+				int y = c.position.y;
+				if (x < minX) minX = x;
+				if (x > maxX) maxX = x;
+				if (y < minY) minY = y;
+				if (y > maxY) maxY = y;
+			}
+		}
+		else
+		{
+			System.out.println("No content to snapshot.");
+			return;
+		}
+	
+		// Making the JPanel that will fill the scene.
+		int width = maxX - minX + 100; // +100 for the 50px offset on both sides
+		int height = maxY - minY + 100; // +100 for the 50px offset on both sides
+		// Creating the buffered image to write the GUIView output.
+		BufferedImage bImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D cg = bImg.createGraphics();
+		classPanelContainer.paintAll(cg);
+		// Save the image to a file
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        File outputFile = new File(timestamp + "-CLIOutput.jpg");
+        try {
+            ImageIO.write(bImg, "jpg", outputFile);
+            System.out.println("Image saved to: " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
 
 	
 /**************************************************************************************************************************************/
