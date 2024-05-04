@@ -112,17 +112,25 @@ public class UMLDiagram implements UMLStructure {
 	        return false; // Class already exists or invalid name      
 	    }
 		Point pos = new Point(x, y);
-		for (UMLClass c : classNameMapToName.values()) {
-			if (Math.abs(c.position.getX() - pos.getX()) < 100 && Math.abs(c.position.getY() - pos.getY()) < 100) {
-				// If overlapping, adjust x and y
-				x += 75;
-				pos = new Point(x, y);
-				if (x > gui.prefMaxWidth) { // assuming a maximum x value of 500
-					x = 20;
-					y += 40; // move to the next row
-				}
-			}
+		// for (UMLClass c : classNameMapToName.values()) {
+		// 	if (Math.abs(c.position.x - pos.x) < 50 && Math.abs(c.position.y - pos.y) < 50) {
+		// 		// If overlapping, adjust x and y
+		// 		x += 100;
+		// 		pos = new Point(x, y);
+		// 		if (x > gui.prefMaxWidth) { // assuming a maximum x value of 500
+		// 			System.out.println(gui.prefMaxWidth);
+		// 			x = 20;
+		// 			y += 40; // move to the next row
+		// 		}
+		// 	}
+		// }
+		pos.x = x;
+		x += 150;
+		if (x > gui.prefMaxWidth){
+			x = 20;
+			y += 50;
 		}
+		pos.y = y;
 		if(!classNameMapToName.containsKey(className)) {
 			classNameMapToName.put(className, new UMLClass(className, pos));
 	    }
@@ -619,8 +627,8 @@ public class UMLDiagram implements UMLStructure {
      */
 
 	public void clear() {
-		memento.clearRedo();
-		memento.clearUndo();
+		//memento.clearRedo();
+		//memento.clearUndo();
 		saveState();
 		classNameMapToName.clear();
 		classMapToRelation.clear();
@@ -635,49 +643,6 @@ public class UMLDiagram implements UMLStructure {
 	public boolean hasClass(String className) {
 		return classNameMapToName.containsKey(className);
 	}
-
-	// @Override
-	// public String toString() {
-	//     StringBuilder sb = new StringBuilder();
-
-	//     List<UMLClass> classes = this.getClasses();
-	//     for (UMLClass umlClass : classes) {
-	//         // Append class name
-	//         sb.append(umlClass.getName()).append("\n");
-
-	//         // Append fields
-	//         for (Field field : umlClass.getFields()) {
-	//             sb.append(field.getName()).append(" : ").append(field.getType()).append("\n");
-	//         }
-
-	//         // Append methods
-	//         for (Method method : umlClass.getMethods()) {
-	//             sb.append(method.getName()).append("(");
-	//             // Append parameters
-	//             List<Parameter> params = method.getParameters();
-	//             for (int i = 0; i < params.size(); i++) {
-	//                 Parameter param = params.get(i);
-	//                 sb.append(param.getName()).append(" : ").append(param.getType());
-	//                 if (i < params.size() - 1) {
-	//                     sb.append(", ");
-	//                 }
-	//             }
-	//             sb.append(") : ").append(method.getReturnType()).append("\n");
-	//         }
-
-	//         sb.append("\n"); // Add an empty line between classes
-	//     }
-
-	//     // Append relationships
-	//     List<Relationship> relationships = this.getRelationships();
-	//     for (Relationship relationship : relationships) {
-	//         sb.append(relationship.getSource()).append(" ")
-	//           .append(Relationship.getTypeAsString(relationship.getType()))
-	//           .append(" ").append(relationship.getDestination()).append("\n");
-	//     }
-
-	//     return sb.toString();
-	// }
 
 
 	public List<Relationship> getRelationshipsForClass(String className) {

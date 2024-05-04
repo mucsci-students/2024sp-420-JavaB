@@ -2,17 +2,10 @@ package com.classuml;
 
 
 import com.classuml.Model.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class parameterTest {
-    private Parameter parameter;
-
-    @BeforeEach
-    public void setUp() {
-        parameter = new Parameter("paramName", "String");
-    }
 
     @Test
     public void testParameterConstructor() {
