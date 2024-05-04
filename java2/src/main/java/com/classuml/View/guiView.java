@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import com.classuml.Model.*;
 
@@ -118,9 +117,9 @@ public class guiView extends JComponent {
                     //check the line to see if needs rerouting
                     g.drawLine(x1, pushInt, x2 + 10, pushInt);
                     line2[0] = new Point(x1, pushInt);
-                    line2[1] = new Point(x2 + 20, pushInt);
+                    line2[1] = new Point(x2 + 10, pushInt);
                     //check the line to see if needs rerouting
-                    g.drawLine(x2 + 20, pushInt, x2 + 10, y2);
+                    g.drawLine(x2 + 10, pushInt, x2 + 10, y2);
                     line3[0] = new Point(x2 + 10, pushInt);
                     line3[1] = new Point(x2 + 10, y2);
                 }
@@ -178,14 +177,14 @@ public class guiView extends JComponent {
             }else if(below){
                 halfway = (y1 - y2) / 2;
                 if(line == 0){
-                    g.drawLine(x1, y1, x1, y1 + halfway);
+                    g.drawLine(x1, y1, x1, y1 - halfway);
                     line1[0] = new Point(x1, y1);
-                    line1[1] = new Point(x1, y1 + halfway);
-                    g.drawLine(x1, y1 + halfway,x2, y1 + halfway);
-                    line2[0] = new Point(x1, y1 + halfway);
-                    line2[1] = new Point(x2, y1 + halfway);
-                    g.drawLine(x2, y1 + halfway, x2, y2+10);
-                    line3[0] = new Point(x2, y1 + halfway);
+                    line1[1] = new Point(x1, y1 - halfway);
+                    g.drawLine(x1, y1 - halfway,x2, y1 - halfway);
+                    line2[0] = new Point(x1, y1 - halfway);
+                    line2[1] = new Point(x2, y1 - halfway);
+                    g.drawLine(x2, y1 - halfway, x2, y2+10);
+                    line3[0] = new Point(x2, y1 - halfway);
                     line3[1] = new Point(x2, y2 + 10);
                 }else if(line == 1){
                     g.drawLine(x1, y1, x1, pushInt);
@@ -225,16 +224,16 @@ public class guiView extends JComponent {
             }else{
                 halfway = (x2 - x1) / 2;
                 if(line == 0){
-                    g.drawLine(x1, y1, x1 - halfway, y1);
+                    g.drawLine(x1, y1, x1 + halfway, y1);
                     line1[0] = new Point(x1, y1);
-                    line1[1] = new Point(x1 - halfway, y1);
+                    line1[1] = new Point(x1 + halfway, y1);
                     //check the line to see if needs rerouting
-                    g.drawLine(x1 - halfway, y1, x1 - halfway, y2);
-                    line2[0] = new Point(x1 - halfway, y1);
-                    line2[1] = new Point(x1 - halfway, y2);
+                    g.drawLine(x1 + halfway, y1, x1 + halfway, y2);
+                    line2[0] = new Point(x1 + halfway, y1);
+                    line2[1] = new Point(x1 + halfway, y2);
                     //check the line to see if needs rerouting
-                    g.drawLine(x1 - halfway, y2, x2 - 10, y2);
-                    line3[0] = new Point(x1 - halfway, y2);
+                    g.drawLine(x1 + halfway, y2, x2 - 10, y2);
+                    line3[0] = new Point(x1 + halfway, y2);
                     line3[1] = new Point(x2 - 10, y2);
                 }else if(line == 1){
                     g.drawLine(x1, y1, x1, pushInt);
@@ -243,7 +242,7 @@ public class guiView extends JComponent {
                     //check the line to see if needs rerouting
                     g.drawLine(x1, pushInt, x2 - 10, pushInt);
                     line2[0] = new Point(x1, pushInt);
-                    line2[1] = new Point(x2, pushInt);
+                    line2[1] = new Point(x2 - 10, pushInt);
                     //check the line to see if needs rerouting
                     g.drawLine(x2 - 10, pushInt, x2 - 10, y2);
                     line3[0] = new Point(x2 - 10, pushInt);
@@ -278,7 +277,7 @@ public class guiView extends JComponent {
                 lines.add(line1); lines.add(line2); lines.add(line3);
                 drawArrowHead(g, x2, y2, false, false, false);
             }
-            return new ArrayList<Point[]>();
+            return lines;
         }
         public void drawArrowHead(Graphics g, int x1, int y1, boolean flip, boolean pointDown, boolean pointUp){
             if(flip){
@@ -307,24 +306,223 @@ public class guiView extends JComponent {
         
     }
     class ArrowRealizationBuidler implements Builder {
-        public ArrayList<Point[]> drawArrowBody(Graphics g, int x1, int y1, int x2, int y2, boolean toRight, boolean above, boolean below, int pushX, int pushY){
+        public ArrayList<Point[]> drawArrowBody(Graphics g, int x1, int y1, int x2, int y2, boolean toRight, boolean above, boolean below, int pushInt, int line){
             Graphics2D g2d = (Graphics2D) g.create();
             Stroke dashed = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
             g2d.setStroke(dashed);
+            int halfway;
+            ArrayList<Point[]> lines = new ArrayList<Point[]>();
+            Point[] line1 = new Point[2];
+            Point[] line2 = new Point[2];
+            Point[] line3 = new Point[2];
+
             if(toRight){
-                g2d.drawLine(x1, y1, x2+10, y2);
+                halfway = (x1 - x2) / 2;
+
+                if(line == 0){
+                    g2d.drawLine(x1, y1, x1 - halfway, y1);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1 - halfway, y1);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1 - halfway, y1, x1 - halfway, y2);
+                    line2[0] = new Point(x1 - halfway, y1);
+                    line2[1] = new Point(x1 - halfway, y2);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1 - halfway, y2, x2 + 10, y2);
+                    line3[0] = new Point(x1 - halfway, y2);
+                    line3[1] = new Point(x2 + 10, y2);
+                }else if(line == 1){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1, pushInt, x2 + 10, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x2 + 10, pushInt, x2 + 10, y2);
+                    line3[0] = new Point(x2 + 10, pushInt);
+                    line3[1] = new Point(x2 + 10, y2);
+                }else if(line == 2 ){
+                    g2d.drawLine(x1, y1, pushInt, y1);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(pushInt, y1);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(pushInt, y1, pushInt, y2);
+                    line2[0] = new Point(pushInt, y1);
+                    line2[1] = new Point(pushInt, y2);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(pushInt, y2, x2 + 10, y2);
+                    line3[0] = new Point(pushInt, y2);
+                    line3[1] = new Point(x2 + 10, y2);
+                }else if (line == 3){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1, pushInt, x2 + 10, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2 + 10, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x2 + 10, pushInt, x2 + 10, y2);
+                    line3[0] = new Point(x2 + 10, pushInt);
+                    line3[1] = new Point(x2 + 10, y2);
+                }
+                
+
+                lines.add(line1); lines.add(line2); lines.add(line3);
                 drawArrowHead(g, x2, y2, true, false, false);
             }else if(above){
-                g2d.drawLine(x1, y1, x2, y2-10);
+                halfway = (y2 - y1) / 2;
+                if(line == 0){
+                    g2d.drawLine(x1, y1, x1, y1 + halfway);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, y1 + halfway);
+                    g2d.drawLine(x1, y1 + halfway,x2, y1 + halfway);
+                    line2[0] = new Point(x1, y1 + halfway);
+                    line2[1] = new Point(x2, y1 + halfway);
+                    g2d.drawLine(x2, y1 + halfway, x2, y2-10);
+                    line3[0] = new Point(x2, y1 + halfway);
+                    line3[1] = new Point(x2, y2 - 10);
+                }else if(line == 1){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    g2d.drawLine(x1, pushInt,x2, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2, pushInt);
+                    g2d.drawLine(x2, pushInt, x2, y2-10);
+                    line3[0] = new Point(x2, pushInt);
+                    line3[1] = new Point(x2, y2 - 10);
+                }else if(line == 2){
+                    g2d.drawLine(x1, y1, pushInt, y1);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(pushInt, y1);
+                    g2d.drawLine(pushInt, y1,pushInt, y2 - 10);
+                    line2[0] = new Point(pushInt, y1);
+                    line2[1] = new Point(pushInt, y2 - 10);
+                    g2d.drawLine(pushInt, y2 - 10, x2, y2-10);
+                    line3[0] = new Point(pushInt, y2 - 10);
+                    line3[1] = new Point(x2, y2 - 10);
+                }else if (line == 3){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    g2d.drawLine(x1, pushInt,x2, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2, pushInt);
+                    g2d.drawLine(x2, pushInt, x2, y2-10);
+                    line3[0] = new Point(x2, pushInt);
+                    line3[1] = new Point(x2, y2 - 10);
+                }
+                
+
+                lines.add(line1); lines.add(line2); lines.add(line3);
                 drawArrowHead(g, x2, y2, false, true, false);
             }else if(below){
-                g2d.drawLine(x1, y1, x2, y2+10);
+                halfway = (y1 - y2) / 2;
+                if(line == 0){
+                    g2d.drawLine(x1, y1, x1, y1 - halfway);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, y1 - halfway);
+                    g2d.drawLine(x1, y1 - halfway,x2, y1 - halfway);
+                    line2[0] = new Point(x1, y1 - halfway);
+                    line2[1] = new Point(x2, y1 - halfway);
+                    g2d.drawLine(x2, y1 - halfway, x2, y2+10);
+                    line3[0] = new Point(x2, y1 - halfway);
+                    line3[1] = new Point(x2, y2 + 10);
+                }else if(line == 1){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    g2d.drawLine(x1, pushInt,x2, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2, pushInt);
+                    g2d.drawLine(x2, pushInt, x2, y2+10);
+                    line3[0] = new Point(x2, pushInt);
+                    line3[1] = new Point(x2, y2 + 10);
+                }else if(line == 2){
+                    g2d.drawLine(x1, y1, pushInt, y1);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(pushInt, y1);
+                    g2d.drawLine(pushInt, y1,pushInt, y2 + 10);
+                    line2[0] = new Point(pushInt, y1);
+                    line2[1] = new Point(pushInt, y2 + 10);
+                    g2d.drawLine(pushInt, y2 + 10, x2, y2+10);
+                    line3[0] = new Point(pushInt, y2 + 10);
+                    line3[1] = new Point(x2, y2 + 10);
+                }else if (line == 3){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    g2d.drawLine(x1, pushInt,x2, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2, pushInt);
+                    g2d.drawLine(x2, pushInt, x2, y2+10);
+                    line3[0] = new Point(x2, pushInt);
+                    line3[1] = new Point(x2, y2 + 10);
+                }
+                
+
+                lines.add(line1); lines.add(line2); lines.add(line3);
                 drawArrowHead(g, x2, y2, false, false, true);
             }else{
-                g2d.drawLine(x1, y1, x2-10, y2);
+                halfway = (x2 - x1) / 2;
+                if(line == 0){
+                    g2d.drawLine(x1, y1, x1 + halfway, y1);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1 + halfway, y1);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1 + halfway, y1, x1 + halfway, y2);
+                    line2[0] = new Point(x1 + halfway, y1);
+                    line2[1] = new Point(x1 + halfway, y2);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1 + halfway, y2, x2 - 10, y2);
+                    line3[0] = new Point(x1 + halfway, y2);
+                    line3[1] = new Point(x2 - 10, y2);
+                }else if(line == 1){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1, pushInt, x2 - 10, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2 - 10, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x2 - 10, pushInt, x2 - 10, y2);
+                    line3[0] = new Point(x2 - 10, pushInt);
+                    line3[1] = new Point(x2 - 10, y2);
+                }else if(line == 2 ){
+                    g2d.drawLine(x1, y1, pushInt, y1);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(pushInt, y1);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(pushInt, y1, pushInt, y2);
+                    line2[0] = new Point(pushInt, y1);
+                    line2[1] = new Point(pushInt, y2);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(pushInt, y2, x2 - 10, y2);
+                    line3[0] = new Point(pushInt, y2);
+                    line3[1] = new Point(x2 - 10, y2);
+                }else if (line == 3){
+                    g2d.drawLine(x1, y1, x1, pushInt);
+                    line1[0] = new Point(x1, y1);
+                    line1[1] = new Point(x1, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x1, pushInt, x2 - 10, pushInt);
+                    line2[0] = new Point(x1, pushInt);
+                    line2[1] = new Point(x2 - 10, pushInt);
+                    //check the line to see if needs rerouting
+                    g2d.drawLine(x2 - 10, pushInt, x2 - 10, y2);
+                    line3[0] = new Point(x2 - 10, pushInt);
+                    line3[1] = new Point(x2 - 10, y2);
+                }
+                
+
+                lines.add(line1); lines.add(line2); lines.add(line3);
                 drawArrowHead(g, x2, y2, false, false, false);
             }
-            return new ArrayList<Point[]>();
+            return lines;
         }
         public void drawArrowHead(Graphics g, int x1, int y1, boolean flip, boolean pointDown, boolean pointUp){
             if(flip){
@@ -465,14 +663,14 @@ public class guiView extends JComponent {
             }else if(below){
                 halfway = (y1 - y2) / 2;
                 if(line == 0){
-                    g.drawLine(x1, y1, x1, y1 + halfway);
+                    g.drawLine(x1, y1, x1, y1 - halfway);
                     line1[0] = new Point(x1, y1);
-                    line1[1] = new Point(x1, y1 + halfway);
-                    g.drawLine(x1, y1 + halfway,x2, y1 + halfway);
-                    line2[0] = new Point(x1, y1 + halfway);
-                    line2[1] = new Point(x2, y1 + halfway);
-                    g.drawLine(x2, y1 + halfway, x2, y2+20);
-                    line3[0] = new Point(x2, y1 + halfway);
+                    line1[1] = new Point(x1, y1 - halfway);
+                    g.drawLine(x1, y1 - halfway,x2, y1 - halfway);
+                    line2[0] = new Point(x1, y1 - halfway);
+                    line2[1] = new Point(x2, y1 - halfway);
+                    g.drawLine(x2, y1 - halfway, x2, y2+20);
+                    line3[0] = new Point(x2, y1 - halfway);
                     line3[1] = new Point(x2, y2 + 20);
                 }else if(line == 1){
                     g.drawLine(x1, y1, x1, pushInt);
@@ -512,16 +710,16 @@ public class guiView extends JComponent {
             }else{
                 halfway = (x2 - x1) / 2;
                 if(line == 0){
-                    g.drawLine(x1, y1, x1 - halfway, y1);
+                    g.drawLine(x1, y1, x1 + halfway, y1);
                     line1[0] = new Point(x1, y1);
-                    line1[1] = new Point(x1 - halfway, y1);
+                    line1[1] = new Point(x1 + halfway, y1);
                     //check the line to see if needs rerouting
-                    g.drawLine(x1 - halfway, y1, x1 - halfway, y2);
-                    line2[0] = new Point(x1 - halfway, y1);
-                    line2[1] = new Point(x1 - halfway, y2);
+                    g.drawLine(x1 + halfway, y1, x1 + halfway, y2);
+                    line2[0] = new Point(x1 + halfway, y1);
+                    line2[1] = new Point(x1 + halfway, y2);
                     //check the line to see if needs rerouting
-                    g.drawLine(x1 - halfway, y2, x2 - 20, y2);
-                    line3[0] = new Point(x1 - halfway, y2);
+                    g.drawLine(x1 + halfway, y2, x2 - 20, y2);
+                    line3[0] = new Point(x1 + halfway, y2);
                     line3[1] = new Point(x2 - 20, y2);
                 }else if(line == 1){
                     g.drawLine(x1, y1, x1, pushInt);
@@ -530,7 +728,7 @@ public class guiView extends JComponent {
                     //check the line to see if needs rerouting
                     g.drawLine(x1, pushInt, x2 - 20, pushInt);
                     line2[0] = new Point(x1, pushInt);
-                    line2[1] = new Point(x2, pushInt);
+                    line2[1] = new Point(x2 - 20, pushInt);
                     //check the line to see if needs rerouting
                     g.drawLine(x2 - 20, pushInt, x2 - 20, y2);
                     line3[0] = new Point(x2 - 20, pushInt);

@@ -1378,8 +1378,8 @@ public class UMLGui extends JFrame implements ActionListener {
 		
 			if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3 && entered == 0 && relateBox.getSelectedItem() != null && entered == 0) { // Validate the input range
 				try {
-					String sourceClass = selected.getSource();
-					String destinationClass = selected.getDestination();
+					String sourceClass = relateBox.getItemAt(relateBox.getSelectedIndex()).getSource();
+					String destinationClass = relateBox.getItemAt(relateBox.getSelectedIndex()).getDestination();
 					boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
 					if (typeChanged) {
 						changeComponent();
