@@ -1373,12 +1373,13 @@ public class UMLGui extends JFrame implements ActionListener {
 		entered = JOptionPane.showConfirmDialog(this, cPanel, "Change Relationship Type", JOptionPane.OK_CANCEL_OPTION);
 
 		
-		String sourceClass = selected.getSource();
-		String destinationClass = selected.getDestination();
+		
 
 		
 			if (typesBox.getSelectedIndex() >= 0 && typesBox.getSelectedIndex() <= 3 && entered == 0 && relateBox.getSelectedItem() != null && entered == 0) { // Validate the input range
 				try {
+					String sourceClass = selected.getSource();
+					String destinationClass = selected.getDestination();
 					boolean typeChanged = diagram.changeRelType(sourceClass, destinationClass, (typesBox.getSelectedIndex() + 1));
 					if (typeChanged) {
 						changeComponent();
