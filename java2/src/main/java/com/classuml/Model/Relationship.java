@@ -1,5 +1,9 @@
 package com.classuml.Model;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.awt.Point;
+
 /**
  * Represents a relationship between two classes in a UML diagram.
  */
@@ -9,7 +13,8 @@ public class Relationship {
     private String destination;
     private int relationType;
 
-    public boolean isRerouted;
+    public boolean rerouted;
+    public List<Point[]> drawnLines = new ArrayList<Point[]>();
 
    
     /**
